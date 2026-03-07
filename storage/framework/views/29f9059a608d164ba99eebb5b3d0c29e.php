@@ -1,10 +1,10 @@
-@extends('layouts.admin')
 
-@section('title', 'Quản Lý Section: ' . $productSection->name)
-@section('page_title', 'Quản Lý Section: ' . $productSection->name)
-@section('header_icon', 'fas fa-edit')
 
-@section('extra_css')
+<?php $__env->startSection('title', 'Quản Lý Section: ' . $productSection->name); ?>
+<?php $__env->startSection('page_title', 'Quản Lý Section: ' . $productSection->name); ?>
+<?php $__env->startSection('header_icon', 'fas fa-edit'); ?>
+
+<?php $__env->startSection('extra_css'); ?>
 <link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.css" rel="stylesheet">
 <style>
     .product-item {
@@ -32,16 +32,17 @@
         background: #fff5f5;
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show">
-            <i class="fas fa-check-circle"></i> {{ session('success') }}
+            <i class="fas fa-check-circle"></i> <?php echo e(session('success')); ?>
+
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @endif
+    <?php endif; ?>
 
     <div class="row">
         <!-- Section Info -->
@@ -51,38 +52,38 @@
                     <h5 class="mb-0"><i class="fas fa-info-circle"></i> Thông Tin Section</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.product-sections.update', $productSection) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+                    <form action="<?php echo e(route('admin.product-sections.update', $productSection)); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('PUT'); ?>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên Section *</label>
-                            <input type="text" name="name" class="form-control" value="{{ $productSection->name }}" required>
+                            <input type="text" name="name" class="form-control" value="<?php echo e($productSection->name); ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Slug</label>
-                            <input type="text" name="slug" class="form-control" value="{{ $productSection->slug }}">
+                            <input type="text" name="slug" class="form-control" value="<?php echo e($productSection->slug); ?>">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô Tả</label>
-                            <textarea name="description" class="form-control" rows="3">{{ $productSection->description }}</textarea>
+                            <textarea name="description" class="form-control" rows="3"><?php echo e($productSection->description); ?></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Số Sản Phẩm Tối Đa *</label>
-                            <input type="number" name="max_products" class="form-control" value="{{ $productSection->max_products }}" min="1" max="50" required>
+                            <input type="number" name="max_products" class="form-control" value="<?php echo e($productSection->max_products); ?>" min="1" max="50" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Thứ Tự Hiển Thị *</label>
-                            <input type="number" name="display_order" class="form-control" value="{{ $productSection->display_order }}" min="0" required>
+                            <input type="number" name="display_order" class="form-control" value="<?php echo e($productSection->display_order); ?>" min="0" required>
                         </div>
 
                         <div class="mb-3">
                             <div class="form-check form-switch">
-                                <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {{ $productSection->is_active ? 'checked' : '' }}>
+                                <input type="checkbox" name="is_active" class="form-check-input" id="is_active" <?php echo e($productSection->is_active ? 'checked' : ''); ?>>
                                 <label class="form-check-label fw-bold" for="is_active">Hiển thị</label>
                             </div>
                         </div>
@@ -102,48 +103,48 @@
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
                         <i class="fas fa-check-circle"></i> Sản Phẩm Đã Chọn 
-                        <span class="badge bg-light text-dark" id="selectedCount">{{ $sectionProducts->count() }}</span>
+                        <span class="badge bg-light text-dark" id="selectedCount"><?php echo e($sectionProducts->count()); ?></span>
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.product-sections.manage-products', $productSection) }}" method="POST" id="productForm">
-                        @csrf
+                    <form action="<?php echo e(route('admin.product-sections.manage-products', $productSection)); ?>" method="POST" id="productForm">
+                        <?php echo csrf_field(); ?>
                         <div id="selectedProducts" class="mb-3">
-                            @forelse($sectionProducts as $product)
-                                <div class="product-item border rounded p-3 mb-2 d-flex align-items-center" data-id="{{ $product->id }}">
+                            <?php $__empty_1 = true; $__currentLoopData = $sectionProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <div class="product-item border rounded p-3 mb-2 d-flex align-items-center" data-id="<?php echo e($product->id); ?>">
                                     <div class="drag-handle me-3">
                                         <i class="fas fa-grip-vertical text-muted"></i>
                                     </div>
-                                    @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" 
-                                             alt="{{ $product->name }}" 
+                                    <?php if($product->image): ?>
+                                        <img src="<?php echo e(asset('storage/' . $product->image)); ?>" 
+                                             alt="<?php echo e($product->name); ?>" 
                                              style="width: 60px; height: 60px; object-fit: cover;" 
                                              class="rounded me-3">
-                                    @elseif($product->images->first() && $product->images->first()->image_path)
-                                        <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
-                                             alt="{{ $product->name }}" 
+                                    <?php elseif($product->images->first() && $product->images->first()->image_path): ?>
+                                        <img src="<?php echo e(asset('storage/' . $product->images->first()->image_path)); ?>" 
+                                             alt="<?php echo e($product->name); ?>" 
                                              style="width: 60px; height: 60px; object-fit: cover;" 
                                              class="rounded me-3">
-                                    @else
+                                    <?php else: ?>
                                         <div class="bg-secondary rounded me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                                             <i class="fas fa-image text-white"></i>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                     <div class="flex-grow-1">
-                                        <strong>{{ $product->name }}</strong>
-                                        <br><small class="text-muted">{{ number_format($product->price) }}đ</small>
+                                        <strong><?php echo e($product->name); ?></strong>
+                                        <br><small class="text-muted"><?php echo e(number_format($product->price)); ?>đ</small>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-danger remove-product">
                                         <i class="fas fa-times"></i>
                                     </button>
-                                    <input type="hidden" name="products[]" value="{{ $product->id }}">
+                                    <input type="hidden" name="products[]" value="<?php echo e($product->id); ?>">
                                 </div>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <p class="text-muted text-center py-4" id="emptyMessage">
                                     <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                     Chưa có sản phẩm nào. Chọn sản phẩm bên dưới để thêm vào.
                                 </p>
-                            @endforelse
+                            <?php endif; ?>
                         </div>
                         <button type="submit" class="btn btn-success w-100">
                             <i class="fas fa-save"></i> Lưu Danh Sách Sản Phẩm
@@ -160,45 +161,45 @@
                 <div class="card-body">
                     <input type="text" id="searchProduct" class="form-control mb-3" placeholder="Tìm kiếm sản phẩm...">
                     <div class="row available-products" id="availableProducts">
-                        @foreach($products as $product)
-                            <div class="col-md-6 mb-3 product-search-item" data-name="{{ strtolower($product->name) }}">
-                                <div class="product-card border rounded p-3 {{ $sectionProducts->contains($product->id) ? 'selected' : '' }}" 
-                                     data-id="{{ $product->id }}"
+                        <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="col-md-6 mb-3 product-search-item" data-name="<?php echo e(strtolower($product->name)); ?>">
+                                <div class="product-card border rounded p-3 <?php echo e($sectionProducts->contains($product->id) ? 'selected' : ''); ?>" 
+                                     data-id="<?php echo e($product->id); ?>"
                                      onclick="toggleProduct(this)">
                                     <div class="d-flex align-items-center">
-                                        @if($product->image)
-                                            <img src="{{ asset('storage/' . $product->image) }}" 
-                                                 alt="{{ $product->name }}" 
+                                        <?php if($product->image): ?>
+                                            <img src="<?php echo e(asset('storage/' . $product->image)); ?>" 
+                                                 alt="<?php echo e($product->name); ?>" 
                                                  style="width: 50px; height: 50px; object-fit: cover;" 
                                                  class="rounded me-2">
-                                        @elseif($product->images->first() && $product->images->first()->image_path)
-                                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
-                                                 alt="{{ $product->name }}" 
+                                        <?php elseif($product->images->first() && $product->images->first()->image_path): ?>
+                                            <img src="<?php echo e(asset('storage/' . $product->images->first()->image_path)); ?>" 
+                                                 alt="<?php echo e($product->name); ?>" 
                                                  style="width: 50px; height: 50px; object-fit: cover;" 
                                                  class="rounded me-2">
-                                        @else
+                                        <?php else: ?>
                                             <div class="bg-secondary rounded me-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                                 <i class="fas fa-image text-white"></i>
                                             </div>
-                                        @endif
+                                        <?php endif; ?>
                                         <div class="flex-grow-1">
-                                            <strong class="d-block">{{ $product->name }}</strong>
-                                            <small class="text-muted">{{ number_format($product->price) }}đ</small>
+                                            <strong class="d-block"><?php echo e($product->name); ?></strong>
+                                            <small class="text-muted"><?php echo e(number_format($product->price)); ?>đ</small>
                                         </div>
-                                        <i class="fas fa-check-circle text-success" style="display: {{ $sectionProducts->contains($product->id) ? 'block' : 'none' }};"></i>
+                                        <i class="fas fa-check-circle text-success" style="display: <?php echo e($sectionProducts->contains($product->id) ? 'block' : 'none'); ?>;"></i>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('extra_js')
+<?php $__env->startSection('extra_js'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 // Initialize Sortable
@@ -329,4 +330,6 @@ document.getElementById('searchProduct').addEventListener('input', function(e) {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Boutique\fashion-shop\resources\views/admin/product-sections/edit.blade.php ENDPATH**/ ?>

@@ -12,7 +12,10 @@ class OrderController extends Controller
     // Hiển thị lịch sử đơn hàng
     public function index()
     {
-        $orders = Order::where('user_id', auth()->id())->latest()->paginate(10);
+        $orders = Order::where('user_id', auth()->id())
+            ->with(['items.product.images', 'items.variant'])
+            ->latest()
+            ->paginate(10);
         return view('orders.index', compact('orders'));
     }
 

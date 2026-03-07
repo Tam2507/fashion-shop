@@ -33,11 +33,11 @@
                     <div class="mb-3">
                         <label for="image" class="form-label">Hình ảnh Banner *</label>
                         <input type="file" class="form-control @error('image') is-invalid @enderror" 
-                               id="image" name="image" accept="image/*" required>
+                               id="image" name="image" accept="image/jpeg,image/png,image/jpg,image/webp" required>
                         @error('image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Chấp nhận: JPG, PNG, GIF. Tối đa 2MB. Kích thước đề xuất: 1920x400px</div>
+                        <div class="form-text">Chấp nhận: JPG, PNG, WEBP. Tối đa 2MB. Kích thước đề xuất: 1920x400px</div>
                     </div>
 
                     <div class="mb-3">

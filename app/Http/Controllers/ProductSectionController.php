@@ -61,8 +61,8 @@ class ProductSectionController extends Controller
 
     public function edit(ProductSection $productSection)
     {
-        $products = Product::orderBy('name')->get();
-        $sectionProducts = $productSection->products()->get();
+        $products = Product::with('images')->orderBy('name')->get();
+        $sectionProducts = $productSection->products()->with('images')->get();
         
         return view('admin.product-sections.edit', compact('productSection', 'products', 'sectionProducts'));
     }

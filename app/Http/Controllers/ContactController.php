@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\ContactInfo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactReplyMail;
 
 class ContactController extends Controller
 {
@@ -70,9 +72,13 @@ class ContactController extends Controller
             'replied_at' => now(),
         ]);
 
-        // TODO: Send email to customer with reply
-
-        return redirect()->back()->with('success', 'Đã gửi phản hồi thành công!');
+        // Send email to customer with reply
+        try {
+            Mail::to($contact->email)->send(new ContactReplyMail($contact));
+            return redirect()->back()->with('success', 'Đã gửi phản hồi qua email thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('warning', 'Đã lưu phản hồi nhưng không thể gửi email: ' . $e->getMessage());
+        }
     }
 
     // Admin: Delete contact

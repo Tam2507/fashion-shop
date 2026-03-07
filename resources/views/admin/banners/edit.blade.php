@@ -48,11 +48,11 @@
                             </div>
                         @endif
                         <input type="file" class="form-control @error('image') is-invalid @enderror" 
-                               id="image" name="image" accept="image/*">
+                               id="image" name="image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
                         @error('image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Chấp nhận: JPG, PNG, GIF. Tối đa 2MB. Kích thước đề xuất: 1920x400px</div>
+                        <div class="form-text">Chấp nhận: JPG, PNG, GIF, WEBP. Tối đa 2MB. Kích thước đề xuất: 1920x400px</div>
                     </div>
 
                     <div class="mb-3">

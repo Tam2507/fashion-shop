@@ -28,7 +28,7 @@
             <div class="card-header bg-secondary text-white"><h5 class="mb-0">Thông tin</h5></div>
             <div class="card-body">
                 <p><strong>Tổng:</strong> <span class="text-primary fw-bold">{{ number_format($order->total_price, 0, ',', '.') }} VND</span></p>
-                <p><strong>Trạng thái:</strong> <span class="badge bg-info">{{ $order->status }}</span></p>
+                <p><strong>Trạng thái:</strong> <span class="badge bg-{{ $order->status_color }}">{{ $order->status_label }}</span></p>
                 <p><strong>Địa chỉ:</strong> {{ $order->shipping_address }}</p>
                 <p><strong>SĐT:</strong> {{ $order->phone }}</p>
                 <p><strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
