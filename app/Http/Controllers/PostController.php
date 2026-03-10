@@ -146,7 +146,36 @@ class PostController extends Controller
 
     public function show($slug)
     {
-        $post = Post::where('slug', $slug)->published()->firstOrFail();
+        $post = Post::where('slug', $slug)
+            ->published()
+            ->with(['comments.user'])
+            ->firstOrFail();
         return view('posts.show', compact('post'));
+    }
+
+    public function storeComment(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+            'guest_name' => 'required_unless:user_id,!=,null|string|max:255',
+            'guest_email' => 'required_unless:user_id,!=,null|email|max:255',
+        ]);
+
+        $commentData = [
+            'post_id' => $post->id,
+            'content' => $validated['content'],
+            'status' => 'approved', // Auto approve
+        ];
+
+        if (auth()->check()) {
+            $commentData['user_id'] = auth()->id();
+        } else {
+            $commentData['guest_name'] = $validated['guest_name'];
+            $commentData['guest_email'] = $validated['guest_email'];
+        }
+
+        \App\Models\PostComment::create($commentData);
+
+        return redirect()->back()->with('success', 'Bình luận của bạn đã được đăng!');
     }
 }

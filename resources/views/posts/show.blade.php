@@ -91,6 +91,98 @@
                 @endif
             </article>
 
+            <!-- Comments Section -->
+            <div class="mt-5 pt-4 border-top">
+                <h5 class="mb-4">
+                    <i class="fas fa-comments"></i> Bình Luận ({{ $post->comments->count() }})
+                </h5>
+
+                <!-- Comments List -->
+                @if($post->comments->count() > 0)
+                    <div class="comments-list mb-4">
+                        @foreach($post->comments as $comment)
+                            <div class="comment-item mb-3 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong class="text-primary">
+                                            <i class="fas fa-user-circle"></i> {{ $comment->author_name }}
+                                        </strong>
+                                        <small class="text-muted ms-2">
+                                            <i class="fas fa-clock"></i> {{ $comment->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <p class="mb-0">{{ $comment->content }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-muted mb-4">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+                @endif
+
+                <!-- Comment Form -->
+                <div class="comment-form">
+                    <h6 class="mb-3">Để Lại Bình Luận</h6>
+                    
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('posts.comments.store', $post) }}" method="POST">
+                        @csrf
+                        
+                        @guest
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="guest_name" class="form-label">Họ Tên <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control @error('guest_name') is-invalid @enderror" 
+                                           id="guest_name" 
+                                           name="guest_name" 
+                                           value="{{ old('guest_name') }}" 
+                                           required>
+                                    @error('guest_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="guest_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" 
+                                           class="form-control @error('guest_email') is-invalid @enderror" 
+                                           id="guest_email" 
+                                           name="guest_email" 
+                                           value="{{ old('guest_email') }}" 
+                                           required>
+                                    @error('guest_email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        @endguest
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Nội Dung Bình Luận <span class="text-danger">*</span></label>
+                            <textarea class="form-control @error('content') is-invalid @enderror" 
+                                      id="content" 
+                                      name="content" 
+                                      rows="4" 
+                                      placeholder="Nhập bình luận của bạn..." 
+                                      required>{{ old('content') }}</textarea>
+                            @error('content')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Gửi Bình Luận
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Share Buttons -->
             <div class="mt-5 pt-4 border-top">
                 <h5 class="mb-3">Chia Sẻ Bài Viết</h5>
@@ -177,6 +269,43 @@
 
     .post-images-gallery img:hover {
         box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+    }
+
+    .comment-item {
+        border-left: 3px solid var(--primary);
+        transition: all 0.3s ease;
+    }
+
+    .comment-item:hover {
+        background-color: #e9ecef !important;
+        transform: translateX(5px);
+    }
+
+    .comment-form textarea {
+        resize: vertical;
+    }
+
+    .comments-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .comments-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .comments-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 </style>
 @endsection

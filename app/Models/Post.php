@@ -33,6 +33,11 @@ class Post extends Model
         return $this->hasMany(PostImage::class)->orderBy('position');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(PostComment::class)->where('status', 'approved')->latest();
+    }
+
     public function scopePublished($query)
     {
         return $query->where('is_published', true);

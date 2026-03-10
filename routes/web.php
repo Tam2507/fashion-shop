@@ -243,6 +243,7 @@ Route::get('/messages/list', [\App\Http\Controllers\MessageController::class, 'i
 
 // Blog (public) - Only show detail page
 Route::get('/blog/{slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('posts.show');
+Route::post('/blog/{post}/comments', [\App\Http\Controllers\PostController::class, 'storeComment'])->name('posts.comments.store');
 
 // Admin routes
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
