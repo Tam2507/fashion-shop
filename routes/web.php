@@ -327,6 +327,11 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     // Posts (Blog) management
     Route::resource('posts', \App\Http\Controllers\PostController::class);
     
+    // Coupons management
+    Route::resource('coupons', \App\Http\Controllers\CouponController::class);
+    Route::post('/coupons/{coupon}/toggle-status', [\App\Http\Controllers\CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
+    Route::post('/coupons/{coupon}/send-notification', [\App\Http\Controllers\CouponController::class, 'sendNotification'])->name('coupons.send-notification');
+    
     // Users management
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
