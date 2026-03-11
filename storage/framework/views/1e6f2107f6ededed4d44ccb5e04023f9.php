@@ -1,67 +1,68 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="row g-4 mb-5">
     <div class="col-lg-5">
         <div class="product-gallery">
             <div class="main-image mb-3" style="background: #f5f1e8; border-radius: 4px; overflow: hidden; height: 600px; display: flex; align-items: center; justify-content: center;">
-                @php $first = $product->image ?? ($product->images->first()->path ?? null); @endphp
-                @if($first)
-                    <img src="/storage/{{ $first }}" id="mainImage" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ $product->name }}">
-                @else
+                <?php $first = $product->image ?? ($product->images->first()->path ?? null); ?>
+                <?php if($first): ?>
+                    <img src="/storage/<?php echo e($first); ?>" id="mainImage" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="<?php echo e($product->name); ?>">
+                <?php else: ?>
                     <i class="fas fa-image text-muted" style="font-size: 5rem;"></i>
-                @endif
+                <?php endif; ?>
             </div>
             <div class="thumbnails d-flex gap-2">
-                @if($product->image)
-                    <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="{{ $product->image_color ?? '' }}">
-                        <img src="/storage/{{ $product->image }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
+                <?php if($product->image): ?>
+                    <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="<?php echo e($product->image_color ?? ''); ?>">
+                        <img src="/storage/<?php echo e($product->image); ?>" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
                     </div>
-                @endif
-                @foreach($product->images as $img)
-                    <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="{{ $img->color ?? '' }}">
-                        <img src="/storage/{{ $img->path }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
+                <?php endif; ?>
+                <?php $__currentLoopData = $product->images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $img): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="<?php echo e($img->color ?? ''); ?>">
+                        <img src="/storage/<?php echo e($img->path); ?>" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
     </div>
     
     <div class="col-lg-7">
         <div class="product-details">
-            <p class="text-muted small" style="letter-spacing: 1px; text-transform: uppercase;">{{ $product->category->name ?? 'Fashion' }}</p>
-            <h1 class="mb-2" style="font-size: 2rem; font-weight: 700;">{{ $product->name }}</h1>
-            <p class="text-muted small mb-4">SKU: PROD-{{ $product->id }}</p>
+            <p class="text-muted small" style="letter-spacing: 1px; text-transform: uppercase;"><?php echo e($product->category->name ?? 'Fashion'); ?></p>
+            <h1 class="mb-2" style="font-size: 2rem; font-weight: 700;"><?php echo e($product->name); ?></h1>
+            <p class="text-muted small mb-4">SKU: PROD-<?php echo e($product->id); ?></p>
             
             <div class="d-flex align-items-baseline gap-3 mb-4">
-                <h2 class="text-primary" style="font-size: 2.5rem; margin: 0;">{{ number_format($product->price, 0, ',', '.') }}₫</h2>
-                <span class="badge {{ $product->quantity > 0 ? 'bg-success' : 'bg-danger' }}">
-                    {{ $product->quantity > 0 ? 'Còn hàng' : 'Hết hàng' }}
+                <h2 class="text-primary" style="font-size: 2.5rem; margin: 0;"><?php echo e(number_format($product->price, 0, ',', '.')); ?>₫</h2>
+                <span class="badge <?php echo e($product->quantity > 0 ? 'bg-success' : 'bg-danger'); ?>">
+                    <?php echo e($product->quantity > 0 ? 'Còn hàng' : 'Hết hàng'); ?>
+
                 </span>
             </div>
             
-            <p class="text-muted mb-4" style="line-height: 1.8;">{{ $product->description }}</p>
+            <p class="text-muted mb-4" style="line-height: 1.8;"><?php echo e($product->description); ?></p>
             <hr class="my-4">
             
-            @if($availableColors->count() > 0 || $availableSizes->count() > 0)
+            <?php if($availableColors->count() > 0 || $availableSizes->count() > 0): ?>
             <div class="variant-selection-card mb-4 p-4" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                @if($availableColors->count() > 0)
+                <?php if($availableColors->count() > 0): ?>
                 <div class="mb-4">
                     <label class="form-label fw-bold mb-3" style="font-size: 1.1rem; color: #2c3e50;">
                         <i class="fas fa-palette me-2"></i>Chọn Màu Sắc
                     </label>
                     <div class="d-flex gap-3 flex-wrap">
-                        @foreach($availableColors as $color)
-                        <button type="button" class="color-btn-modern" data-color="{{ $color }}">
-                            <span class="color-name">{{ ucfirst($color) }}</span>
+                        <?php $__currentLoopData = $availableColors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $color): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <button type="button" class="color-btn-modern" data-color="<?php echo e($color); ?>">
+                            <span class="color-name"><?php echo e(ucfirst($color)); ?></span>
                             <span class="checkmark"><i class="fas fa-check"></i></span>
                         </button>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </div>
-                @endif
+                <?php endif; ?>
                 
-                @php
+                <?php
                     // Check if product is in "Phụ kiện" category - accessories don't need size
                     $isAccessory = $product->category && 
                                    (stripos($product->category->name, 'phụ kiện') !== false || 
@@ -70,19 +71,20 @@
                     
                     // Standard sizes to always display
                     $standardSizes = ['S', 'M', 'L', 'XL', 'XXL'];
-                @endphp
+                ?>
                 
-                @if(!$isAccessory)
+                <?php if(!$isAccessory): ?>
                 <div class="mb-3">
                     <label class="form-label fw-bold mb-3" style="font-size: 1.1rem; color: #2c3e50;">
                         <i class="fas fa-ruler me-2"></i>Chọn Kích Thước
                     </label>
                     <div class="d-flex gap-3 flex-wrap">
-                        @foreach($standardSizes as $size)
-                        <button type="button" class="size-btn-modern" data-size="{{ $size }}">
-                            {{ $size }}
+                        <?php $__currentLoopData = $standardSizes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $size): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <button type="button" class="size-btn-modern" data-size="<?php echo e($size); ?>">
+                            <?php echo e($size); ?>
+
                         </button>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </div>
                 
@@ -92,25 +94,25 @@
                         <strong>Đã chọn:</strong> <span id="selectedVariantText"></span>
                     </div>
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
-            @endif
+            <?php endif; ?>
             
             <div class="mb-4">
                 <label class="form-label fw-bold small" style="text-transform: uppercase; letter-spacing: 0.5px;">Số Lượng</label>
                 <div class="d-flex align-items-center gap-0">
                     <button class="btn btn-outline-dark" style="width: 50px; height: 50px; border-radius: 0; font-size: 1.5rem; padding: 0; display: flex; align-items: center; justify-content: center;" onclick="decreaseQty()">−</button>
-                    <input type="number" id="quantity" value="1" min="1" max="{{ $product->quantity }}" class="form-control" style="width: 80px; border-radius: 0; text-align: center; border-left: none; border-right: none; font-weight: 600;">
+                    <input type="number" id="quantity" value="1" min="1" max="<?php echo e($product->quantity); ?>" class="form-control" style="width: 80px; border-radius: 0; text-align: center; border-left: none; border-right: none; font-weight: 600;">
                     <button class="btn btn-outline-dark" style="width: 50px; height: 50px; border-radius: 0; font-size: 1.5rem; padding: 0; display: flex; align-items: center; justify-content: center;" onclick="increaseQty()">+</button>
                 </div>
             </div>
             
             <hr class="my-4">
             
-            @auth
-                @if($product->quantity > 0 || $product->variants->count())
-                <form method="POST" action="{{ route('cart.add', $product->id) }}" id="addToCartForm" class="mb-3">
-                    @csrf
+            <?php if(auth()->guard()->check()): ?>
+                <?php if($product->quantity > 0 || $product->variants->count()): ?>
+                <form method="POST" action="<?php echo e(route('cart.add', $product->id)); ?>" id="addToCartForm" class="mb-3">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="quantity" id="cartQuantity" value="1">
                     <input type="hidden" name="variant_id" id="cartVariantId" value="">
                     <div class="row g-2">
@@ -137,12 +139,12 @@
                         </button>
                     </div>
                 </div>
-                @endif
-            @else
-                <a href="{{ route('login') }}" class="btn btn-dark w-100 py-3 fw-bold mb-3" style="border-radius: 0; letter-spacing: 1px;">
+                <?php endif; ?>
+            <?php else: ?>
+                <a href="<?php echo e(route('login')); ?>" class="btn btn-dark w-100 py-3 fw-bold mb-3" style="border-radius: 0; letter-spacing: 1px;">
                     <i class="fas fa-sign-in-alt"></i> ĐĂNG NHẬP ĐỂ MUA
                 </a>
-            @endauth
+            <?php endif; ?>
             
             <div class="d-flex align-items-center gap-3 pt-3 border-top">
                 <span class="text-muted small" style="text-transform: uppercase; letter-spacing: 0.5px;">CHIA SẺ</span>
@@ -172,7 +174,7 @@
         </ul>
         <div class="tab-content pt-4">
             <div id="description" class="tab-pane fade show active">
-                <p>{{ $product->description }}</p>
+                <p><?php echo e($product->description); ?></p>
                 <p class="text-muted">Chất liệu: 100% Cotton | Hướng dẫn giặt: Giặt với nước lạnh | Xuất xứ: Việt Nam</p>
             </div>
             <div id="shipping" class="tab-pane fade">
@@ -180,63 +182,63 @@
                 <p>Chấp nhận hoàn hàng trong 30 ngày nếu không hài lòng.</p>
             </div>
             <div id="reviews" class="tab-pane fade">
-                @foreach($product->reviews()->where('approved', true)->latest()->get() as $r)
+                <?php $__currentLoopData = $product->reviews()->where('approved', true)->latest()->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="mb-3">
-                        <strong>{{ $r->user->name ?? 'Khách' }}</strong> — <small class="text-muted">{{ $r->created_at->format('d/m/Y') }}</small>
-                        <div>Rating: {{ $r->rating }} / 5</div>
-                        <p>{{ $r->comment }}</p>
+                        <strong><?php echo e($r->user->name ?? 'Khách'); ?></strong> — <small class="text-muted"><?php echo e($r->created_at->format('d/m/Y')); ?></small>
+                        <div>Rating: <?php echo e($r->rating); ?> / 5</div>
+                        <p><?php echo e($r->comment); ?></p>
                     </div>
-                @endforeach
-                @if($product->reviews()->where('approved', true)->count() == 0)
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php if($product->reviews()->where('approved', true)->count() == 0): ?>
                     <p class="text-muted">Chưa có đánh giá nào.</p>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-@if($relatedProducts->count())
+<?php if($relatedProducts->count()): ?>
 <div class="row">
     <div class="col-12">
         <h2 class="mb-4"><i class="fas fa-link"></i> Sản Phẩm Liên Quan</h2>
     </div>
     <div class="row g-4">
-        @foreach($relatedProducts as $rp)
+        <?php $__currentLoopData = $relatedProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="col-lg-3 col-md-4 col-sm-6">
             <div class="card h-100">
                 <div style="height: 280px; background: #f0f0f0; overflow: hidden; position: relative;">
-                    @php
+                    <?php
                         $displayImage = $rp->image ?? $rp->images->first()->path ?? null;
-                    @endphp
-                    @if($displayImage)
-                        <img src="/storage/{{ $displayImage }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $rp->name }}" />
-                    @else
+                    ?>
+                    <?php if($displayImage): ?>
+                        <img src="/storage/<?php echo e($displayImage); ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo e($rp->name); ?>" />
+                    <?php else: ?>
                         <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                             <i class="fas fa-image fa-3x text-muted"></i>
                         </div>
-                    @endif
+                    <?php endif; ?>
                     <div style="position: absolute; top: 12px; right: 12px;">
                         <span class="badge bg-success">Còn hàng</span>
                     </div>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small mb-2">{{ $rp->category->name ?? 'N/A' }}</p>
-                    <h6 class="card-title text-truncate">{{ $rp->name }}</h6>
-                    <p class="fw-bold text-primary mb-3">{{ number_format($rp->price, 0, ',', '.') }} ₫</p>
-                    <a href="{{ route('products.show', $rp->id) }}" class="btn btn-primary w-100 btn-sm">Xem Chi Tiết</a>
+                    <p class="text-muted small mb-2"><?php echo e($rp->category->name ?? 'N/A'); ?></p>
+                    <h6 class="card-title text-truncate"><?php echo e($rp->name); ?></h6>
+                    <p class="fw-bold text-primary mb-3"><?php echo e(number_format($rp->price, 0, ',', '.')); ?> ₫</p>
+                    <a href="<?php echo e(route('products.show', $rp->id)); ?>" class="btn btn-primary w-100 btn-sm">Xem Chi Tiết</a>
                 </div>
             </div>
         </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
 <script>
 let selectedColor = '';
 let selectedSize = '';
-const variants = @json($product->variants);
-const isAccessory = {{ $isAccessory ? 'true' : 'false' }};
+const variants = <?php echo json_encode($product->variants, 15, 512) ?>;
+const isAccessory = <?php echo e($isAccessory ? 'true' : 'false'); ?>;
 
 console.log('Available variants:', variants);
 console.log('Is accessory product:', isAccessory);
@@ -263,29 +265,28 @@ function buyNow() {
     const hasColorButtons = document.querySelectorAll('.color-btn-modern').length > 0;
     const hasSizeButtons = document.querySelectorAll('.size-btn-modern').length > 0;
     
-    // Only validate if product has variants
-    if (variants && variants.length > 0) {
-        // If color selection UI exists, color must be selected
-        if (hasColorButtons && !selectedColor) {
-            alert('Vui lòng chọn màu sắc trước khi mua!');
-            const colorSection = document.querySelector('.color-btn-modern');
-            if (colorSection) {
-                colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return false;
+    // If color selection UI exists, color must be selected
+    if (hasColorButtons && !selectedColor) {
+        alert('Vui lòng chọn màu sắc trước khi mua!');
+        const colorSection = document.querySelector('.color-btn-modern');
+        if (colorSection) {
+            colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
-        // If size selection UI exists, size must be selected
-        if (hasSizeButtons && !selectedSize) {
-            alert('Vui lòng chọn kích thước trước khi mua!');
-            const sizeSection = document.querySelector('.size-btn-modern');
-            if (sizeSection) {
-                sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return false;
+        return false;
+    }
+    
+    // If size selection UI exists, size must be selected
+    if (hasSizeButtons && !selectedSize) {
+        alert('Vui lòng chọn kích thước trước khi mua!');
+        const sizeSection = document.querySelector('.size-btn-modern');
+        if (sizeSection) {
+            sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
-        // Check if variant_id is set
+        return false;
+    }
+    
+    // If both selections are required, check variant_id
+    if ((hasColorButtons || hasSizeButtons) && variants.length > 0) {
         const variantId = document.getElementById('cartVariantId').value;
         if (!variantId) {
             alert('Không tìm thấy sản phẩm phù hợp với lựa chọn của bạn!');
@@ -297,7 +298,7 @@ function buyNow() {
     document.getElementById('cartQuantity').value = document.getElementById('quantity').value;
     document.getElementById('addToCartForm').submit();
     setTimeout(() => {
-        window.location.href = '{{ route('cart.index') }}';
+        window.location.href = '<?php echo e(route('cart.index')); ?>';
     }, 500);
 }
 
@@ -446,37 +447,26 @@ if (addToCartForm) {
         console.log('Variants:', variants);
         console.log('Variant ID:', document.getElementById('cartVariantId').value);
         
-        // Only validate if product has variants
-        if (variants && variants.length > 0) {
-            // If color selection UI exists, color must be selected
-            if (hasColorButtons && !selectedColor) {
-                e.preventDefault();
-                alert('Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!');
-                const colorSection = document.querySelector('.color-btn-modern');
-                if (colorSection) {
-                    colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return false;
+        // If color selection UI exists, color must be selected
+        if (hasColorButtons && !selectedColor) {
+            e.preventDefault();
+            alert('Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!');
+            const colorSection = document.querySelector('.color-btn-modern');
+            if (colorSection) {
+                colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            
-            // If size selection UI exists (non-accessory), size must be selected
-            if (hasSizeButtons && !selectedSize) {
-                e.preventDefault();
-                alert('Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!');
-                const sizeSection = document.querySelector('.size-btn-modern');
-                if (sizeSection) {
-                    sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return false;
+            return false;
+        }
+        
+        // If size selection UI exists (non-accessory), size must be selected
+        if (hasSizeButtons && !selectedSize) {
+            e.preventDefault();
+            alert('Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!');
+            const sizeSection = document.querySelector('.size-btn-modern');
+            if (sizeSection) {
+                sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            
-            // Check if variant_id is set
-            const variantId = document.getElementById('cartVariantId').value;
-            if (!variantId) {
-                e.preventDefault();
-                alert('Lỗi! Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng.');
-                return false;
-            }
+            return false;
         }
         
         console.log('Validation passed, submitting form...');
@@ -488,10 +478,10 @@ const wishlistBtn = document.getElementById('wishlistBtn');
 if (wishlistBtn) {
     wishlistBtn.addEventListener('click', function(e){
         e.preventDefault();
-        fetch("{{ route('wishlist.store', $product->id) }}", {
+        fetch("<?php echo e(route('wishlist.store', $product->id)); ?>", {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json',
             }
         }).then(r => {
@@ -631,4 +621,5 @@ document.querySelectorAll('.thumbnail img').forEach(img => {
         border-right: none;
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Boutique\fashion-shop\resources\views/products/show.blade.php ENDPATH**/ ?>
