@@ -407,13 +407,23 @@ function updateVariantInfo() {
         }
         
         // Find matching variant
+        console.log('=== FINDING VARIANT ===');
+        console.log('Looking for:', { selectedColor, selectedSize });
+        console.log('Available variants:', variants);
+        
         const matchingVariant = variants.find(v => {
+            console.log('Checking variant:', v);
+            console.log('  Variant color:', v.color, 'Selected:', selectedColor);
+            console.log('  Variant size:', v.size, 'Selected:', selectedSize);
+            
             const sizeMatch = !selectedSize || v.size === selectedSize;
             const colorMatch = !selectedColor || v.color === selectedColor;
+            
+            console.log('  Size match:', sizeMatch, 'Color match:', colorMatch);
+            
             return sizeMatch && colorMatch;
         });
         
-        console.log('Looking for variant with:', { selectedColor, selectedSize });
         console.log('Found variant:', matchingVariant);
         
         if (matchingVariant) {

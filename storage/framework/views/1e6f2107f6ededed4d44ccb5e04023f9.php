@@ -325,6 +325,7 @@ document.querySelectorAll('.color-btn-modern').forEach(btn => {
         this.classList.add('active');
         
         selectedColor = this.dataset.color;
+        console.log('Color selected:', selectedColor);
         updateVariantInfo();
         
         // Filter images by color with fade effect
@@ -386,6 +387,7 @@ document.querySelectorAll('.size-btn-modern').forEach(btn => {
         this.classList.add('active');
         
         selectedSize = this.dataset.size;
+        console.log('Size selected:', selectedSize);
         updateVariantInfo();
     });
 });
@@ -438,6 +440,7 @@ if (addToCartForm) {
         // Check if color/size selection UI is visible
         const hasColorButtons = document.querySelectorAll('.color-btn-modern').length > 0;
         const hasSizeButtons = document.querySelectorAll('.size-btn-modern').length > 0;
+        const variantId = document.getElementById('cartVariantId').value;
         
         console.log('=== VALIDATION DEBUG ===');
         console.log('Has color buttons:', hasColorButtons);
@@ -445,13 +448,17 @@ if (addToCartForm) {
         console.log('Is accessory:', isAccessory);
         console.log('Selected color:', selectedColor);
         console.log('Selected size:', selectedSize);
-        console.log('Variants:', variants);
-        console.log('Variant ID:', document.getElementById('cartVariantId').value);
+        console.log('Variants count:', variants ? variants.length : 0);
+        console.log('Variant ID:', variantId);
+        console.log('All variants:', variants);
         
         // Only validate if product has variants
         if (variants && variants.length > 0) {
+            console.log('Product has variants, validating...');
+            
             // If color selection UI exists, color must be selected
             if (hasColorButtons && !selectedColor) {
+                console.log('FAILED: Color not selected');
                 e.preventDefault();
                 alert('Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!');
                 const colorSection = document.querySelector('.color-btn-modern');
@@ -463,6 +470,7 @@ if (addToCartForm) {
             
             // If size selection UI exists (non-accessory), size must be selected
             if (hasSizeButtons && !selectedSize) {
+                console.log('FAILED: Size not selected');
                 e.preventDefault();
                 alert('Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!');
                 const sizeSection = document.querySelector('.size-btn-modern');
@@ -473,12 +481,16 @@ if (addToCartForm) {
             }
             
             // Check if variant_id is set
-            const variantId = document.getElementById('cartVariantId').value;
             if (!variantId) {
+                console.log('FAILED: Variant ID not set');
                 e.preventDefault();
                 alert('Lỗi! Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng.');
                 return false;
             }
+            
+            console.log('PASSED: All validations passed');
+        } else {
+            console.log('Product has no variants, skipping validation');
         }
         
         console.log('Validation passed, submitting form...');
