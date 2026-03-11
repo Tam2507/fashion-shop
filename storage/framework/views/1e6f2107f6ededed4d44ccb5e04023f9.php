@@ -265,28 +265,29 @@ function buyNow() {
     const hasColorButtons = document.querySelectorAll('.color-btn-modern').length > 0;
     const hasSizeButtons = document.querySelectorAll('.size-btn-modern').length > 0;
     
-    // If color selection UI exists, color must be selected
-    if (hasColorButtons && !selectedColor) {
-        alert('Vui lòng chọn màu sắc trước khi mua!');
-        const colorSection = document.querySelector('.color-btn-modern');
-        if (colorSection) {
-            colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Only validate if product has variants
+    if (variants && variants.length > 0) {
+        // If color selection UI exists, color must be selected
+        if (hasColorButtons && !selectedColor) {
+            alert('Vui lòng chọn màu sắc trước khi mua!');
+            const colorSection = document.querySelector('.color-btn-modern');
+            if (colorSection) {
+                colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return false;
         }
-        return false;
-    }
-    
-    // If size selection UI exists, size must be selected
-    if (hasSizeButtons && !selectedSize) {
-        alert('Vui lòng chọn kích thước trước khi mua!');
-        const sizeSection = document.querySelector('.size-btn-modern');
-        if (sizeSection) {
-            sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // If size selection UI exists, size must be selected
+        if (hasSizeButtons && !selectedSize) {
+            alert('Vui lòng chọn kích thước trước khi mua!');
+            const sizeSection = document.querySelector('.size-btn-modern');
+            if (sizeSection) {
+                sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return false;
         }
-        return false;
-    }
-    
-    // If both selections are required, check variant_id
-    if ((hasColorButtons || hasSizeButtons) && variants.length > 0) {
+        
+        // Check if variant_id is set
         const variantId = document.getElementById('cartVariantId').value;
         if (!variantId) {
             alert('Không tìm thấy sản phẩm phù hợp với lựa chọn của bạn!');
@@ -447,26 +448,37 @@ if (addToCartForm) {
         console.log('Variants:', variants);
         console.log('Variant ID:', document.getElementById('cartVariantId').value);
         
-        // If color selection UI exists, color must be selected
-        if (hasColorButtons && !selectedColor) {
-            e.preventDefault();
-            alert('Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!');
-            const colorSection = document.querySelector('.color-btn-modern');
-            if (colorSection) {
-                colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Only validate if product has variants
+        if (variants && variants.length > 0) {
+            // If color selection UI exists, color must be selected
+            if (hasColorButtons && !selectedColor) {
+                e.preventDefault();
+                alert('Vui lòng chọn màu sắc trước khi thêm vào giỏ hàng!');
+                const colorSection = document.querySelector('.color-btn-modern');
+                if (colorSection) {
+                    colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
             }
-            return false;
-        }
-        
-        // If size selection UI exists (non-accessory), size must be selected
-        if (hasSizeButtons && !selectedSize) {
-            e.preventDefault();
-            alert('Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!');
-            const sizeSection = document.querySelector('.size-btn-modern');
-            if (sizeSection) {
-                sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // If size selection UI exists (non-accessory), size must be selected
+            if (hasSizeButtons && !selectedSize) {
+                e.preventDefault();
+                alert('Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!');
+                const sizeSection = document.querySelector('.size-btn-modern');
+                if (sizeSection) {
+                    sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
             }
-            return false;
+            
+            // Check if variant_id is set
+            const variantId = document.getElementById('cartVariantId').value;
+            if (!variantId) {
+                e.preventDefault();
+                alert('Lỗi! Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng.');
+                return false;
+            }
         }
         
         console.log('Validation passed, submitting form...');
