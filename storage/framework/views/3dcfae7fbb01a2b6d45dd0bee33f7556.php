@@ -577,6 +577,7 @@
             <li><a href="<?php echo e(route('admin.banners.index')); ?>" class="<?php echo e(request()->is('admin/banners*') ? 'active' : ''); ?>"><i class="fas fa-images"></i> Quản Lý Banner</a></li>
             <li><a href="<?php echo e(route('admin.features.index')); ?>" class="<?php echo e(request()->is('admin/features*') ? 'active' : ''); ?>"><i class="fas fa-star"></i> Quản Lý Tính Năng</a></li>
             <li><a href="<?php echo e(route('admin.payment-methods.index')); ?>" class="<?php echo e(request()->is('admin/payment-methods*') ? 'active' : ''); ?>"><i class="fas fa-credit-card"></i> Phương Thức Thanh Toán</a></li>
+            <li><a href="<?php echo e(route('admin.coupons.index')); ?>" class="<?php echo e(request()->is('admin/coupons*') ? 'active' : ''); ?>"><i class="fas fa-ticket-alt"></i> Quản Lý Mã Giảm Giá</a></li>
             <li><a href="<?php echo e(route('admin.product-sections.index')); ?>" class="<?php echo e(request()->is('admin/product-sections*') ? 'active' : ''); ?>"><i class="fas fa-layer-group"></i> Section Sản Phẩm</a></li>
             <li><a href="<?php echo e(route('admin.posts.index')); ?>" class="<?php echo e(request()->is('admin/posts*') ? 'active' : ''); ?>"><i class="fas fa-newspaper"></i> Quản Lý Bài Viết</a></li>
             <li><a href="<?php echo e(route('admin.settings.momo')); ?>" class="<?php echo e(request()->is('admin/settings/momo*') ? 'active' : ''); ?>"><i class="fas fa-wallet"></i> Cấu Hình MoMo QR</a></li>
