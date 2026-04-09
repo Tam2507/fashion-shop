@@ -1,35 +1,23 @@
-#!/bin/bash
+#!/bin/sh
 
-export PORT=${PORT:-8080}
+PORT=${PORT:-8080}
 
 cd /var/www/html
 
 # Tạo .env
-if [ ! -f .env ]; then
-    cp .env.example .env
-fi
+[ ! -f .env ] && cp .env.example .env
 
-# App key
 php artisan key:generate --force
-
-# Tạo thư mục cần thiết
-mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-
-# Migration (bỏ qua lỗi)
-php artisan migrate --force 2>&1 | grep -v "already exists" || true
-
-# Storage link
+php artisan migrate --force 2>&1 || true
 php artisan storage:link 2>/dev/null || true
-
-# Config cache
 php artisan config:cache 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
 
-# Set Apache port
-sed -i "s/\${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf
-sed -i "s/\${PORT}/$PORT/g" /etc/apache2/ports.conf
+# Set port vào nginx config
+sed -i "s/__PORT__/$PORT/" /etc/nginx/nginx.conf
 
-# Start Apache
-apache2-foreground
+# Start php-fpm background
+php-fpm -D
+
+# Start nginx foreground
+nginx -g "daemon off;"
