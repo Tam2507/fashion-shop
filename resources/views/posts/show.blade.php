@@ -2,6 +2,41 @@
 
 @section('title', $post->title . ' - Blog')
 
+@push('styles')
+<style>
+    /* Rating Input Styles */
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+    .rating-input label {
+        cursor: pointer;
+        font-size: 2rem;
+        color: #ddd;
+        transition: color 0.2s;
+    }
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #ffc107;
+    }
+    
+    /* Rating Display Styles */
+    .rating-display .star {
+        color: #ddd;
+        font-size: 1rem;
+    }
+    .rating-display .star.filled {
+        color: #ffc107;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -110,6 +145,13 @@
                                         <small class="text-muted ms-2">
                                             <i class="fas fa-clock"></i> {{ $comment->created_at->diffForHumans() }}
                                         </small>
+                                        @if($comment->rating)
+                                            <div class="rating-display d-inline-block ms-2">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <span class="star {{ $i <= $comment->rating ? 'filled' : '' }}">★</span>
+                                                @endfor
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <p class="mb-0">{{ $comment->content }}</p>
@@ -162,6 +204,23 @@
                                 </div>
                             </div>
                         @endguest
+
+                        <div class="mb-3">
+                            <label class="form-label">Đánh Giá Bài Viết</label>
+                            <div class="rating-input">
+                                <input type="radio" name="rating" value="5" id="star5">
+                                <label for="star5" title="5 sao">★</label>
+                                <input type="radio" name="rating" value="4" id="star4">
+                                <label for="star4" title="4 sao">★</label>
+                                <input type="radio" name="rating" value="3" id="star3">
+                                <label for="star3" title="3 sao">★</label>
+                                <input type="radio" name="rating" value="2" id="star2">
+                                <label for="star2" title="2 sao">★</label>
+                                <input type="radio" name="rating" value="1" id="star1">
+                                <label for="star1" title="1 sao">★</label>
+                            </div>
+                            <small class="text-muted">Tùy chọn - Đánh giá từ 1 đến 5 sao</small>
+                        </div>
 
                         <div class="mb-3">
                             <label for="content" class="form-label">Nội Dung Bình Luận <span class="text-danger">*</span></label>

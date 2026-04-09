@@ -13,6 +13,7 @@ class PostComment extends Model
         'guest_name',
         'guest_email',
         'content',
+        'rating',
         'status'
     ];
 

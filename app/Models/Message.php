@@ -14,6 +14,7 @@ class Message extends Model
         'guest_name',
         'guest_email',
         'message',
+        'image',
         'is_admin_reply',
         'replied_by',
         'is_read',

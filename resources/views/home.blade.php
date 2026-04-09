@@ -69,7 +69,7 @@
 <div class="container mb-5">
     @php
         $productSections = \App\Models\ProductSection::active()->ordered()->with(['products' => function($query) {
-            $query->where('is_active', true)->with(['category', 'images']);
+            $query->where('is_active', true)->with(['category', 'images', 'approvedReviews']);
         }])->get();
         
         // Debug info (xóa sau khi test)
@@ -158,9 +158,13 @@
                                     <p class="text-muted small mb-2">{{ $product->category->name ?? 'Chưa phân loại' }}</p>
                                     <h5 class="card-title">{{ Str::limit($product->name, 50) }}</h5>
                                     <p class="card-text text-muted small">{{ Str::limit($product->description, 80) }}</p>
+                                    @php
+                                        $rc = $product->approvedReviews->count();
+                                        $ar = $rc > 0 ? round($product->approvedReviews->avg('rating'), 1) : 0;
+                                    @endphp
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="price">{{ number_format($product->price, 0, ',', '.') }} ₫</span>
-                                        <small class="text-muted">⭐ 4.5 ({{ rand(10, 50) }})</small>
+                                        <small class="text-muted">⭐ {{ $ar }} ({{ $rc }})</small>
                                     </div>
                                 </div>
                                     </div>
@@ -237,9 +241,13 @@
                         <p class="text-muted small mb-2">{{ $product->category->name ?? 'Chưa phân loại' }}</p>
                         <h5 class="card-title">{{ Str::limit($product->name, 50) }}</h5>
                         <p class="card-text text-muted small">{{ Str::limit($product->description, 80) }}</p>
+                        @php
+                            $rc = $product->approvedReviews->count();
+                            $ar = $rc > 0 ? round($product->approvedReviews->avg('rating'), 1) : 0;
+                        @endphp
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">{{ number_format($product->price, 0, ',', '.') }} ₫</span>
-                            <small class="text-muted">⭐ 4.5 ({{ rand(10, 50) }})</small>
+                            <small class="text-muted">⭐ {{ $ar }} ({{ $rc }})</small>
                         </div>
                     </div>
                 </div>
@@ -516,33 +524,32 @@
 
     /* Product Cards */
     .product-card {
-        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
         border: none;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.14);
     }
-    
     .product-image {
         position: relative;
-        height: 250px;
+        height: 280px;
         overflow: hidden;
+        background: #f5f5f5;
     }
-    
     .product-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        transition: transform 0.35s ease;
     }
-    
     .product-card:hover .product-image img {
         transform: scale(1.05);
     }
-    
     .no-image {
         width: 100%;
         height: 100%;
@@ -550,40 +557,63 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #6c757d;
+        color: #ccc;
         font-size: 3rem;
     }
-    
     .product-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.7);
+        inset: 0;
+        background: rgba(0,0,0,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 12px;
         opacity: 0;
         transition: opacity 0.3s ease;
+        z-index: 3;
     }
-    
-    .product-card:hover .product-overlay {
-        opacity: 1;
+    .product-card:hover .product-overlay { opacity: 1; }
+    .product-overlay .btn-light {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: #fff;
+        color: #222;
+        border: none;
     }
-    
+    .product-overlay .btn-dark,
+    .product-overlay .btn-primary {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: #8B3A3A !important;
+        color: #fff !important;
+        border: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        padding: 0;
+    }
     .product-badge {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 12px;
+        right: 12px;
         z-index: 2;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
     }
-    
     .price {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: bold;
-        color: var(--primary);
+        color: #8B3A3A;
     }
     
     /* Section Styles */

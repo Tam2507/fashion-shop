@@ -58,8 +58,7 @@ unset($__errorArgs, $__bag); ?>"
                                         id="type" 
                                         name="type" 
                                         required>
-                                    <option value="percentage" <?php echo e(old('type') === 'percentage' ? 'selected' : ''); ?>>Giảm theo %</option>
-                                    <option value="fixed_amount" <?php echo e(old('type') === 'fixed_amount' ? 'selected' : ''); ?>>Giảm cố định</option>
+                                    <option value="percentage" <?php echo e(old('type', 'percentage') === 'percentage' ? 'selected' : ''); ?>>Giảm theo %</option>
                                     <option value="free_shipping" <?php echo e(old('type') === 'free_shipping' ? 'selected' : ''); ?>>Miễn phí vận chuyển</option>
                                 </select>
                                 <?php $__errorArgs = ['type'];
@@ -196,8 +195,8 @@ unset($__errorArgs, $__bag); ?>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="starts_at" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
-                                <input type="datetime-local" 
-                                       class="form-control <?php $__errorArgs = ['starts_at'];
+                                <input type="text" 
+                                       class="form-control flatpickr <?php $__errorArgs = ['starts_at'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -207,7 +206,8 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                        id="starts_at" 
                                        name="starts_at" 
-                                       value="<?php echo e(old('starts_at', now()->format('Y-m-d\TH:i'))); ?>"
+                                       value="<?php echo e(old('starts_at', now()->format('d/m/Y H:i'))); ?>"
+                                       placeholder="dd/mm/yyyy HH:MM"
                                        required>
                                 <?php $__errorArgs = ['starts_at'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -223,8 +223,8 @@ unset($__errorArgs, $__bag); ?>
 
                             <div class="col-md-6 mb-3">
                                 <label for="expires_at" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
-                                <input type="datetime-local" 
-                                       class="form-control <?php $__errorArgs = ['expires_at'];
+                                <input type="text" 
+                                       class="form-control flatpickr <?php $__errorArgs = ['expires_at'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -234,7 +234,8 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                        id="expires_at" 
                                        name="expires_at" 
-                                       value="<?php echo e(old('expires_at', now()->addDays(30)->format('Y-m-d\TH:i'))); ?>"
+                                       value="<?php echo e(old('expires_at', now()->addDays(30)->format('d/m/Y H:i'))); ?>"
+                                       placeholder="dd/mm/yyyy HH:MM"
                                        required>
                                 <?php $__errorArgs = ['expires_at'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -300,7 +301,6 @@ unset($__errorArgs, $__bag); ?>
                     <h6>Loại giảm giá:</h6>
                     <ul>
                         <li><strong>Giảm theo %:</strong> Giảm theo phần trăm giá trị đơn hàng</li>
-                        <li><strong>Giảm cố định:</strong> Giảm một số tiền cố định</li>
                         <li><strong>Miễn phí ship:</strong> Miễn phí vận chuyển</li>
                     </ul>
 
@@ -318,25 +318,28 @@ unset($__errorArgs, $__bag); ?>
 </div>
 
 <?php $__env->startPush('scripts'); ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+flatpickr('.flatpickr', {
+    enableTime: true,
+    dateFormat: 'd/m/Y H:i',
+    time_24hr: true,
+    locale: { firstDayOfWeek: 1 }
+});
+
 $(document).ready(function() {
     $('#type').change(function() {
         const type = $(this).val();
         const valueHint = $('#value-hint');
-        
         if (type === 'percentage') {
             valueHint.text('Nhập % (VD: 10 = giảm 10%)');
             $('#maximum_discount').prop('disabled', false);
-        } else if (type === 'fixed_amount') {
-            valueHint.text('Nhập số tiền (VD: 50000)');
-            $('#maximum_discount').prop('disabled', true);
         } else {
             valueHint.text('Nhập 0 cho miễn phí ship');
             $('#maximum_discount').prop('disabled', true);
         }
     });
-    
-    // Trigger on load
     $('#type').trigger('change');
 });
 </script>

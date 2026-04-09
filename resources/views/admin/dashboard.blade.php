@@ -4,7 +4,7 @@
 <div class="container-fluid py-5">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1 class="h2 mb-0"><i class="fas fa-chart-line me-2"></i> Bảng Điều Khiển Admin</h1>
+            <h1 class="h2 mb-0"><i class="fas fa-chart-line me-2"></i> Thống Kê</h1>
             <p class="text-muted">Tổng quan về cửa hàng</p>
         </div>
     </div>
@@ -205,36 +205,31 @@
 
     <!-- Quick Stats -->
     <div class="row g-4 mt-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Sản Phẩm Bán Chạy</h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-chart-line text-muted" style="font-size: 2rem; opacity: 0.3;"></i>
-                        <p class="text-muted mt-3 mb-0">Chức năng đang phát triển</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
                     <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Hoạt Động Hôm Nay</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span>Đơn hàng mới:</span>
-                        <span class="badge bg-success">{{ $todayOrders ?? 0 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span>Khách hàng mới:</span>
-                        <span class="badge bg-info">{{ $todayUsers ?? 0 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>Doanh thu hôm nay:</span>
-                        <span class="badge bg-primary">{{ number_format($todayRevenue ?? 0, 0, ',', '.') }}₫</span>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Đơn hàng mới:</span>
+                                <span class="badge bg-success">{{ $todayOrders ?? 0 }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Khách hàng mới:</span>
+                                <span class="badge bg-info">{{ $todayUsers ?? 0 }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Doanh thu hôm nay:</span>
+                                <span class="badge bg-primary">{{ number_format($todayRevenue ?? 0, 0, ',', '.') }}₫</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

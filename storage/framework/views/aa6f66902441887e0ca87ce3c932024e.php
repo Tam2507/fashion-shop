@@ -92,62 +92,52 @@
 <div class="row g-4 mb-5">
     <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
     <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card h-100">
-            <!-- Product Image -->
-            <div style="height: 280px; background: #f0f0f0; overflow: hidden; position: relative;">
-                <?php
-                    $displayImage = $product->image ?? $product->images->first()->path ?? null;
-                ?>
+        <?php
+            $displayImage = $product->image ?? $product->images->first()?->path ?? null;
+            $inStock = $product->quantity > 0 || $product->variants->where('stock_quantity', '>', 0)->count() > 0;
+            $reviewCount = $product->approvedReviews->count();
+            $avgRating = $reviewCount > 0 ? round($product->approvedReviews->avg('rating'), 1) : 0;
+        ?>
+        <div class="card h-100 product-card">
+            <div class="product-image">
                 <?php if($displayImage): ?>
-                    <img src="/storage/<?php echo e($displayImage); ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo e($product->name); ?>" />
+                    <img src="/storage/<?php echo e($displayImage); ?>" class="card-img-top" alt="<?php echo e($product->name); ?>" />
                 <?php else: ?>
-                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                        <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
-                    </div>
+                    <div class="no-image"><i class="fas fa-image"></i></div>
                 <?php endif; ?>
-                
-                <!-- Stock Badge -->
-                <div style="position: absolute; top: 12px; right: 12px;">
-                    <?php if($product->quantity > 0): ?>
-                        <span class="badge bg-success">Còn hàng</span>
-                    <?php else: ?>
-                        <span class="badge bg-danger">Hết hàng</span>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Hover Overlay -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s ease; display: flex; align-items: center; justify-content: center;" class="card-overlay">
+
+                <div class="product-overlay">
                     <a href="<?php echo e(route('products.show', $product->id)); ?>" class="btn btn-light btn-sm">
-                        <i class="fas fa-search"></i> Xem Chi Tiết
+                        <i class="fas fa-eye"></i> Xem
                     </a>
-                </div>
-            </div>
-            
-            <!-- Card Content -->
-            <div class="card-body d-flex flex-column">
-                <p class="text-muted small mb-2"><?php echo e($product->category->name ?? 'Chưa phân loại'); ?></p>
-                <h5 class="card-title text-truncate" style="flex-grow: 0;"><?php echo e($product->name); ?></h5>
-                <p class="card-text text-muted small mb-3" style="flex-grow: 1;"><?php echo e(Str::limit($product->description, 70)); ?></p>
-                
-                <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <p class="fw-bold text-primary mb-0" style="font-size: 1.4rem;">
-                        <?php echo e(number_format($product->price, 0, ',', '.')); ?> ₫
-                    </p>
                     <?php if(auth()->guard()->check()): ?>
-                        <?php if($product->quantity > 0): ?>
-                            <form method="POST" action="<?php echo e(route('cart.add', $product->id)); ?>" class="d-inline">
-                                <?php echo csrf_field(); ?>
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-shopping-bag"></i>
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <button class="btn btn-secondary btn-sm" disabled>Hết hàng</button>
+                        <?php if($inStock): ?>
+                            <a href="<?php echo e(route('products.show', $product->id)); ?>" class="btn btn-primary btn-sm" title="Chọn size và màu">
+                                <i class="fas fa-shopping-bag"></i>
+                            </a>
                         <?php endif; ?>
                     <?php else: ?>
-                        <a href="<?php echo e(route('login')); ?>" class="btn btn-outline-primary btn-sm">Đăng nhập</a>
+                        <button type="button" class="btn btn-primary btn-sm"
+                            onclick="window.location.href='<?php echo e(route('login')); ?>'">
+                            <i class="fas fa-shopping-bag"></i>
+                        </button>
                     <?php endif; ?>
+                </div>
+
+                <?php if($inStock): ?>
+                    <span class="badge bg-success product-badge">Còn hàng</span>
+                <?php else: ?>
+                    <span class="badge bg-danger product-badge">Hết hàng</span>
+                <?php endif; ?>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted small mb-2"><?php echo e($product->category->name ?? 'Chưa phân loại'); ?></p>
+                <h5 class="card-title"><?php echo e(Str::limit($product->name, 50)); ?></h5>
+                <p class="card-text text-muted small"><?php echo e(Str::limit($product->description, 80)); ?></p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="price"><?php echo e(number_format($product->price, 0, ',', '.')); ?> ₫</span>
+                    <small class="text-muted">⭐ <?php echo e($avgRating); ?> (<?php echo e($reviewCount); ?>)</small>
                 </div>
             </div>
         </div>
@@ -167,26 +157,79 @@
 </div>
 
 <style>
-    .card {
-        position: relative;
+    /* ===== PRODUCT CARD - giống trang chủ ===== */
+    .product-card {
+        border-radius: 12px;
         overflow: hidden;
+        background: #fff;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border: none;
     }
-    
-    .card:hover .card-overlay {
-        opacity: 1 !important;
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.14);
     }
-    
-    .card-overlay {
-        z-index: 10;
+    .product-image {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+    .product-image .card-img-top {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+    }
+    .product-card:hover .product-image .card-img-top { transform: scale(1.05); }
+    .no-image {
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+        color: #ccc; font-size: 3rem;
+    }
+    .product-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 3;
+    }
+    .product-card:hover .product-overlay { opacity: 1; }
+    .product-overlay .btn-primary {
+        background: #8B3A3A !important;
+        border-color: #8B3A3A !important;
+        width: 44px; height: 44px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0;
+    }
+    .product-badge {
+        position: absolute;
+        top: 12px; right: 12px;
+        z-index: 2;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .price {
+        font-size: 1.15rem;
+        font-weight: bold;
+        color: #8B3A3A;
     }
 
-    /* Banner Styles - Same as Home Page */
+    /* Banner Styles */
     .banner-link {
         text-decoration: none;
         display: block;
         cursor: pointer;
     }
-    
     .banner-container {
         position: relative;
         width: 100%;
@@ -196,11 +239,9 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
     }
-    
     .banner-link:hover .banner-container {
         box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     }
-    
     .banner-placeholder {
         width: 100%;
         height: 100%;
@@ -208,7 +249,6 @@
         align-items: center;
         justify-content: center;
     }
-    
     .banner-image {
         width: 100%;
         height: 100%;
@@ -217,94 +257,49 @@
         background-repeat: no-repeat;
         transition: transform 0.3s ease;
     }
-    
-    .banner-link:hover .banner-image {
-        transform: scale(1.02);
-    }
-    
-    .banner-content {
-        text-align: center;
-        padding: 2rem;
-    }
-    
+    .banner-link:hover .banner-image { transform: scale(1.02); }
+    .banner-content { text-align: center; padding: 2rem; }
     .banner-content h1 {
         font-family: 'Playfair Display', serif;
         font-size: 3rem;
         font-weight: 800;
         margin-bottom: 1rem;
+        color: white;
     }
-    
-    .banner-content p {
-        font-size: 1.2rem;
-        margin-bottom: 0;
-    }
+    .banner-content p { font-size: 1.2rem; margin-bottom: 0; color: white; }
 
-    /* Carousel Controls */
-    .carousel-control-prev,
-    .carousel-control-next {
-        width: 60px;
-        height: 60px;
+    /* Carousel */
+    .carousel-control-prev, .carousel-control-next {
+        width: 60px; height: 60px;
         background: rgba(255,255,255,0.2);
         border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 50%; transform: translateY(-50%);
         backdrop-filter: blur(10px);
         border: 2px solid rgba(255,255,255,0.3);
         transition: all 0.3s ease;
     }
-    
-    .carousel-control-prev {
-        left: 20px;
-    }
-    
-    .carousel-control-next {
-        right: 20px;
-    }
-    
-    .carousel-control-prev:hover,
-    .carousel-control-next:hover {
+    .carousel-control-prev { left: 20px; }
+    .carousel-control-next { right: 20px; }
+    .carousel-control-prev:hover, .carousel-control-next:hover {
         background: rgba(255,255,255,0.4);
         border-color: rgba(255,255,255,0.6);
     }
-    
-    /* Carousel Indicators */
-    .carousel-indicators {
-        bottom: 20px;
-    }
-    
+    .carousel-indicators { bottom: 20px; }
     .carousel-indicators [data-bs-target] {
-        width: 12px;
-        height: 12px;
+        width: 12px; height: 12px;
         border-radius: 50%;
         background-color: rgba(255,255,255,0.5);
         border: 2px solid rgba(255,255,255,0.8);
         transition: all 0.3s ease;
     }
-    
-    .carousel-indicators .active {
-        background-color: #FFD700;
-        border-color: #FFD700;
-    }
-    
-    /* Responsive */
+    .carousel-indicators .active { background-color: #FFD700; border-color: #FFD700; }
+
     @media (max-width: 768px) {
-        .banner-container {
-            height: 300px;
-        }
-        
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 40px;
-            height: 40px;
-        }
-        
-        .carousel-control-prev {
-            left: 10px;
-        }
-        
-        .carousel-control-next {
-            right: 10px;
-        }
+        .banner-container { height: 300px; }
+        .carousel-control-prev, .carousel-control-next { width: 40px; height: 40px; }
+        .carousel-control-prev { left: 10px; }
+        .carousel-control-next { right: 10px; }
+        .product-img-wrap { height: 220px; }
     }
 </style>
 

@@ -21,6 +21,26 @@
                         <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Địa chỉ giao hàng</h5>
                     </div>
                     <div class="card-body p-4">
+                        @auth
+                        @php $user = auth()->user(); @endphp
+                        @if($user->address || $user->phone)
+                        <div class="alert alert-success d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Địa chỉ đã lưu:</strong> {{ $user->address ?? 'Chưa có' }}
+                                @if($user->phone) — {{ $user->phone }} @endif
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-success" id="toggleChangeAddress">
+                                <i class="fas fa-edit"></i> Thay đổi
+                            </button>
+                        </div>
+
+                        {{-- Ẩn/hiện form thay đổi địa chỉ --}}
+                        <div id="addressForm" style="display:none;">
+                        @else
+                        <div id="addressForm">
+                        @endif
+                        @endauth
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Tỉnh/Thành phố <span class="text-danger">*</span></label>
@@ -45,8 +65,7 @@
                         
                         <div class="mb-4">
                             <label class="form-label fw-bold">Địa chỉ cụ thể <span class="text-danger">*</span></label>
-                            <input type="text" name="address_detail" class="form-control form-control-lg @error('address_detail') is-invalid @enderror" placeholder="Số nhà, tên đường..." required value="{{ old('address_detail') }}">
-                            <input type="hidden" name="shipping_address" id="shipping_address">
+                            <input type="text" name="address_detail" id="address_detail" class="form-control form-control-lg @error('address_detail') is-invalid @enderror" placeholder="Số nhà, tên đường..." value="{{ old('address_detail') }}">
                             @error('address_detail')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
@@ -54,11 +73,22 @@
                         
                         <div class="mb-4">
                             <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
-                            <input type="tel" name="phone" class="form-control form-control-lg @error('phone') is-invalid @enderror" placeholder="0123456789" pattern="[0-9]{10,11}" required value="{{ old('phone') }}">
+                            <input type="tel" name="phone_new" id="phone_new" class="form-control form-control-lg @error('phone') is-invalid @enderror" placeholder="0123456789" pattern="[0-9]{10,11}" value="{{ old('phone', auth()->user()->phone ?? '') }}">
                             @error('phone')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
+                        </div>{{-- end #addressForm --}}
+
+                        {{-- Hidden inputs gửi lên server --}}
+                        <input type="hidden" name="shipping_address" id="shipping_address">
+                        @auth
+                        <input type="hidden" name="phone" id="phone_hidden" value="{{ old('phone', auth()->user()->phone ?? '') }}">
+                        <input type="hidden" name="use_saved_address" id="use_saved_address" value="{{ (auth()->user()->address || auth()->user()->phone) ? '1' : '0' }}">
+                        @else
+                        <input type="hidden" name="phone" id="phone_hidden" value="{{ old('phone') }}">
+                        <input type="hidden" name="use_saved_address" id="use_saved_address" value="0">
+                        @endauth
 
                         <div class="alert alert-info" role="alert">
                             <i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong> Vui lòng kiểm tra kỹ thông tin giao hàng trước khi xác nhận.
@@ -171,10 +201,27 @@
                         </div>
                         
                         <hr class="my-3">
+
+                        {{-- Mã giảm giá --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase" style="letter-spacing: 0.5px;">Mã giảm giá</label>
+                            <div class="input-group">
+                                <input type="text" id="couponInput" class="form-control" placeholder="Nhập mã..." style="text-transform:uppercase;">
+                                <button type="button" class="btn btn-outline-primary fw-bold" onclick="applyCoupon()">Áp dụng</button>
+                            </div>
+                            <div id="couponMsg" class="small mt-1"></div>
+                        </div>
+                        <input type="hidden" name="coupon_code" id="couponCode" value="">
+
+                        <hr class="my-3">
                         
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tổng tiền hàng:</span>
                             <span>{{ number_format($total, 0, ',', '.') }} ₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-success" id="discountRow" style="display:none!important;">
+                            <span>Giảm giá:</span>
+                            <span id="discountAmount">-0 ₫</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3 text-muted small">
                             <span>Phí giao hàng:</span>
@@ -185,7 +232,7 @@
                         
                         <div class="d-flex justify-content-between fw-bold" style="font-size: 1.4rem;">
                             <span>Tổng:</span>
-                            <span class="text-danger">{{ number_format($total, 0, ',', '.') }} ₫</span>
+                            <span class="text-danger" id="finalTotal">{{ number_format($total, 0, ',', '.') }} ₫</span>
                         </div>
                     </div>
                     <div class="card-footer bg-white p-4 border-top">
@@ -203,94 +250,137 @@
 </div>
 
 <script>
-    // Vietnam Provinces API Integration (v2 - after 07/2025 merge: provinces and wards only)
     const API_BASE = 'https://provinces.open-api.vn/api/v2';
-    
     const provinceSelect = document.getElementById('province');
     const wardSelect = document.getElementById('ward');
-    const addressDetailInput = document.querySelector('input[name="address_detail"]');
+    const addressDetailInput = document.getElementById('address_detail');
     const shippingAddressInput = document.getElementById('shipping_address');
-    
-    let provincesData = [];
-    
-    // Fetch provinces on page load
+    const phoneHidden = document.getElementById('phone_hidden');
+    const phoneNew = document.getElementById('phone_new');
+    const useSavedInput = document.getElementById('use_saved_address');
+    const addressForm = document.getElementById('addressForm');
+    const toggleBtn = document.getElementById('toggleChangeAddress');
+
+    // Toggle form thay đổi địa chỉ
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const isHidden = addressForm.style.display === 'none';
+            addressForm.style.display = isHidden ? 'block' : 'none';
+            useSavedInput.value = isHidden ? '0' : '1';
+            this.innerHTML = isHidden
+                ? '<i class="fas fa-times"></i> Hủy'
+                : '<i class="fas fa-edit"></i> Thay đổi';
+        });
+    }
+
+    // Load provinces
     async function loadProvinces() {
         try {
-            const response = await fetch(`${API_BASE}/p/`);
-            provincesData = await response.json();
-            
-            provincesData.forEach(province => {
-                const option = document.createElement('option');
-                option.value = province.code;
-                option.textContent = province.name;
-                provinceSelect.appendChild(option);
+            const res = await fetch(`${API_BASE}/p/`);
+            const data = await res.json();
+            data.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.code;
+                opt.textContent = p.name;
+                provinceSelect.appendChild(opt);
             });
-        } catch (error) {
-            console.error('Error loading provinces:', error);
-            alert('Không thể tải danh sách tỉnh/thành phố. Vui lòng thử lại.');
+        } catch (e) {
+            console.error('Lỗi tải tỉnh/thành:', e);
         }
     }
-    
-    // Load wards when province is selected (v2 has no districts, only wards)
+
     provinceSelect.addEventListener('change', async function() {
-        const provinceCode = this.value;
-        
-        // Reset ward
         wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
         wardSelect.disabled = true;
-        
-        if (!provinceCode) return;
-        
+        if (!this.value) return;
         try {
-            // Fetch specific province with depth=2 to get wards (no districts in v2)
-            const response = await fetch(`${API_BASE}/p/${provinceCode}?depth=2`);
-            const provinceData = await response.json();
-            
-            if (provinceData.wards && provinceData.wards.length > 0) {
-                provinceData.wards.forEach(ward => {
-                    const option = document.createElement('option');
-                    option.value = ward.code;
-                    option.textContent = ward.name;
-                    wardSelect.appendChild(option);
+            const res = await fetch(`${API_BASE}/p/${this.value}?depth=2`);
+            const data = await res.json();
+            if (data.wards?.length) {
+                data.wards.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.code;
+                    opt.textContent = w.name;
+                    wardSelect.appendChild(opt);
                 });
                 wardSelect.disabled = false;
             }
-        } catch (error) {
-            console.error('Error loading wards:', error);
-            alert('Không thể tải danh sách phường/xã. Vui lòng thử lại.');
+        } catch (e) {
+            console.error('Lỗi tải phường/xã:', e);
         }
     });
-    
-    // Load provinces on page load
+
     loadProvinces();
-    
-    // Bootstrap form validation with address combination
-    (() => {
-        'use strict';
-        const form = document.querySelector('.needs-validation');
-        
-        form.addEventListener('submit', function(event) {
-            // First, combine address fields
+
+    // Submit handler
+    document.querySelector('.needs-validation').addEventListener('submit', function(event) {
+        const useSaved = useSavedInput.value === '1';
+
+        if (useSaved) {
+            // Dùng địa chỉ đã lưu từ profile
+            shippingAddressInput.value = '{{ addslashes(auth()->user()->address ?? '') }}';
+            phoneHidden.value = '{{ auth()->user()->phone ?? '' }}';
+        } else {
+            // Dùng địa chỉ nhập mới
             const provinceName = provinceSelect.options[provinceSelect.selectedIndex]?.text || '';
             const wardName = wardSelect.options[wardSelect.selectedIndex]?.text || '';
-            const addressDetail = addressDetailInput.value.trim();
-            
-            // Combine into full address: "Số nhà, Phường/Xã, Tỉnh/Thành phố"
-            const fullAddress = [addressDetail, wardName, provinceName]
-                .filter(part => part && !part.startsWith('--'))
-                .join(', ');
-            
-            shippingAddressInput.value = fullAddress;
-            
-            // Then check form validity
-            if (!form.checkValidity()) {
+            const detail = addressDetailInput?.value.trim() || '';
+            const full = [detail, wardName, provinceName].filter(p => p && !p.startsWith('--')).join(', ');
+            shippingAddressInput.value = full;
+            phoneHidden.value = phoneNew?.value || '';
+
+            // Validate form khi nhập mới
+            if (!this.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
-            
-            form.classList.add('was-validated');
-        }, false);
-    })();
+        }
+
+        this.classList.add('was-validated');
+    }, false);
+
+    // Coupon
+    const originalTotal = {{ $total }};
+    let discountValue = 0;
+
+    async function applyCoupon() {
+        const code = document.getElementById('couponInput').value.trim().toUpperCase();
+        const msg = document.getElementById('couponMsg');
+        if (!code) { msg.innerHTML = '<span class="text-danger">Vui lòng nhập mã.</span>'; return; }
+
+        try {
+            const res = await fetch('{{ route("coupon.apply") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ code, total: originalTotal })
+            });
+            const data = await res.json();
+            if (data.success) {
+                discountValue = data.discount;
+                document.getElementById('couponCode').value = code;
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = '-' + formatMoney(discountValue) + ' ₫';
+                document.getElementById('finalTotal').textContent = formatMoney(originalTotal - discountValue) + ' ₫';
+                msg.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> ' + data.message + '</span>';
+            } else {
+                discountValue = 0;
+                document.getElementById('couponCode').value = '';
+                document.getElementById('discountRow').style.display = 'none';
+                document.getElementById('finalTotal').textContent = formatMoney(originalTotal) + ' ₫';
+                msg.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> ' + data.message + '</span>';
+            }
+        } catch(e) {
+            msg.innerHTML = '<span class="text-danger">Lỗi kết nối.</span>';
+        }
+    }
+
+    function formatMoney(n) {
+        return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
 </script>
 
 <style>

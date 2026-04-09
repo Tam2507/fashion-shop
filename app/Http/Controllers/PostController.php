@@ -157,6 +157,7 @@ class PostController extends Controller
     {
         $validated = $request->validate([
             'content' => 'required|string|max:1000',
+            'rating' => 'nullable|integer|min:1|max:5',
             'guest_name' => 'required_unless:user_id,!=,null|string|max:255',
             'guest_email' => 'required_unless:user_id,!=,null|email|max:255',
         ]);
@@ -164,6 +165,7 @@ class PostController extends Controller
         $commentData = [
             'post_id' => $post->id,
             'content' => $validated['content'],
+            'rating' => $validated['rating'] ?? null,
             'status' => 'approved', // Auto approve
         ];
 

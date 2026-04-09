@@ -92,13 +92,16 @@
                         
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="h5 text-primary mb-0">{{ number_format($product->price, 0, ',', '.') }} ₫</span>
-                            @if($product->reviews->count() > 0)
-                                <small class="text-muted">
-                                    <i class="fas fa-star text-warning"></i> 
-                                    {{ number_format($product->reviews->avg('rating'), 1) }}
-                                    ({{ $product->reviews->count() }})
-                                </small>
-                            @endif
+                            @php
+                                $reviewCount = $product->reviews()->where('approved', true)->count();
+                                $avgRating = $reviewCount > 0 ? $product->reviews()->where('approved', true)->avg('rating') : 0;
+                            @endphp
+                            <small class="text-muted">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= round($avgRating) ? 'text-warning' : 'text-muted' }}" style="font-size:11px;"></i>
+                                @endfor
+                                ({{ $reviewCount }})
+                            </small>
                         </div>
                         
                         <div class="d-grid gap-2">

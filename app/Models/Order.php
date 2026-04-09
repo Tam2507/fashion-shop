@@ -92,10 +92,8 @@ class Order extends Model
             'received' => 'Đã nhận',
             'processing' => 'Đang xử lý',
             'confirmed' => 'Đã xác nhận',
-            'shipped' => 'Đã gửi hàng',
             'delivered' => 'Đã giao hàng',
             'cancelled' => 'Đã hủy',
-            'refunded' => 'Đã hoàn tiền',
             default => 'Không xác định'
         };
     }
@@ -106,10 +104,8 @@ class Order extends Model
             'received' => 'warning',
             'processing' => 'info',
             'confirmed' => 'primary',
-            'shipped' => 'info',
             'delivered' => 'success',
             'cancelled' => 'danger',
-            'refunded' => 'secondary',
             default => 'secondary'
         };
     }

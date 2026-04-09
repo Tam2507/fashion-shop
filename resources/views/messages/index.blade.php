@@ -207,11 +207,20 @@
             <div class="chat-input">
                 <form id="messageForm" class="chat-input-form">
                     @csrf
-                    <textarea name="message" 
-                              id="messageInput"
-                              placeholder="Nhập tin nhắn..." 
-                              rows="1" 
-                              required></textarea>
+                    <label for="userImageInput" style="cursor:pointer; margin:0; display:flex; align-items:center; color:#0084ff;" title="Gửi ảnh">
+                        <i class="fas fa-image" style="font-size:20px;"></i>
+                    </label>
+                    <input type="file" id="userImageInput" accept="image/*" style="display:none;">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+                        <div id="userImgPreview" style="display:none; align-items:center; gap:6px;">
+                            <img id="userImgThumb" src="" style="max-height:60px; border-radius:8px; border:1px solid #e4e6eb;">
+                            <button type="button" onclick="clearUserImage()" style="background:none;border:none;color:#e74a3b;cursor:pointer;font-size:12px;padding:0 4px;">✕ Xóa</button>
+                        </div>
+                        <textarea name="message" 
+                                  id="messageInput"
+                                  placeholder="Nhập tin nhắn..." 
+                                  rows="1"></textarea>
+                    </div>
                     <button type="submit">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -252,6 +261,10 @@ async function loadMessages() {
             
             data.messages.forEach(msg => {
                 const isMyMessage = !msg.is_admin_reply;
+                const imgHtml = msg.image
+                    ? `<img src="/storage/${msg.image}" style="max-width:200px;max-height:200px;border-radius:12px;display:block;cursor:pointer;" onclick="window.open(this.src,'_blank')">`
+                    : '';
+                const textHtml = msg.message ? `<span style="${msg.image ? 'display:block;margin-top:6px;' : ''}">${msg.message}</span>` : '';
                 const messageHTML = `
                     <div class="message-group ${isMyMessage ? 'my-message' : 'other-message'}">
                         ${!isMyMessage ? `
@@ -262,7 +275,7 @@ async function loadMessages() {
                         
                         <div class="message-content">
                             <div class="message-bubble">
-                                ${msg.message}
+                                ${imgHtml}${textHtml}
                             </div>
                             <div class="message-time ${isMyMessage ? 'text-end' : 'text-start'}">
                                 ${formatTime(msg.created_at)}
@@ -302,20 +315,23 @@ document.getElementById('messageForm').addEventListener('submit', async function
     if (isLoading) return;
     
     const messageInput = document.getElementById('messageInput');
+    const imageInput = document.getElementById('userImageInput');
     const message = messageInput.value.trim();
+    const hasImage = imageInput.files && imageInput.files[0];
     
-    if (!message) return;
+    if (!message && !hasImage) return;
     
     isLoading = true;
     
     try {
+        const formData = new FormData();
+        formData.append('_token', '{{ csrf_token() }}');
+        if (message) formData.append('message', message);
+        if (hasImage) formData.append('image', imageInput.files[0]);
+
         const response = await fetch('{{ route('messages.store') }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ message })
+            body: formData
         });
         
         const data = await response.json();
@@ -323,6 +339,7 @@ document.getElementById('messageForm').addEventListener('submit', async function
         if (data.success) {
             messageInput.value = '';
             messageInput.style.height = 'auto';
+            clearUserImage();
             await loadMessages();
         }
     } catch (error) {
@@ -332,6 +349,60 @@ document.getElementById('messageForm').addEventListener('submit', async function
         isLoading = false;
     }
 });
+
+function previewUserImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            // Hiển thị thumbnail nhỏ dưới textarea
+            const thumb = document.getElementById('userImgThumb');
+            const preview = document.getElementById('userImgPreview');
+            if (thumb && preview) {
+                thumb.src = e.target.result;
+                preview.style.display = 'flex';
+            }
+
+            // Xóa preview cũ trong chat nếu có
+            const old = document.getElementById('userChatImgPreview');
+            if (old) old.remove();
+
+            const chatMessages = document.getElementById('chatMessages');
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) emptyState.style.display = 'none';
+            const messagesList = document.getElementById('messagesList');
+            if (messagesList) messagesList.style.display = 'block';
+
+            const bubble = document.createElement('div');
+            bubble.id = 'userChatImgPreview';
+            bubble.className = 'message-group my-message';
+            bubble.style.opacity = '0.6';
+            bubble.innerHTML = `
+                <div class="message-content">
+                    <div class="message-bubble" style="padding:6px;">
+                        <img src="${e.target.result}" style="max-width:200px;max-height:200px;border-radius:10px;display:block;">
+                        <small style="color:#fff;font-size:11px;margin-top:4px;display:block;">Chưa gửi...</small>
+                    </div>
+                </div>
+                @if(auth()->user()->avatar)
+                    <img src="/storage/{{ auth()->user()->avatar }}" class="message-avatar">
+                @else
+                    <div class="message-avatar-placeholder"><i class="fas fa-user"></i></div>
+                @endif
+            `;
+            chatMessages.appendChild(bubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearUserImage() {
+    document.getElementById('userImageInput').value = '';
+    document.getElementById('userImgPreview').style.display = 'none';
+    document.getElementById('userImgThumb').src = '';
+    const old = document.getElementById('userChatImgPreview');
+    if (old) old.remove();
+}
 
 // Auto resize textarea
 document.getElementById('messageInput').addEventListener('input', function() {
@@ -370,6 +441,14 @@ function formatTime(dateString) {
 
 // Load messages on page load
 loadMessages();
+
+// Gắn event cho input ảnh user
+const userImageInput = document.getElementById('userImageInput');
+if (userImageInput) {
+    userImageInput.addEventListener('change', function() {
+        previewUserImage(this);
+    });
+}
 
 // Auto refresh every 5 seconds
 setInterval(loadMessages, 5000);

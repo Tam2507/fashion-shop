@@ -212,7 +212,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/buy-now/{productId}', [OrderController::class, 'buyNow'])->name('orders.buy-now');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/coupon/apply', [OrderController::class, 'applyCoupon'])->name('coupon.apply');
 });
 
 // MoMo Payment Gateway Callbacks (no auth required)
@@ -249,7 +251,6 @@ Route::post('/blog/{post}/comments', [\App\Http\Controllers\PostController::clas
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'adminHome'])->name('home');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/unified', [AdminController::class, 'dashboardUnified'])->name('unified');
     
     // Products management - Resource routes
     Route::get('/products', [ProductController::class, 'adminIndex'])->name('products.index');

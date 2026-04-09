@@ -150,10 +150,8 @@
                             <option value="received" <?php echo e($order->status == 'received' ? 'selected' : ''); ?>>Đã nhận</option>
                             <option value="processing" <?php echo e($order->status == 'processing' ? 'selected' : ''); ?>>Đang xử lý</option>
                             <option value="confirmed" <?php echo e($order->status == 'confirmed' ? 'selected' : ''); ?>>Đã xác nhận</option>
-                            <option value="shipped" <?php echo e($order->status == 'shipped' ? 'selected' : ''); ?>>Đã gửi hàng</option>
                             <option value="delivered" <?php echo e($order->status == 'delivered' ? 'selected' : ''); ?>>Đã giao hàng</option>
                             <option value="cancelled" <?php echo e($order->status == 'cancelled' ? 'selected' : ''); ?>>Đã hủy</option>
-                            <option value="refunded" <?php echo e($order->status == 'refunded' ? 'selected' : ''); ?>>Đã hoàn tiền</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
@@ -207,7 +205,7 @@
         </div>
 
         <!-- Delete Order -->
-        <?php if(in_array($order->status, ['cancelled', 'refunded'])): ?>
+        <?php if($order->status === 'cancelled'): ?>
         <div class="card border-danger">
             <div class="card-header bg-danger text-white">
                 <h5><i class="fas fa-trash"></i> Xóa Đơn Hàng</h5>

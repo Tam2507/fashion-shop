@@ -37,7 +37,6 @@
                                         name="type" 
                                         required>
                                     <option value="percentage" {{ old('type', $coupon->type) === 'percentage' ? 'selected' : '' }}>Giảm theo %</option>
-                                    <option value="fixed_amount" {{ old('type', $coupon->type) === 'fixed_amount' ? 'selected' : '' }}>Giảm cố định</option>
                                     <option value="free_shipping" {{ old('type', $coupon->type) === 'free_shipping' ? 'selected' : '' }}>Miễn phí vận chuyển</option>
                                 </select>
                                 @error('type')
@@ -108,11 +107,12 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="starts_at" class="form-label">Ngày Bắt Đầu <span class="text-danger">*</span></label>
-                                <input type="datetime-local" 
-                                       class="form-control @error('starts_at') is-invalid @enderror" 
+                                <input type="text" 
+                                       class="form-control flatpickr @error('starts_at') is-invalid @enderror" 
                                        id="starts_at" 
                                        name="starts_at" 
-                                       value="{{ old('starts_at', $coupon->starts_at->format('Y-m-d\TH:i')) }}"
+                                       value="{{ old('starts_at', $coupon->starts_at->format('d/m/Y H:i')) }}"
+                                       placeholder="dd/mm/yyyy HH:MM"
                                        required>
                                 @error('starts_at')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -121,11 +121,12 @@
 
                             <div class="col-md-6 mb-3">
                                 <label for="expires_at" class="form-label">Ngày Kết Thúc <span class="text-danger">*</span></label>
-                                <input type="datetime-local" 
-                                       class="form-control @error('expires_at') is-invalid @enderror" 
+                                <input type="text" 
+                                       class="form-control flatpickr @error('expires_at') is-invalid @enderror" 
                                        id="expires_at" 
                                        name="expires_at" 
-                                       value="{{ old('expires_at', $coupon->expires_at->format('Y-m-d\TH:i')) }}"
+                                       value="{{ old('expires_at', $coupon->expires_at->format('d/m/Y H:i')) }}"
+                                       placeholder="dd/mm/yyyy HH:MM"
                                        required>
                                 @error('expires_at')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -189,3 +190,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr('.flatpickr', {
+    enableTime: true,
+    dateFormat: 'd/m/Y H:i',
+    time_24hr: true,
+    locale: { firstDayOfWeek: 1 }
+});
+</script>
+@endpush

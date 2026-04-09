@@ -1,3 +1,4 @@
+<?php if(!auth()->check() || !auth()->user()->is_admin): ?>
 <!-- Floating Chat Button -->
 <div id="chat-widget">
     <button id="chat-toggle" class="chat-toggle-btn">
@@ -306,4 +307,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 10000);
 });
 </script>
+<?php endif; ?>
 <?php /**PATH D:\Boutique\fashion-shop\resources\views/components/chat-box.blade.php ENDPATH**/ ?>

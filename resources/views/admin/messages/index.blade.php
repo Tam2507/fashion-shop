@@ -385,6 +385,58 @@
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: #b0b3b8;
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .conversations-sidebar {
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 10;
+        transition: transform 0.3s ease;
+    }
+
+    .conversations-sidebar.hidden-mobile {
+        transform: translateX(-100%);
+        pointer-events: none;
+    }
+
+    .chat-area {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 5;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .chat-area.visible-mobile {
+        transform: translateX(0);
+        z-index: 15;
+    }
+
+    .messenger-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-back-mobile {
+        display: flex !important;
+    }
+}
+
+.btn-back-mobile {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #0084ff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
 </style>
 @endsection
 
@@ -485,46 +537,55 @@ function loadConversation(element) {
     element.classList.add('active');
     
     const conversationId = element.dataset.id;
-    
     currentConversationId = conversationId;
     
     // Load messages
     fetch(`/admin/messages/${conversationId}`)
         .then(response => response.text())
         .then(html => {
-            // Parse the HTML to extract just the content we need
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
-            // Get the chat header, messages, and input
             const chatHeader = doc.querySelector('.chat-header');
             const chatMessages = doc.querySelector('.chat-messages');
             const chatInput = doc.querySelector('.chat-input');
             
             if (chatHeader && chatMessages && chatInput) {
+                // Thêm nút back mobile vào header
+                const backBtn = document.createElement('button');
+                backBtn.className = 'btn-back-mobile';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+                backBtn.onclick = showSidebar;
+                chatHeader.insertBefore(backBtn, chatHeader.firstChild);
+
                 document.getElementById('chatArea').innerHTML = `
                     ${chatHeader.outerHTML}
                     ${chatMessages.outerHTML}
                     ${chatInput.outerHTML}
                 `;
+
+                // Mobile: ẩn sidebar, hiện chat
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.conversations-sidebar').classList.add('hidden-mobile');
+                    document.getElementById('chatArea').classList.add('visible-mobile');
+                    // Gắn lại sự kiện cho nút back (vì innerHTML đã replace)
+                    const btn = document.querySelector('.btn-back-mobile');
+                    if (btn) btn.onclick = showSidebar;
+                }
                 
                 scrollToBottom();
                 
-                // Attach form submit handler
                 const form = document.querySelector('#chatArea form');
                 if (form) {
                     form.addEventListener('submit', handleMessageSubmit);
                 }
                 
-                // Auto resize textarea
                 const textarea = document.querySelector('#chatArea textarea');
                 if (textarea) {
                     textarea.addEventListener('input', function() {
                         this.style.height = 'auto';
                         this.style.height = Math.min(this.scrollHeight, 100) + 'px';
                     });
-                    
-                    // Enter to send
                     textarea.addEventListener('keydown', function(e) {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -536,8 +597,12 @@ function loadConversation(element) {
         })
         .catch(error => {
             console.error('Error loading conversation:', error);
-            alert('Có lỗi xảy ra khi tải tin nhắn');
         });
+}
+
+function showSidebar() {
+    document.querySelector('.conversations-sidebar').classList.remove('hidden-mobile');
+    document.getElementById('chatArea').classList.remove('visible-mobile');
 }
 
 function handleMessageSubmit(e) {

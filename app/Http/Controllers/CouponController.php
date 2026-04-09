@@ -26,13 +26,13 @@ class CouponController extends Controller
     {
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code',
-            'type' => 'required|in:percentage,fixed_amount,free_shipping',
+            'type' => 'required|in:percentage,free_shipping',
             'value' => 'required|numeric|min:0',
             'minimum_amount' => 'nullable|numeric|min:0',
             'maximum_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
-            'starts_at' => 'required|date',
-            'expires_at' => 'required|date|after:starts_at',
+            'starts_at' => 'required|date_format:d/m/Y H:i',
+            'expires_at' => 'required|date_format:d/m/Y H:i|after:starts_at',
             'is_active' => 'boolean',
             'send_notification' => 'boolean',
         ]);
@@ -40,6 +40,8 @@ class CouponController extends Controller
         $validated['code'] = strtoupper($validated['code']);
         $validated['used_count'] = 0;
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $validated['starts_at'] = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $validated['starts_at']);
+        $validated['expires_at'] = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $validated['expires_at']);
 
         $coupon = Coupon::create($validated);
 
@@ -61,18 +63,20 @@ class CouponController extends Controller
     {
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
-            'type' => 'required|in:percentage,fixed_amount,free_shipping',
+            'type' => 'required|in:percentage,free_shipping',
             'value' => 'required|numeric|min:0',
             'minimum_amount' => 'nullable|numeric|min:0',
             'maximum_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
-            'starts_at' => 'required|date',
-            'expires_at' => 'required|date|after:starts_at',
+            'starts_at' => 'required|date_format:d/m/Y H:i',
+            'expires_at' => 'required|date_format:d/m/Y H:i|after:starts_at',
             'is_active' => 'boolean',
         ]);
 
         $validated['code'] = strtoupper($validated['code']);
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $validated['starts_at'] = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $validated['starts_at']);
+        $validated['expires_at'] = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $validated['expires_at']);
 
         $coupon->update($validated);
 
@@ -124,3 +128,4 @@ class CouponController extends Controller
         return $count;
     }
 }
+

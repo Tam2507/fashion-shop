@@ -7,7 +7,7 @@
     <title>@yield('title', 'Atino Fashion - Thời Trang Cao Cấp')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lato:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { 
             --primary: #8B3A3A;
@@ -18,8 +18,8 @@
             --gold: #B8860B;
         }
         
-        * { font-family: 'Lato', sans-serif; }
-        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; }
+        * { font-family: 'Nunito', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; font-weight: 700; }
         
         body { 
             background-color: var(--light); 
@@ -35,7 +35,7 @@
         }
         
         .navbar-brand {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Nunito', sans-serif;
             font-weight: 800;
             font-size: 2rem;
             color: var(--primary) !important;
@@ -466,7 +466,7 @@
         
         footer h5, footer h6 {
             color: white !important;
-            font-family: 'Playfair Display', serif;
+            font-family: 'Nunito', sans-serif;
         }
         
         footer a:hover {
@@ -789,7 +789,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang Chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">Cửa Hàng</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">Về Chúng Tôi</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Liên Hệ</a></li>
                 
@@ -834,7 +834,6 @@
                                 </li>
                                 <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.home') }}"><i class="fas fa-home"></i> Admin Home</a></li>
                                 <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard Thống Kê</a></li>
-                                <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.unified') }}"><i class="fas fa-tachometer-alt"></i> Dashboard Unified</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li class="dropdown-header admin-section-header">
                                     <i class="fas fa-store"></i> Quản Lý Cửa Hàng
@@ -842,8 +841,7 @@
                                 <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.products.index') }}"><i class="fas fa-box"></i> Sản Phẩm</a></li>
                                 <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.categories.index') }}"><i class="fas fa-tags"></i> Danh Mục</a></li>
                                 <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.orders.index') }}"><i class="fas fa-shopping-cart"></i> Đơn Hàng</a></li>
-                                <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.users') }}"><i class="fas fa-users"></i> Khách Hàng</a></li>
-                                <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.admins.index') }}"><i class="fas fa-user-shield"></i> Quản Lý Admin</a></li>
+                                <li><a class="dropdown-item admin-dropdown-item" href="{{ route('admin.users') }}"><i class="fas fa-users"></i> Quản Lý Tài Khoản</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li class="dropdown-header admin-section-header">
                                     <i class="fas fa-palette"></i> Giao Diện & Cài Đặt

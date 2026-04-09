@@ -1,0 +1,1 @@
+<?php /**PATH D:\Boutique\fashion-shop\resources\views/admin/products/partials/variant-management.blade.php ENDPATH**/ ?>

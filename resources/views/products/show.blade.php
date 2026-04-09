@@ -35,8 +35,13 @@
             
             <div class="d-flex align-items-baseline gap-3 mb-4">
                 <h2 class="text-primary" style="font-size: 2.5rem; margin: 0;">{{ number_format($product->price, 0, ',', '.') }}₫</h2>
-                <span class="badge {{ $product->quantity > 0 ? 'bg-success' : 'bg-danger' }}">
-                    {{ $product->quantity > 0 ? 'Còn hàng' : 'Hết hàng' }}
+            @php
+                $totalStock = $product->variants->count() > 0
+                    ? $product->variants->sum('stock_quantity')
+                    : $product->quantity;
+            @endphp
+                <span id="stockBadge" class="badge {{ $totalStock > 0 ? 'bg-success' : 'bg-danger' }}">
+                    {{ $totalStock > 0 ? 'Còn hàng' : 'Hết hàng' }}
                 </span>
             </div>
             
@@ -78,7 +83,7 @@
                         <i class="fas fa-ruler me-2"></i>Chọn Kích Thước
                     </label>
                     <div class="d-flex gap-3 flex-wrap">
-                        @foreach($standardSizes as $size)
+                        @foreach($availableSizes as $size)
                         <button type="button" class="size-btn-modern" data-size="{{ $size }}">
                             {{ $size }}
                         </button>
@@ -109,22 +114,31 @@
             
             @auth
                 @if($product->quantity > 0 || $product->variants->count())
+                <div id="actionButtons">
                 <form method="POST" action="{{ route('cart.add', $product->id) }}" id="addToCartForm" class="mb-3">
                     @csrf
                     <input type="hidden" name="quantity" id="cartQuantity" value="1">
                     <input type="hidden" name="variant_id" id="cartVariantId" value="">
                     <div class="row g-2">
-                        <div class="col-6">
-                                <button type="submit" class="btn btn-dark w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;">
-                                    <i class="fas fa-shopping-bag"></i> THÊM VÀO GIỎ HÀNG
-                                </button>
-                            </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-dark w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;" onclick="buyNow()">
-                                MUA NGAY
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-dark w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;">
+                                <i class="fas fa-shopping-bag"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;" onclick="buyNow()">
+                                <i class="fas fa-bolt"></i> MUA NGAY
                             </button>
                         </div>
                     </div>
+                </form>
+                </div>
+
+                {{-- Form ẩn cho Mua Ngay --}}
+                <form method="POST" action="{{ route('orders.buy-now', $product->id) }}" id="buyNowForm">
+                    @csrf
+                    <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                    <input type="hidden" name="variant_id" id="buyNowVariantId" value="">
                 </form>
                 
                 <div class="row g-2 mb-4">
@@ -135,6 +149,39 @@
                         <button class="btn btn-outline-secondary w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;" data-bs-toggle="collapse" data-bs-target="#reviewForm">
                             <i class="fas fa-star"></i> GỬI ĐÁNH GIÁ
                         </button>
+                    </div>
+                </div>
+
+                <div class="collapse mb-4" id="reviewForm">
+                    <div class="card card-body border-0 bg-light p-4">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-star text-warning me-2"></i>Viết đánh giá của bạn</h6>
+                        @if(session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        <form method="POST" action="{{ route('reviews.store', $product->id) }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Đánh giá</label>
+                                <div class="d-flex gap-2">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="rating" id="star{{ $i }}" value="{{ $i }}" required>
+                                            <label class="form-check-label" for="star{{ $i }}">
+                                                <i class="fas fa-star text-warning"></i> {{ $i }}
+                                            </label>
+                                        </div>
+                                    @endfor
+                                </div>
+                                @error('rating')<div class="text-danger small">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nhận xét</label>
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm...">{{ old('comment') }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-dark fw-bold px-4">
+                                <i class="fas fa-paper-plane me-2"></i>Gửi Đánh Giá
+                            </button>
+                        </form>
                     </div>
                 </div>
                 @endif
@@ -181,10 +228,17 @@
             </div>
             <div id="reviews" class="tab-pane fade">
                 @foreach($product->reviews()->where('approved', true)->latest()->get() as $r)
-                    <div class="mb-3">
-                        <strong>{{ $r->user->name ?? 'Khách' }}</strong> — <small class="text-muted">{{ $r->created_at->format('d/m/Y') }}</small>
-                        <div>Rating: {{ $r->rating }} / 5</div>
-                        <p>{{ $r->comment }}</p>
+                    <div class="mb-4 pb-4 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <strong>{{ $r->user->name ?? 'Khách' }}</strong>
+                            <small class="text-muted">{{ $r->created_at->format('d/m/Y') }}</small>
+                        </div>
+                        <div class="my-1">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= $r->rating ? 'text-warning' : 'text-muted' }}"></i>
+                            @endfor
+                        </div>
+                        <p class="mb-0 text-muted">{{ $r->comment }}</p>
                     </div>
                 @endforeach
                 @if($product->reviews()->where('approved', true)->count() == 0)
@@ -259,46 +313,37 @@ function decreaseQty() {
 }
 
 function buyNow() {
-    // Check if color/size selection UI is visible
     const hasColorButtons = document.querySelectorAll('.color-btn-modern').length > 0;
     const hasSizeButtons = document.querySelectorAll('.size-btn-modern').length > 0;
     
-    // Only validate if product has variants
     if (variants && variants.length > 0) {
-        // If color selection UI exists, color must be selected
         if (hasColorButtons && !selectedColor) {
             alert('Vui lòng chọn màu sắc trước khi mua!');
-            const colorSection = document.querySelector('.color-btn-modern');
-            if (colorSection) {
-                colorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            document.querySelector('.color-btn-modern')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return false;
         }
-        
-        // If size selection UI exists, size must be selected
         if (hasSizeButtons && !selectedSize) {
             alert('Vui lòng chọn kích thước trước khi mua!');
-            const sizeSection = document.querySelector('.size-btn-modern');
-            if (sizeSection) {
-                sizeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            document.querySelector('.size-btn-modern')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return false;
         }
-        
-        // Check if variant_id is set
         const variantId = document.getElementById('cartVariantId').value;
         if (!variantId) {
             alert('Không tìm thấy sản phẩm phù hợp với lựa chọn của bạn!');
             return false;
         }
+        // Kiểm tra hết hàng
+        const matchingVariant = variants.find(v => v.id == variantId);
+        if (matchingVariant && matchingVariant.stock_quantity <= 0) {
+            alert('Biến thể này đã hết hàng!');
+            return false;
+        }
     }
     
-    // If validation passed, submit form
-    document.getElementById('cartQuantity').value = document.getElementById('quantity').value;
-    document.getElementById('addToCartForm').submit();
-    setTimeout(() => {
-        window.location.href = '{{ route('cart.index') }}';
-    }, 500);
+    const qty = document.getElementById('quantity').value;
+    document.getElementById('buyNowQuantity').value = qty;
+    document.getElementById('buyNowVariantId').value = document.getElementById('cartVariantId').value;
+    document.getElementById('buyNowForm').submit();
 }
 
 function updateMainImage(thumb) {
@@ -429,6 +474,35 @@ function updateVariantInfo() {
         if (matchingVariant) {
             cartVariantId.value = matchingVariant.id;
             console.log('Set variant ID to:', matchingVariant.id);
+            
+            // Cập nhật max quantity và badge theo stock của variant
+            const stock = matchingVariant.stock_quantity ?? 0;
+            const qtyInput = document.getElementById('quantity');
+            qtyInput.max = stock;
+            if (parseInt(qtyInput.value) > stock) qtyInput.value = stock > 0 ? stock : 1;
+            document.getElementById('cartQuantity').value = qtyInput.value;
+            
+            // Cập nhật badge tồn kho
+            const badge = document.getElementById('stockBadge');
+            if (badge) {
+                if (stock > 0) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Còn hàng';
+                } else {
+                    badge.className = 'badge bg-danger';
+                    badge.textContent = 'Hết hàng';
+                }
+            }
+            
+            // Disable/enable nút mua theo stock
+            const actionButtons = document.getElementById('actionButtons');
+            const outOfStockMsg = document.getElementById('outOfStockMsg');
+            const btns = document.querySelectorAll('#actionButtons button');
+            btns.forEach(btn => {
+                btn.disabled = stock <= 0;
+                btn.style.opacity = stock <= 0 ? '0.5' : '1';
+                btn.style.cursor = stock <= 0 ? 'not-allowed' : 'pointer';
+            });
         } else {
             cartVariantId.value = '';
             console.log('No matching variant found');
@@ -652,5 +726,13 @@ document.querySelectorAll('.thumbnail img').forEach(img => {
         border-left: none;
         border-right: none;
     }
+    
+    /* Ẩn mũi tên spinner của input number */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] { -moz-appearance: textfield; }
 </style>
 @endsection

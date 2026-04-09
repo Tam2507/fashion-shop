@@ -10,7 +10,7 @@ class CategoryController extends Controller
     // ADMIN: Danh sách danh mục
     public function index()
     {
-        $categories = Category::paginate(15);
+        $categories = Category::withCount('products')->paginate(15);
         return view('admin.categories.index', compact('categories'));
     }
 

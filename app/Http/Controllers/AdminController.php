@@ -90,9 +90,22 @@ class AdminController extends Controller
     }
 
     // Danh sách người dùng admin
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::paginate(15);
+        $search = $request->input('search');
+
+        $query = User::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->latest()->paginate(20)->withQueryString();
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -120,9 +133,19 @@ class AdminController extends Controller
     }
 
     // Quản lý tài khoản admin
-    public function admins()
+    public function admins(Request $request)
     {
-        $admins = User::where('is_admin', true)->paginate(15);
+        $query = User::where('is_admin', true);
+
+        if ($request->filled('search')) {
+            $s = $request->input('search');
+            $query->where(function($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('email', 'like', "%{$s}%");
+            });
+        }
+
+        $admins = $query->latest()->paginate(15)->withQueryString();
         return view('admin.admins.index', compact('admins'));
     }
 

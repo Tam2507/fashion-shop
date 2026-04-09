@@ -182,6 +182,21 @@
     background: #bcc0c4;
     cursor: not-allowed;
 }
+
+#adminEditor:empty:before {
+    content: attr(data-placeholder);
+    color: #aaa;
+    pointer-events: none;
+}
+
+#adminEditor img {
+    max-width: 200px;
+    max-height: 160px;
+    border-radius: 10px;
+    display: block;
+    margin: 4px 0;
+    border: 2px solid #0084ff44;
+}
 </style>
 @endsection
 
@@ -239,7 +254,15 @@
 
             <div class="message-content">
                 <div class="message-bubble">
-                    {{ $message->message }}
+                    @if($message->image)
+                        <img src="/storage/{{ $message->image }}" 
+                             alt="Ảnh" 
+                             style="max-width:220px; max-height:220px; border-radius:12px; display:block; cursor:pointer;"
+                             onclick="window.open(this.src,'_blank')">
+                    @endif
+                    @if($message->message)
+                        <span style="{{ $message->image ? 'display:block; margin-top:6px;' : '' }}">{{ $message->message }}</span>
+                    @endif
                 </div>
                 <div class="message-time">
                     {{ $message->created_at->format('H:i') }}
@@ -270,44 +293,140 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.messages.reply', $firstMessage->id) }}" method="POST" class="chat-input-form">
+    <form action="{{ route('admin.messages.reply', $firstMessage->id) }}" method="POST" class="chat-input-form" enctype="multipart/form-data" id="adminReplyForm">
         @csrf
-        <textarea name="message" 
-                  placeholder="Aa" 
-                  rows="1" 
-                  required></textarea>
-        <button type="submit">
+        <input type="file" id="adminImageInput" name="image" accept="image/*" style="display:none;"
+               onchange="showChatPreview(this)">
+
+        {{-- Nút ảnh nằm ngoài ô nhắn tin --}}
+        <label for="adminImageInput" style="cursor:pointer;color:#0084ff;padding:6px;flex-shrink:0;display:flex;align-items:center;" title="Gửi ảnh">
+            <i class="fas fa-image" style="font-size:20px;"></i>
+        </label>
+
+        {{-- Wrapper: preview + textarea --}}
+        <div style="flex:1; display:flex; flex-direction:column; border:1px solid #ccd0d5; border-radius:20px; background:#f0f2f5; overflow:hidden;">
+            {{-- Preview ảnh (ẩn mặc định) --}}
+            <div id="imgPreviewArea" style="display:none; padding:8px 12px 4px;">
+                <div style="position:relative; display:inline-block;">
+                    <img id="imgPreviewThumb" src="" 
+                         style="max-height:80px; max-width:120px; border-radius:8px; display:block; border:1px solid #ccd0d5;">
+                    <button type="button" onclick="clearImg()"
+                            style="position:absolute;top:-6px;right:-6px;background:#333;border:none;
+                                   color:white;border-radius:50%;width:18px;height:18px;cursor:pointer;
+                                   font-size:11px;display:flex;align-items:center;justify-content:center;
+                                   line-height:1;">✕</button>
+                </div>
+            </div>
+            {{-- Textarea --}}
+            <textarea id="adminMsgInput" name="message" placeholder="Aa" rows="1"
+                      style="border:none;background:transparent;padding:10px 16px;
+                             resize:none;font-size:15px;max-height:100px;
+                             outline:none;font-family:inherit;"></textarea>
+        </div>
+
+        <button type="submit" style="width:36px;height:36px;border-radius:50%;border:none;
+                background:#0084ff;color:white;display:flex;align-items:center;
+                justify-content:center;cursor:pointer;flex-shrink:0;">
             <i class="fas fa-paper-plane"></i>
         </button>
     </form>
 </div>
 
 <script>
-// Auto scroll to bottom
-document.addEventListener('DOMContentLoaded', function() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-});
+// Định nghĩa sớm để onchange inline gọi được
+window.showChatPreview = function(input) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var thumb = document.getElementById('imgPreviewThumb');
+        var area = document.getElementById('imgPreviewArea');
+        if (thumb && area) {
+            thumb.src = e.target.result;
+            area.style.cssText = 'display:block;padding:8px 12px 4px;';
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+};
+
+window.clearImg = function() {
+    var inp = document.getElementById('adminImageInput');
+    var area = document.getElementById('imgPreviewArea');
+    var thumb = document.getElementById('imgPreviewThumb');
+    if (inp) inp.value = '';
+    if (area) area.style.display = 'none';
+    if (thumb) thumb.src = '';
+};
+
+// Scroll to bottom
+var cm = document.getElementById('chatMessages');
+if (cm) cm.scrollTop = cm.scrollHeight;
 
 // Auto resize textarea
-const textarea = document.querySelector('textarea[name="message"]');
-if (textarea) {
-    textarea.addEventListener('input', function() {
+var ta = document.getElementById('adminMsgInput');
+if (ta) {
+    ta.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 100) + 'px';
     });
-    
-    // Enter to send, Shift+Enter for new line
-    textarea.addEventListener('keydown', function(e) {
+    ta.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            this.form.submit();
+            submitMsg();
         }
     });
 }
+
+async function submitMsg() {
+    var msg = document.getElementById('adminMsgInput').value.trim();
+    var imgInput = document.getElementById('adminImageInput');
+    var imgFile = imgInput && imgInput.files[0];
+    if (!msg && !imgFile) return;
+
+    var localImgSrc = '';
+    if (imgFile) {
+        var thumb = document.getElementById('imgPreviewThumb');
+        localImgSrc = thumb ? thumb.src : '';
+    }
+
+    var fd = new FormData(document.getElementById('adminReplyForm'));
+    try {
+        var res = await fetch('{{ route('admin.messages.reply', $firstMessage->id) }}', {
+            method: 'POST',
+            body: fd,
+            headers: { 'Accept': 'application/json' }
+        });
+        var data = await res.json();
+        if (data.success) {
+            var savedMsg = msg;
+            document.getElementById('adminMsgInput').value = '';
+            document.getElementById('adminMsgInput').style.height = 'auto';
+            clearImg();
+
+            var m = data.message;
+            var imgSrc = m.image ? '/storage/'+m.image : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
+            var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
+            var txtHtml = savedMsg ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+savedMsg+'</span>' : '';
+            if (!imgHtml && !txtHtml) return;
+
+            var now = new Date();
+            var t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+            cm.insertAdjacentHTML('beforeend',
+                '<div class="message-group my-message">'
+                +'<div class="message-content"><div class="message-bubble">'+imgHtml+txtHtml+'</div>'
+                +'<div class="message-time">'+t+'</div></div>'
+                +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
+                +'</div>');
+            cm.scrollTop = cm.scrollHeight;
+        }
+    } catch(err) { console.error('Lỗi:', err); }
+}
+
+document.getElementById('adminReplyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitMsg();
+});
 </script>
+
 @endsection
 
 @section('scripts')

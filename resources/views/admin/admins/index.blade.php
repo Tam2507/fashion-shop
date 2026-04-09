@@ -1,68 +1,89 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Quản Lý Tài Khoản Admin')
-@section('header_icon', 'fas fa-user-shield')
+@section('title', 'Quản Lý Tài Khoản Admin')
 
 @section('content')
-<div class="container-fluid">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h4 style="color: #8B3A3A; margin: 0;">
-            <i class="fas fa-user-shield"></i> Quản Lý Tài Khoản Admin
-        </h4>
-        <a href="/admin/admins/create" class="btn btn-add">
-            <i class="fas fa-plus"></i> Thêm Admin
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-shield"></i> Quản Lý Tài Khoản Admin</h1>
+    <a href="/admin/admins/create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Thêm Admin
+    </a>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+@endif
 
-    @if($message = Session::get('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ $message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
-    @if($message = Session::get('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+<!-- Search -->
+<form method="GET" action="{{ request()->url() }}" class="mb-4">
+    <div class="input-group" style="max-width: 420px;">
+        <input type="text" name="search" value="{{ request('search') }}"
+               class="form-control" placeholder="Tìm theo tên, email...">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+        @if(request('search'))
+            <a href="{{ request()->url() }}" class="btn btn-outline-secondary">Xóa</a>
+        @endif
+    </div>
+</form>
 
-    <div class="table-responsive">
-        @if($admins && count($admins) > 0)
-            <table class="table table-hover">
-                <thead>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
-                        <th>STT</th>
+                        <th>Avatar</th>
                         <th>Tên Admin</th>
                         <th>Email</th>
-                        <th>Trạng Thái</th>
-                        <th>Ngày Tạo</th>
-                        <th>Hành Động</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($admins as $admin)
+                    @forelse($admins as $admin)
                     <tr>
-                        <td><span class="badge" style="background-color: #D4A574;">{{ $loop->iteration }}</span></td>
-                        <td><strong>{{ $admin->name }}</strong></td>
-                        <td>{{ $admin->email }}</td>
                         <td>
-                            <span class="badge badge-status-active">
-                                <i class="fas fa-check-circle"></i> Hoạt Động
-                            </span>
+                            @if($admin->avatar)
+                                <img src="/storage/{{ $admin->avatar }}" alt="{{ $admin->name }}"
+                                     class="rounded-circle" style="width:48px;height:48px;object-fit:cover;border:2px solid #dee2e6;">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width:48px;height:48px;background:#8B3A3A;">
+                                    <i class="fas fa-user-shield text-white"></i>
+                                </div>
+                            @endif
                         </td>
-                        <td>{{ $admin->created_at->format('d/m/Y') }}</td>
                         <td>
-                            <div class="action-buttons">
-                                <a href="/admin/admins/{{ $admin->id }}/edit" class="btn-action btn-edit">
+                            <strong>{{ $admin->name }}</strong>
+                            @if($admin->id === auth()->id())
+                                <span class="badge bg-warning text-dark ms-1">Bạn</span>
+                            @endif
+                        </td>
+                        <td>{{ $admin->email }}</td>
+                        <td><span class="badge bg-success"><i class="fas fa-check-circle"></i> Hoạt động</span></td>
+                        <td><small class="text-muted">{{ $admin->created_at->format('d/m/Y') }}</small></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="/admin/admins/{{ $admin->id }}/edit" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                @if($admins->count() > 1)
-                                    <form method="POST" action="/admin/admins/{{ $admin->id }}" style="display: inline;">
+                                @if($admins->count() > 1 && $admin->id !== auth()->id())
+                                    <form method="POST" action="/admin/admins/{{ $admin->id }}"
+                                          class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa admin này?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-action btn-delete" onclick="return confirm('Bạn chắc chắn?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -70,117 +91,23 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-user-shield text-muted" style="font-size:3rem;"></i>
+                            <p class="text-muted mt-2">Chưa có tài khoản admin nào</p>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
-        @else
-            <div class="empty-state" style="padding: 60px 20px; text-align: center; color: #999;">
-                <i class="fas fa-user-shield" style="font-size: 60px; color: #D4A574; margin-bottom: 20px;"></i>
-                <p style="font-size: 16px; margin-bottom: 20px;">Chưa có tài khoản admin nào</p>
+        </div>
+
+        @if($admins->hasPages())
+            <div class="d-flex justify-content-center mt-4">
+                {{ $admins->links() }}
             </div>
         @endif
     </div>
-
-    @if($admins && $admins->hasPages())
-        <div style="margin-top: 30px;">
-            {{ $admins->links() }}
-        </div>
-    @endif
 </div>
-
-<style>
-    .btn-add {
-        background-color: #70AD47;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: 0.3s;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-add:hover {
-        background-color: #56963D;
-        color: white;
-    }
-
-    .table-responsive {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .table {
-        margin-bottom: 0;
-    }
-
-    .table thead th {
-        background-color: #f5f1e8;
-        color: #8B3A3A;
-        border-bottom: 2px solid #D4A574;
-        font-weight: 600;
-        padding: 15px;
-    }
-
-    .table tbody tr {
-        transition: background-color 0.3s;
-    }
-
-    .table tbody tr:hover {
-        background-color: #f9f7f3;
-    }
-
-    .table tbody td {
-        padding: 15px;
-        vertical-align: middle;
-    }
-
-    .badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: 500;
-        font-size: 12px;
-    }
-
-    .badge-status-active {
-        background-color: #70AD47;
-        color: white;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
-
-    .btn-action {
-        padding: 6px 10px;
-        font-size: 13px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s;
-        color: white;
-    }
-
-    .btn-edit {
-        background-color: #5B9BD5;
-    }
-
-    .btn-edit:hover {
-        background-color: #3B7FB8;
-        transform: translateY(-2px);
-    }
-
-    .btn-delete {
-        background-color: #C5504B;
-    }
-
-    .btn-delete:hover {
-        background-color: #A53D38;
-        transform: translateY(-2px);
-    }
-</style>
 @endsection

@@ -146,10 +146,8 @@
                             <option value="received" {{ $order->status == 'received' ? 'selected' : '' }}>Đã nhận</option>
                             <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
                             <option value="confirmed" {{ $order->status == 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
-                            <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Đã gửi hàng</option>
                             <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Đã giao hàng</option>
                             <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
-                            <option value="refunded" {{ $order->status == 'refunded' ? 'selected' : '' }}>Đã hoàn tiền</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
@@ -203,7 +201,7 @@
         </div>
 
         <!-- Delete Order -->
-        @if(in_array($order->status, ['cancelled', 'refunded']))
+        @if($order->status === 'cancelled')
         <div class="card border-danger">
             <div class="card-header bg-danger text-white">
                 <h5><i class="fas fa-trash"></i> Xóa Đơn Hàng</h5>

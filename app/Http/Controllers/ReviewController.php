@@ -22,9 +22,9 @@ class ReviewController extends Controller
             'product_id' => $product->id,
             'rating' => $request->input('rating'),
             'comment' => $request->input('comment'),
-            'approved' => false,
+            'approved' => true,
         ]);
 
-        return redirect()->back()->with('success', 'Cảm ơn đánh giá của bạn. Đánh giá sẽ được duyệt sớm.');
+        return redirect()->back()->with('success', 'Đánh giá của bạn đã được gửi thành công.');
     }
 }

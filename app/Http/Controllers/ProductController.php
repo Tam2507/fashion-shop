@@ -15,7 +15,7 @@ class ProductController extends Controller
     // Hiển thị danh sách sản phẩm (Frontend)
     public function index(Request $request)
     {
-        $query = Product::with('category', 'variants', 'images')->where('is_active', true);
+        $query = Product::with('category', 'variants', 'images', 'approvedReviews')->where('is_active', true);
 
         // Search by name or description
         if ($request->filled('q')) {
@@ -95,7 +95,7 @@ class ProductController extends Controller
     // Hiển thị chi tiết sản phẩm (Frontend)
     public function show(string $id)
     {
-        $product = Product::with(['category', 'variants', 'images', 'approvedReviews.user', 'approvedReviews.photos'])
+        $product = Product::with(['category', 'variants', 'images', 'approvedReviews.user'])
             ->findOrFail($id);
         
         $availableColors = $product->getAvailableColors();
@@ -159,7 +159,7 @@ class ProductController extends Controller
                     break;
                 case 'low_stock':
                     $query->whereHas('variants', function($q) {
-                        $q->whereRaw('stock_quantity <= low_stock_threshold AND stock_quantity > 0');
+                        $q->whereRaw('stock_quantity <= 5 AND stock_quantity > 0');
                     })->orWhereBetween('quantity', [1, 5]);
                     break;
             }
@@ -290,6 +290,9 @@ class ProductController extends Controller
         if (app()->bound(\App\Contracts\SearchEngineInterface::class)) {
             app(\App\Contracts\SearchEngineInterface::class)->indexProduct($product);
         }
+
+        // Đồng bộ quantity từ variants
+        $product->syncQuantity();
 
         $message = $validated['is_active'] ? 'Sản phẩm đã được xuất bản thành công!' : 'Sản phẩm đã được lưu nháp!';
         return redirect()->route('admin.products.index')->with('success', $message);
@@ -635,6 +638,8 @@ class ProductController extends Controller
                 }
             }
             
+            $product->syncQuantity();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã lưu ' . count($created) . ' variants!',
@@ -659,6 +664,8 @@ class ProductController extends Controller
             'price' => $validated['price'],
             'stock_quantity' => $validated['stock_quantity'],
         ]);
+
+        $product->syncQuantity();
 
         return response()->json([
             'success' => true,

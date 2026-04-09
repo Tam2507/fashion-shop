@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -73,13 +74,26 @@ class OrderController extends Controller
             return $price * $item->quantity;
         });
 
+        // Áp dụng mã giảm giá nếu có
+        $couponCode = strtoupper(trim($request->input('coupon_code', '')));
+        $discount = 0;
+        if ($couponCode) {
+            $coupon = \App\Models\Coupon::where('code', $couponCode)->first();
+            if ($coupon && $coupon->canBeUsedBy(auth()->id())) {
+                $discount = $coupon->calculateDiscount($total);
+                $coupon->increment('used_count');
+            }
+        }
+        $finalTotal = max(0, $total - $discount);
+
         $order = Order::create([
-            'user_id' => auth()->id(),
-            'total_price' => $total,
+            'user_id'          => auth()->id(),
+            'total_price'      => $finalTotal,
             'shipping_address' => $validated['shipping_address'],
-            'phone' => $validated['phone'],
-            'payment_method_id' => $validated['payment_method_id'],
-            'status' => 'received',
+            'phone'            => $validated['phone'],
+            'payment_method_id'=> $validated['payment_method_id'],
+            'status'           => 'received',
+            'coupon_code'      => $couponCode ?: null,
         ]);
 
         foreach ($carts as $cart) {
@@ -95,13 +109,13 @@ class OrderController extends Controller
             
             // Deduct stock from variant or product
             if ($cart->variant_id) {
-                // Deduct from variant stock
                 $variant = $cart->variant;
                 if ($variant) {
                     $variant->decrement('stock_quantity', $cart->quantity);
+                    // Đồng bộ quantity sản phẩm
+                    $cart->product->syncQuantity();
                 }
             } else {
-                // Deduct from product stock
                 $cart->product->decrement('quantity', $cart->quantity);
             }
         }
@@ -121,7 +135,7 @@ class OrderController extends Controller
             $momoService = new \App\Services\MoMoService();
             $result = $momoService->createPayment(
                 $order->id,
-                $total,
+                $finalTotal,
                 "Thanh toán đơn hàng #{$order->id}"
             );
             
@@ -136,17 +150,91 @@ class OrderController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Đặt hàng thành công');
     }
 
-    // ADMIN: Xem tất cả đơn hàng
+    // Kiểm tra và áp dụng mã giảm giá (AJAX)
+    public function applyCoupon(Request $request)
+    {
+        $code  = strtoupper(trim($request->input('code', '')));
+        $total = (float) $request->input('total', 0);
+
+        $coupon = \App\Models\Coupon::where('code', $code)->first();
+
+        if (!$coupon) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá không tồn tại.']);
+        }
+        if (!$coupon->canBeUsedBy(auth()->id())) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá không hợp lệ hoặc đã hết lượt dùng.']);
+        }
+
+        $discount = $coupon->calculateDiscount($total);
+        if ($discount <= 0) {
+            return response()->json(['success' => false, 'message' => 'Đơn hàng chưa đạt điều kiện áp dụng mã này (tối thiểu ' . number_format($coupon->minimum_amount, 0, ',', '.') . '₫).']);
+        }
+
+        return response()->json([
+            'success'  => true,
+            'discount' => $discount,
+            'message'  => 'Áp dụng thành công! Giảm ' . number_format($discount, 0, ',', '.') . '₫',
+        ]);
+    }
+
+    // Mua ngay - bypass giỏ hàng, đi thẳng tới checkout
+    public function buyNow(Request $request, $productId)
+    {
+        $product = Product::with(['variants', 'category'])->findOrFail($productId);
+        $quantity = (int) $request->input('quantity', 1);
+        $variantId = $request->input('variant_id') ?: null;
+
+        // Kiểm tra tồn kho
+        if ($variantId) {
+            $variant = $product->variants()->find($variantId);
+            if (!$variant || $variant->stock_quantity < $quantity) {
+                return redirect()->back()->with('error', 'Số lượng vượt quá tồn kho. Chỉ còn ' . ($variant->stock_quantity ?? 0) . ' sản phẩm.');
+            }
+        } else {
+            if ($product->quantity < $quantity) {
+                return redirect()->back()->with('error', 'Số lượng vượt quá tồn kho sản phẩm.');
+            }
+        }
+
+        // Xóa cart tạm cũ (nếu có) rồi thêm item mới
+        Cart::where('user_id', auth()->id())
+            ->where('product_id', $productId)
+            ->where('variant_id', $variantId)
+            ->delete();
+
+        $cart = Cart::create([
+            'user_id'    => auth()->id(),
+            'product_id' => $productId,
+            'variant_id' => $variantId,
+            'quantity'   => $quantity,
+        ]);
+
+        // Redirect thẳng tới checkout với cart item này
+        return redirect()->route('orders.create', ['selected_items' => $cart->id]);
+    }
     public function adminIndex(Request $request)
     {
         $query = Order::with(['user', 'orderItems'])->latest();
         
         // Filter by status
-        if ($request->has('status') && $request->status != '') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
         
-        $orders = $query->paginate(15);
+        // Search by order ID, customer name, phone
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        $orders = $query->paginate(15)->withQueryString();
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -161,7 +249,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, string $id)
     {
         $validated = $request->validate([
-            'status' => 'required|in:received,processing,confirmed,shipped,delivered,cancelled,refunded'
+            'status' => 'required|in:received,processing,confirmed,delivered,cancelled'
         ]);
         
         $order = Order::findOrFail($id);
@@ -186,8 +274,8 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         
         // Only allow deletion of cancelled orders
-        if (!in_array($order->status, ['cancelled', 'refunded'])) {
-            return redirect()->back()->with('error', 'Chỉ có thể xóa đơn hàng đã hủy hoặc đã hoàn tiền');
+        if ($order->status !== 'cancelled') {
+            return redirect()->back()->with('error', 'Chỉ có thể xóa đơn hàng đã hủy');
         }
         
         $order->delete();

@@ -570,25 +570,21 @@
             <li><a href="{{ route('admin.products.index') }}" class="{{ request()->is('admin/products*') ? 'active' : '' }}"><i class="fas fa-box"></i> Sản Phẩm</a></li>
             <li><a href="{{ route('admin.categories.index') }}" class="{{ request()->is('admin/categories*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Danh Mục</a></li>
             <li><a href="{{ route('admin.orders.index') }}" class="{{ request()->is('admin/orders*') ? 'active' : '' }}"><i class="fas fa-shopping-cart"></i> Đơn Hàng</a></li>
-            <li><a href="{{ route('admin.users') }}" class="{{ request()->is('admin/users*') ? 'active' : '' }}"><i class="fas fa-users"></i> Khách Hàng</a></li>
-            <li><a href="{{ route('admin.admins.index') }}" class="{{ request()->is('admin/admins*') ? 'active' : '' }}"><i class="fas fa-user-shield"></i> Quản Lý Admin</a></li>
+            <li><a href="{{ route('admin.users') }}" class="{{ request()->is('admin/users*') ? 'active' : '' }}"><i class="fas fa-users"></i> Quản Lý Tài Khoản</a></li>
             <li><a href="{{ route('profile.edit') }}" class="{{ request()->is('profile*') ? 'active' : '' }}"><i class="fas fa-user-circle"></i> Thông Tin Cá Nhân</a></li>
             <li><hr style="border-color: rgba(212, 165, 116, 0.2); margin: 20px 0;"></li>
             <li><a href="{{ route('admin.banners.index') }}" class="{{ request()->is('admin/banners*') ? 'active' : '' }}"><i class="fas fa-images"></i> Quản Lý Banner</a></li>
-            <li><a href="{{ route('admin.features.index') }}" class="{{ request()->is('admin/features*') ? 'active' : '' }}"><i class="fas fa-star"></i> Quản Lý Tính Năng</a></li>
             <li><a href="{{ route('admin.payment-methods.index') }}" class="{{ request()->is('admin/payment-methods*') ? 'active' : '' }}"><i class="fas fa-credit-card"></i> Phương Thức Thanh Toán</a></li>
             <li><a href="{{ route('admin.coupons.index') }}" class="{{ request()->is('admin/coupons*') ? 'active' : '' }}"><i class="fas fa-ticket-alt"></i> Quản Lý Mã Giảm Giá</a></li>
             <li><a href="{{ route('admin.product-sections.index') }}" class="{{ request()->is('admin/product-sections*') ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Section Sản Phẩm</a></li>
             <li><a href="{{ route('admin.posts.index') }}" class="{{ request()->is('admin/posts*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Quản Lý Bài Viết</a></li>
             <li><a href="{{ route('admin.settings.momo') }}" class="{{ request()->is('admin/settings/momo*') ? 'active' : '' }}"><i class="fas fa-wallet"></i> Cấu Hình MoMo QR</a></li>
-            <li><a href="{{ route('admin.messages.index') }}" class="{{ request()->is('admin/messages*') ? 'active' : '' }}"><i class="fas fa-comments"></i> Tin Nhắn Khách Hàng</a></li>
             <li><a href="{{ route('admin.contacts.index') }}" class="{{ request()->is('admin/contacts') ? 'active' : '' }}"><i class="fas fa-envelope"></i> Tin Nhắn Liên Hệ</a></li>
             <li><a href="{{ route('admin.contact-info.edit') }}" class="{{ request()->is('admin/contact-info*') ? 'active' : '' }}"><i class="fas fa-address-card"></i> Thông Tin Liên Hệ</a></li>
             <li><a href="{{ route('admin.about.edit') }}" class="{{ request()->is('admin/about*') ? 'active' : '' }}"><i class="fas fa-info-circle"></i> Trang Về Chúng Tôi</a></li>
             <li><a href="{{ route('admin.footer-settings.index') }}" class="{{ request()->is('admin/footer-settings*') ? 'active' : '' }}"><i class="fas fa-cog"></i> Cài Đặt Footer</a></li>
             <li><hr style="border-color: rgba(212, 165, 116, 0.2); margin: 20px 0;"></li>
             <li><a href="{{ route('home') }}"><i class="fas fa-home"></i> Về Trang Chủ</a></li>
-            <li><a href="{{ route('admin.unified') }}"><i class="fas fa-tachometer-alt"></i> Dashboard Unified</a></li>
             <li>
                 <form method="POST" action="/logout" style="margin: 0;">
                     @csrf
@@ -609,9 +605,24 @@
                 @yield('page_title', 'Admin Dashboard')
             </h1>
             <div class="admin-user-menu">
+                @php $unreadMessages = \App\Models\Message::where('is_read', false)->where('is_admin_reply', false)->count(); @endphp
+                <a href="{{ route('admin.messages.index') }}" class="position-relative text-decoration-none me-2" title="Tin nhắn khách hàng">
+                    <i class="fas fa-comments fs-5 text-secondary"></i>
+                    @if($unreadMessages > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:10px;">
+                            {{ $unreadMessages > 99 ? '99+' : $unreadMessages }}
+                        </span>
+                    @endif
+                </a>
                 <div class="user-avatar">
                     {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                 </div>
+                <form method="POST" action="/logout" class="mb-0">
+                    @csrf
+                    <button type="submit" class="btn btn-link p-0 text-secondary" title="Đăng xuất">
+                        <i class="fas fa-sign-out-alt fs-5"></i>
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -686,5 +697,6 @@
     </style>
     
     @yield('extra_js')
+    @stack('scripts')
 </body>
 </html>

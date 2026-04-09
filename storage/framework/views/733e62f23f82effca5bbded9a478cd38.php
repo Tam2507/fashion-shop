@@ -354,6 +354,7 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
 // Revenue Chart
 const revenueCtx = document.getElementById('revenueChart').getContext('2d');
@@ -411,12 +412,11 @@ const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2
 const orderStatusChart = new Chart(orderStatusCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Đang xử lý', 'Đã xác nhận', 'Đang giao', 'Hoàn thành', 'Đã hủy'],
+        labels: ['Đang xử lý', 'Đã xác nhận', 'Hoàn thành', 'Đã hủy'],
         datasets: [{
             data: [
                 <?php echo e(\App\Models\Order::where('status', 'processing')->count()); ?>,
                 <?php echo e(\App\Models\Order::where('status', 'confirmed')->count()); ?>,
-                <?php echo e(\App\Models\Order::where('status', 'shipped')->count()); ?>,
                 <?php echo e(\App\Models\Order::where('status', 'delivered')->count()); ?>,
                 <?php echo e(\App\Models\Order::where('status', 'cancelled')->count()); ?>
 
@@ -424,7 +424,6 @@ const orderStatusChart = new Chart(orderStatusCtx, {
             backgroundColor: [
                 '#f6c23e',
                 '#1cc88a',
-                '#36b9cc',
                 '#28a745',
                 '#e74a3b'
             ]
@@ -436,9 +435,29 @@ const orderStatusChart = new Chart(orderStatusCtx, {
         plugins: {
             legend: {
                 position: 'bottom'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const value = context.parsed;
+                        const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return context.label + ': ' + value + ' (' + pct + '%)';
+                    }
+                }
+            },
+            datalabels: {
+                color: '#fff',
+                font: { weight: 'bold', size: 13 },
+                formatter: function(value, context) {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    if (total === 0 || value === 0) return '';
+                    return ((value / total) * 100).toFixed(1) + '%';
+                }
             }
         }
-    }
+    },
+    plugins: [ChartDataLabels]
 });
 </script>
 <?php $__env->stopSection(); ?>

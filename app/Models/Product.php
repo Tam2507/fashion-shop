@@ -56,20 +56,10 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
-    // Get unique colors from both variants and images
+    // Get unique colors from variants only (source of truth for stock)
     public function getAvailableColors()
     {
-        // Get colors from variants
-        $variantColors = $this->variants()->distinct()->pluck('color')->filter();
-        
-        // Get colors from images
-        $imageColors = $this->images()->whereNotNull('color')->distinct()->pluck('color')->filter();
-        
-        // Get color from main image
-        $mainImageColor = collect($this->image_color ? [$this->image_color] : []);
-        
-        // Merge and get unique colors
-        return $variantColors->merge($imageColors)->merge($mainImageColor)->unique()->sort()->values();
+        return $this->variants()->distinct()->pluck('color')->filter()->sort()->values();
     }
 
     // Get unique sizes from variants
@@ -85,6 +75,16 @@ class Product extends Model
             $orderB = $sizeOrder[strtoupper($b)] ?? 999;
             return $orderA <=> $orderB;
         })->values();
+    }
+
+    // Đồng bộ quantity từ tổng stock_quantity của tất cả variants
+    public function syncQuantity(): void
+    {
+        $total = $this->variants()->sum('stock_quantity');
+        // Nếu không có variant nào thì giữ nguyên quantity hiện tại
+        if ($this->variants()->count() > 0) {
+            $this->update(['quantity' => $total]);
+        }
     }
 
     // Get images for specific color

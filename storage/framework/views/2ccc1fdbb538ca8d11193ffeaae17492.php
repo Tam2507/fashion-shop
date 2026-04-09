@@ -10,19 +10,33 @@
 <!-- Filter by Status -->
 <div class="card mb-4">
     <div class="card-body">
-        <form method="GET" action="<?php echo e(route('admin.orders.index')); ?>" class="row g-3">
+        <form method="GET" action="<?php echo e(route('admin.orders.index')); ?>" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Mã đơn, tên khách, SĐT, email..." 
+                       value="<?php echo e(request('search')); ?>">
+            </div>
             <div class="col-md-4">
                 <label class="form-label">Lọc theo trạng thái</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
+                <select name="status" class="form-select">
                     <option value="">Tất cả đơn hàng</option>
                     <option value="received" <?php echo e(request('status') == 'received' ? 'selected' : ''); ?>>Đã nhận</option>
                     <option value="processing" <?php echo e(request('status') == 'processing' ? 'selected' : ''); ?>>Đang xử lý</option>
                     <option value="confirmed" <?php echo e(request('status') == 'confirmed' ? 'selected' : ''); ?>>Đã xác nhận</option>
-                    <option value="shipped" <?php echo e(request('status') == 'shipped' ? 'selected' : ''); ?>>Đã gửi hàng</option>
                     <option value="delivered" <?php echo e(request('status') == 'delivered' ? 'selected' : ''); ?>>Đã giao hàng</option>
                     <option value="cancelled" <?php echo e(request('status') == 'cancelled' ? 'selected' : ''); ?>>Đã hủy</option>
-                    <option value="refunded" <?php echo e(request('status') == 'refunded' ? 'selected' : ''); ?>>Đã hoàn tiền</option>
                 </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+                <?php if(request('search') || request('status')): ?>
+                <a href="<?php echo e(route('admin.orders.index')); ?>" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i>
+                </a>
+                <?php endif; ?>
             </div>
         </form>
     </div>

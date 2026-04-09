@@ -8,6 +8,12 @@
                 <h3 class="mb-0"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</h3>
             </div>
             <div class="card-body p-5">
+                <?php if(session('status')): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <?php echo e(session('status')); ?>
+
+                    </div>
+                <?php endif; ?>
                 <form method="POST" action="<?php echo e(route('login')); ?>"><?php echo csrf_field(); ?>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Email</label>
@@ -47,9 +53,12 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" name="remember" class="form-check-input" id="remember">
-                        <label class="form-check-label" for="remember">Ghi nhớ tôi</label>
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">Ghi nhớ tôi</label>
+                        </div>
+                        <a href="<?php echo e(route('password.request')); ?>" class="text-primary small">Quên mật khẩu?</a>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3">
                         <i class="fas fa-lock-open"></i> Đăng Nhập
