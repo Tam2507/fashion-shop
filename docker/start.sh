@@ -1,36 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 
-PORT=${PORT:-8080}
+export PORT=${PORT:-8080}
 
-# Tạo .env nếu chưa có
-if [ ! -f /var/www/html/.env ]; then
-    cp /var/www/html/.env.example /var/www/html/.env
+cd /var/www/html
+
+# Tạo .env
+if [ ! -f .env ]; then
+    cp .env.example .env
 fi
 
-# Tạo app key
+# App key
 php artisan key:generate --force
 
-# Tạo thư mục views cache nếu chưa có
-mkdir -p /var/www/html/storage/framework/views
-mkdir -p /var/www/html/storage/framework/cache
-mkdir -p /var/www/html/storage/framework/sessions
-chmod -R 775 /var/www/html/storage
+# Tạo thư mục cần thiết
+mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 
-# Chạy migration (bỏ qua lỗi bảng đã tồn tại)
-php artisan migrate --force 2>/dev/null || true
+# Migration (bỏ qua lỗi)
+php artisan migrate --force 2>&1 | grep -v "already exists" || true
 
 # Storage link
 php artisan storage:link 2>/dev/null || true
 
-# Cache (bỏ view:cache vì hay lỗi)
-php artisan config:cache
-php artisan route:cache
+# Config cache
+php artisan config:cache 2>/dev/null || true
+php artisan route:cache 2>/dev/null || true
 
-# Cập nhật nginx port
-sed -i "s/listen 8080;/listen $PORT;/" /etc/nginx/nginx.conf
+# Set Apache port
+sed -i "s/\${PORT}/$PORT/g" /etc/apache2/sites-available/000-default.conf
+sed -i "s/\${PORT}/$PORT/g" /etc/apache2/ports.conf
 
-# Khởi động PHP-FPM
-php-fpm -D
-
-# Khởi động Nginx
-nginx -g "daemon off;"
+# Start Apache
+apache2-foreground
