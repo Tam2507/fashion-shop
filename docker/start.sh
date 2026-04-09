@@ -23,4 +23,5 @@ php-fpm -D
 sleep 1
 
 # Start nginx foreground
-exec nginx -g "daemon off;"
+echo "Starting nginx on port $PORT..."
+exec nginx -g "daemon off;" 2>&1
