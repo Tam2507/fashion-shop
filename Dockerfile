@@ -4,7 +4,9 @@ FROM php:8.2-apache
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libzip-dev libonig-dev \
     && docker-php-ext-install pdo pdo_mysql gd zip bcmath mbstring \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && a2dismod mpm_event 2>/dev/null || true \
+    && a2enmod mpm_prefork 2>/dev/null || true
 
 # Cài Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
