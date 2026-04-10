@@ -24,4 +24,5 @@ sleep 1
 
 # Start nginx foreground
 echo "Starting nginx on port $PORT..."
+nginx -t 2>&1
 exec nginx -g "daemon off;" 2>&1

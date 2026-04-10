@@ -20,7 +20,8 @@ RUN mkdir -p storage/framework/views storage/framework/cache storage/framework/s
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chmod +x /start.sh \
+    && chown nobody:nobody /start.sh
 
 EXPOSE 8080
 
