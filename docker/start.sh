@@ -7,6 +7,9 @@ cd /var/www/html
 
 [ ! -f .env ] && cp .env.example .env
 
+# Fix permissions
+chmod -R 777 storage bootstrap/cache
+
 php artisan key:generate --force
 php artisan migrate --force 2>&1 || true
 php artisan storage:link 2>/dev/null || true

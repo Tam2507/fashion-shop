@@ -15,8 +15,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions \
-    && chown -R nobody:nobody /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 777 storage bootstrap/cache
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/start.sh /start.sh
