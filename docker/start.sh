@@ -10,6 +10,9 @@ cd /var/www/html
 # Fix permissions
 chmod -R 777 storage bootstrap/cache
 
+# Xóa view cache cũ
+rm -rf storage/framework/views/*.php 2>/dev/null || true
+
 php artisan key:generate --force
 php artisan migrate --force 2>&1 || true
 php artisan admin:create-super 2>/dev/null || true
