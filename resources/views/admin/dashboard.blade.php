@@ -125,15 +125,7 @@
                             </div>
                             <span class="badge bg-danger">Admin</span>
                         </a>
-                        <a href="{{ route('admin.unified') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-tachometer-alt me-2 text-success"></i> 
-                                <strong>Quản Lý Tổng Hợp</strong>
-                                <br><small class="text-muted">Quản lý tất cả từ một nơi</small>
-                            </div>
-                            <span class="badge bg-success">New</span>
-                        </a>
-                        <a href="{{ route('admin.admins.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-top-2" style="border-top: 2px solid #8B3A3A !important;">
+                        <a href="{{ route('admin.users') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-top-2" style="border-top: 2px solid #8B3A3A !important;">
                             <div>
                                 <i class="fas fa-user-cog me-2 text-primary"></i> 
                                 <strong>Giao Diện Admin</strong>
