@@ -21,6 +21,31 @@ class SettingsController extends Controller
         }
     }
 
+    public function sepaySettings()
+    {
+        $ipnUrl = url('/payment/sepay/ipn');
+        return view('admin.settings.sepay', compact('ipnUrl'));
+    }
+
+    public function updateSepaySettings(Request $request)
+    {
+        $request->validate([
+            'merchant_id' => 'nullable|string|max:255',
+            'api_key'     => 'nullable|string|max:255',
+            'env'         => 'required|in:sandbox,production',
+        ]);
+
+        if ($request->filled('merchant_id')) {
+            $this->updateEnvFile('SEPAY_MERCHANT_ID', $request->merchant_id);
+        }
+        if ($request->filled('api_key')) {
+            $this->updateEnvFile('SEPAY_API_KEY', $request->api_key);
+        }
+        $this->updateEnvFile('SEPAY_ENV', $request->env);
+
+        return redirect()->back()->with('success', 'Đã cập nhật cấu hình SePay thành công!');
+    }
+
     public function uploadMomoQR(Request $request)
     {
         $request->validate([

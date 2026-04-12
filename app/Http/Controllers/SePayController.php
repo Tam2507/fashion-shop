@@ -73,4 +73,63 @@ class SePayController extends Controller
         $order = Order::find($request->order_id);
         return view('payment.cancel', compact('order'));
     }
+
+    // IPN - SePay gửi thông báo khi thanh toán thành công
+    public function ipn(Request $request)
+    {
+        \Log::info('SePay IPN received', $request->all());
+
+        // Xác thực API key từ header Authorization
+        $apiKey = config('services.sepay.api_key');
+        if ($apiKey) {
+            $authHeader = $request->header('Authorization', '');
+            // SePay gửi: "Apikey YOUR_API_KEY"
+            if ($authHeader !== 'Apikey ' . $apiKey) {
+                \Log::warning('SePay IPN: Invalid API key', ['header' => $authHeader]);
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+        }
+
+        // Lấy dữ liệu từ SePay IPN payload
+        $transferContent = $request->input('content', '');
+        $amount          = (float) $request->input('transferAmount', 0);
+        $transactionId   = $request->input('id', '');
+        $accountNumber   = $request->input('accountNumber', '');
+
+        \Log::info("SePay IPN - content: {$transferContent}, amount: {$amount}, txn: {$transactionId}");
+
+        // Tìm order từ nội dung chuyển khoản (format: FS-{order_id})
+        preg_match('/FS-(\d+)/i', $transferContent, $matches);
+        $orderId = $matches[1] ?? null;
+
+        if (!$orderId) {
+            \Log::warning("SePay IPN: Cannot extract order ID from content: {$transferContent}");
+            return response()->json(['success' => false, 'message' => 'Order not found in content'], 400);
+        }
+
+        $order = Order::find($orderId);
+        if (!$order) {
+            \Log::warning("SePay IPN: Order #{$orderId} not found");
+            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+        }
+
+        // Kiểm tra số tiền khớp (cho phép sai lệch tối đa 1.000đ)
+        if (abs($amount - $order->total_price) > 1000) {
+            \Log::warning("SePay IPN: Amount mismatch - expected {$order->total_price}, got {$amount}");
+            return response()->json(['success' => false, 'message' => 'Amount mismatch'], 400);
+        }
+
+        // Cập nhật trạng thái đơn hàng (chỉ khi đang ở trạng thái chờ thanh toán)
+        if (in_array($order->status, ['received', 'pending'])) {
+            $order->update([
+                'status'         => 'confirmed',
+                'payment_status' => 'paid',
+            ]);
+            \Log::info("SePay IPN: Order #{$orderId} confirmed. Transaction: {$transactionId}");
+        } else {
+            \Log::info("SePay IPN: Order #{$orderId} already in status '{$order->status}', skipped.");
+        }
+
+        return response()->json(['success' => true, 'message' => 'OK']);
+    }
 }

@@ -203,6 +203,7 @@ Route::get('/api/search', [ProductController::class, 'search'])->name('api.searc
 Route::get('/payment/success', [\App\Http\Controllers\SePayController::class, 'success'])->name('payment.success');
 Route::get('/payment/error', [\App\Http\Controllers\SePayController::class, 'error'])->name('payment.error');
 Route::get('/payment/cancel', [\App\Http\Controllers\SePayController::class, 'cancel'])->name('payment.cancel');
+Route::post('/payment/sepay/ipn', [\App\Http\Controllers\SePayController::class, 'ipn'])->name('payment.sepay.ipn')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Cart
 Route::middleware('auth')->group(function () {
@@ -310,6 +311,8 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     // Settings
     Route::get('/settings/momo', [\App\Http\Controllers\Admin\SettingsController::class, 'momoSettings'])->name('settings.momo');
     Route::post('/settings/momo/upload', [\App\Http\Controllers\Admin\SettingsController::class, 'uploadMomoQR'])->name('settings.momo.upload');
+    Route::get('/settings/sepay', [\App\Http\Controllers\Admin\SettingsController::class, 'sepaySettings'])->name('settings.sepay');
+    Route::post('/settings/sepay', [\App\Http\Controllers\Admin\SettingsController::class, 'updateSepaySettings'])->name('settings.sepay.update');
     
     // Messages
     Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'adminIndex'])->name('messages.index');
