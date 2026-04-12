@@ -31,7 +31,7 @@ class CategoryController extends Controller
         $validated['slug'] = \Str::slug($validated['name']);
         Category::create($validated);
 
-        return redirect()->route('categories.index')->with('success', 'Danh mục đã được tạo');
+        return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được tạo');
     }
 
     // ADMIN: Sửa danh mục
@@ -53,14 +53,14 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('categories.index')->with('success', 'Danh mục đã được cập nhật');
+        return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được cập nhật');
     }
 
     // ADMIN: Xóa danh mục
     public function destroy(string $id)
     {
         Category::findOrFail($id)->delete();
-        return redirect()->route('categories.index')->with('success', 'Danh mục đã được xóa');
+        return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được xóa');
     }
 
     // PUBLIC: Hiển thị danh mục
