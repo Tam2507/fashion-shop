@@ -11,9 +11,16 @@ class SePayController extends Controller
 {
     private function client(): SePayClient
     {
+        $merchantId = config('services.sepay.merchant_id');
+        $secretKey  = config('services.sepay.secret_key');
+
+        if (!$merchantId || !$secretKey) {
+            abort(500, 'SePay chưa được cấu hình. Vui lòng thêm SEPAY_MERCHANT_ID và SEPAY_SECRET_KEY vào biến môi trường.');
+        }
+
         return new SePayClient(
-            config('services.sepay.merchant_id'),
-            config('services.sepay.secret_key'),
+            $merchantId,
+            $secretKey,
             config('services.sepay.env', 'sandbox')
         );
     }
