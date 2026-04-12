@@ -134,6 +134,11 @@ class OrderController extends Controller
             return redirect()->route('payment.sepay', $order->id);
         }
 
+        // Check if payment method is SePay
+        if ($validated['payment_method_id'] === 'sepay') {
+            return redirect()->route('payment.sepay', $order->id);
+        }
+
         // Check if payment method is ATM (MoMo)
         $paymentMethod = \App\Models\PaymentMethod::find($validated['payment_method_id']);
         if ($paymentMethod && $paymentMethod->code === 'atm') {
