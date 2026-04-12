@@ -199,6 +199,11 @@ Route::get('/category/{categoryId}', [ProductController::class, 'byCategory'])->
 // Search API
 Route::get('/api/search', [ProductController::class, 'search'])->name('api.search');
 
+// SePay payment callbacks (public)
+Route::get('/payment/success', [\App\Http\Controllers\SePayController::class, 'success'])->name('payment.success');
+Route::get('/payment/error', [\App\Http\Controllers\SePayController::class, 'error'])->name('payment.error');
+Route::get('/payment/cancel', [\App\Http\Controllers\SePayController::class, 'cancel'])->name('payment.cancel');
+
 // Cart
 Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -215,6 +220,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/buy-now/{productId}', [OrderController::class, 'buyNow'])->name('orders.buy-now');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/coupon/apply', [OrderController::class, 'applyCoupon'])->name('coupon.apply');
+    Route::get('/payment/sepay/{orderId}', [\App\Http\Controllers\SePayController::class, 'checkout'])->name('payment.sepay');
 });
 
 // MoMo Payment Gateway Callbacks (no auth required)

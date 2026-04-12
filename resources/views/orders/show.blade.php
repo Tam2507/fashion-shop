@@ -32,6 +32,11 @@
                 <p><strong>Địa chỉ:</strong> {{ $order->shipping_address }}</p>
                 <p><strong>SĐT:</strong> {{ $order->phone }}</p>
                 <p><strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+                @if($order->status === 'received')
+                    <a href="{{ route('payment.sepay', $order->id) }}" class="btn btn-success w-100 mt-2">
+                        <i class="fas fa-credit-card me-2"></i>Thanh toán ngay
+                    </a>
+                @endif
             </div>
         </div>
     </div>
