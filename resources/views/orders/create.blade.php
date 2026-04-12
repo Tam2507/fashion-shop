@@ -151,6 +151,26 @@
                             @error('payment_method_id')
                                 <div class="text-danger small mt-2">{{ $message }}</div>
                             @enderror
+
+                            {{-- SePay option --}}
+                            <div class="payment-method-item mb-3 mt-3">
+                                <input type="radio" name="payment_method_id" id="payment_sepay" 
+                                       value="sepay" class="payment-radio">
+                                <label for="payment_sepay" class="payment-label">
+                                    <div class="d-flex align-items-center">
+                                        <div class="payment-icon me-3" style="background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);">
+                                            <i class="fas fa-qrcode"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">Thanh toán qua SePay</div>
+                                            <small class="text-muted">Chuyển khoản ngân hàng / QR Code</small>
+                                        </div>
+                                        <div class="check-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
                         @else
                             <div class="alert alert-warning mb-0">
                                 <i class="fas fa-exclamation-triangle"></i> Chưa có phương thức thanh toán nào được kích hoạt. Vui lòng liên hệ quản trị viên.

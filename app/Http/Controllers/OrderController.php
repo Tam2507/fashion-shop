@@ -61,8 +61,15 @@ class OrderController extends Controller
         $validated = $request->validate([
             'shipping_address' => 'required|string',
             'phone' => 'required|string',
-            'payment_method_id' => 'required|exists:payment_methods,id',
+            'payment_method_id' => 'required',
         ]);
+
+        // Nếu chọn SePay thì không cần check DB
+        if ($validated['payment_method_id'] !== 'sepay') {
+            $request->validate([
+                'payment_method_id' => 'exists:payment_methods,id',
+            ]);
+        }
 
         $carts = Cart::where('user_id', auth()->id())->with(['product', 'variant'])->get();
         if ($carts->isEmpty()) {
@@ -91,7 +98,7 @@ class OrderController extends Controller
             'total_price'      => $finalTotal,
             'shipping_address' => $validated['shipping_address'],
             'phone'            => $validated['phone'],
-            'payment_method_id'=> $validated['payment_method_id'],
+            'payment_method_id'=> $validated['payment_method_id'] !== 'sepay' ? $validated['payment_method_id'] : null,
             'status'           => 'received',
             'coupon_code'      => $couponCode ?: null,
         ]);
@@ -121,6 +128,11 @@ class OrderController extends Controller
         }
 
         Cart::where('user_id', auth()->id())->delete();
+
+        // Check if payment method is SePay
+        if ($validated['payment_method_id'] === 'sepay') {
+            return redirect()->route('payment.sepay', $order->id);
+        }
 
         // Check if payment method is ATM (MoMo)
         $paymentMethod = \App\Models\PaymentMethod::find($validated['payment_method_id']);
