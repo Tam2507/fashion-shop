@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentMethod;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PaymentMethodController extends Controller
 {
@@ -30,12 +30,10 @@ class PaymentMethodController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('payment-methods', 'public');
+            $validated['logo'] = (new ImageUploadService)->upload($request->file('logo'), 'payment-methods');
         }
 
-        // Handle is_active checkbox
         $validated['is_active'] = $request->has('is_active') ? true : false;
-
         PaymentMethod::create($validated);
 
         return redirect()->route('admin.payment-methods.index')
@@ -63,16 +61,12 @@ class PaymentMethodController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            // Delete old logo
-            if ($paymentMethod->logo && Storage::disk('public')->exists($paymentMethod->logo)) {
-                Storage::disk('public')->delete($paymentMethod->logo);
-            }
-            $validated['logo'] = $request->file('logo')->store('payment-methods', 'public');
+            $svc = new ImageUploadService;
+            $svc->delete($paymentMethod->logo);
+            $validated['logo'] = $svc->upload($request->file('logo'), 'payment-methods');
         }
 
-        // Handle is_active checkbox
         $validated['is_active'] = $request->has('is_active') ? true : false;
-
         $paymentMethod->update($validated);
 
         return redirect()->route('admin.payment-methods.index')
@@ -81,10 +75,7 @@ class PaymentMethodController extends Controller
 
     public function destroy(PaymentMethod $paymentMethod)
     {
-        if ($paymentMethod->logo && Storage::disk('public')->exists($paymentMethod->logo)) {
-            Storage::disk('public')->delete($paymentMethod->logo);
-        }
-
+        (new ImageUploadService)->delete($paymentMethod->logo);
         $paymentMethod->delete();
 
         return redirect()->route('admin.payment-methods.index')
@@ -94,7 +85,6 @@ class PaymentMethodController extends Controller
     public function toggleStatus(PaymentMethod $paymentMethod)
     {
         $paymentMethod->update(['is_active' => !$paymentMethod->is_active]);
-        
         $status = $paymentMethod->is_active ? 'kích hoạt' : 'tạm dừng';
         return response()->json([
             'success' => true,

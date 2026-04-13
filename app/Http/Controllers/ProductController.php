@@ -349,9 +349,7 @@ class ProductController extends Controller
             foreach ($imagesToRemove as $imageId) {
                 $image = ProductImage::find($imageId);
                 if ($image && $image->product_id === $product->id) {
-                    if (Storage::disk('public')->exists($image->path)) {
-                        Storage::disk('public')->delete($image->path);
-                    }
+                    (new ImageUploadService)->delete($image->path);
                     $image->delete();
                 }
             }
@@ -384,15 +382,10 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         
-        // Delete images
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
-        }
-        
+        $svc = new ImageUploadService;
+        $svc->delete($product->image);
         foreach ($product->images as $image) {
-            if (Storage::disk('public')->exists($image->path)) {
-                Storage::disk('public')->delete($image->path);
-            }
+            $svc->delete($image->path);
         }
 
         // Remove from search index
@@ -434,14 +427,10 @@ class ProductController extends Controller
             case 'delete':
                 $products = Product::whereIn('id', $productIds)->get();
                 foreach ($products as $product) {
-                    // Delete images
-                    if ($product->image && Storage::disk('public')->exists($product->image)) {
-                        Storage::disk('public')->delete($product->image);
-                    }
+                    $svc = new ImageUploadService;
+                    $svc->delete($product->image);
                     foreach ($product->images as $image) {
-                        if (Storage::disk('public')->exists($image->path)) {
-                            Storage::disk('public')->delete($image->path);
-                        }
+                        $svc->delete($image->path);
                     }
                     // Remove from search index
                     if (app()->bound(\App\Contracts\SearchEngineInterface::class)) {

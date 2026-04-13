@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -32,7 +33,7 @@ class MessageController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('messages', 'public');
+            $imagePath = (new ImageUploadService)->upload($request->file('image'), 'messages');
         }
 
         $message = Message::create([
@@ -194,7 +195,7 @@ class MessageController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('messages', 'public');
+            $imagePath = (new ImageUploadService)->upload($request->file('image'), 'messages');
         }
 
         $reply = Message::create([

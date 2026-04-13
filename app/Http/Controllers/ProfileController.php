@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -38,16 +39,10 @@ class ProfileController extends Controller
         $user->phone = $request->phone;
         $user->address = $request->address;
 
-        // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            // Delete old avatar
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-
-            // Store new avatar
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+            $svc = new ImageUploadService;
+            $svc->delete($user->avatar);
+            $user->avatar = $svc->upload($request->file('avatar'), 'avatars');
         }
 
         // Update password if provided
@@ -71,10 +66,7 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-
+        (new ImageUploadService)->delete($user->avatar);
         $user->avatar = null;
         $user->save();
 

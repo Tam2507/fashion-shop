@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AboutPage;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -57,18 +58,12 @@ class AboutController extends Controller
         
         $data = $request->except(['image_1', 'image_2', 'image_3']);
 
-        // Handle image uploads
         for ($i = 1; $i <= 3; $i++) {
             $fieldName = "image_$i";
-            
             if ($request->hasFile($fieldName)) {
-                // Delete old image
-                if ($about->$fieldName) {
-                    Storage::disk('public')->delete($about->$fieldName);
-                }
-                
-                // Store new image
-                $data[$fieldName] = $request->file($fieldName)->store('about', 'public');
+                $svc = new ImageUploadService;
+                $svc->delete($about->$fieldName);
+                $data[$fieldName] = $svc->upload($request->file($fieldName), 'about');
             }
         }
 
@@ -87,9 +82,8 @@ class AboutController extends Controller
     {
         $about = AboutPage::first();
         $fieldName = "image_$imageNumber";
-        
         if ($about->$fieldName) {
-            Storage::disk('public')->delete($about->$fieldName);
+            (new ImageUploadService)->delete($about->$fieldName);
             $about->update([$fieldName => null]);
         }
 
