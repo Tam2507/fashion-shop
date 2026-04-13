@@ -133,44 +133,41 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Toggle status
-    $('.toggle-status').change(function() {
-        const couponId = $(this).data('id');
-        const isChecked = $(this).is(':checked');
-        
-        $.ajax({
-            url: `/admin/coupons/${couponId}/toggle-status`,
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                toastr.success(response.message);
-            },
-            error: function() {
-                toastr.error('Có lỗi xảy ra');
-                $(this).prop('checked', !isChecked);
+    document.querySelectorAll('.toggle-status').forEach(function(el) {
+        el.addEventListener('change', function() {
+            var couponId = this.dataset.id;
+            var checkbox = this;
+            fetch('/admin/coupons/' + couponId + '/toggle-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: '_token={{ csrf_token() }}'
+            })
+            .then(function(r){ return r.json(); })
+            .then(function(data){ if (!data.success) checkbox.checked = !checkbox.checked; })
+            .catch(function(){ checkbox.checked = !checkbox.checked; });
+        });
+    });
+
+    // Send notification
+    document.querySelectorAll('.send-notification').forEach(function(el) {
+        el.addEventListener('click', function() {
+            var couponId = this.dataset.id;
+            if (confirm('Ban co chac muon gui thong bao ma giam gia nay den tat ca khach hang?')) {
+                document.getElementById('notify-form-' + couponId).submit();
             }
         });
     });
-    
-    // Send notification
-    $('.send-notification').click(function() {
-        const couponId = $(this).data('id');
-        
-        if (confirm('Bạn có chắc muốn gửi thông báo mã giảm giá này đến tất cả khách hàng?')) {
-            $('#notify-form-' + couponId).submit();
-        }
-    });
-    
+
     // Delete coupon
-    $('.delete-coupon').click(function() {
-        const couponId = $(this).data('id');
-        
-        if (confirm('Bạn có chắc muốn xóa mã giảm giá này?')) {
-            $('#delete-form-' + couponId).submit();
-        }
+    document.querySelectorAll('.delete-coupon').forEach(function(el) {
+        el.addEventListener('click', function() {
+            var couponId = this.dataset.id;
+            if (confirm('Ban co chac muon xoa ma giam gia nay?')) {
+                document.getElementById('delete-form-' + couponId).submit();
+            }
+        });
     });
 });
 </script>
