@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,7 +33,7 @@ class BannerController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('banners', 'public');
+            $validated['image'] = (new ImageUploadService)->upload($request->file('image'), 'banners');
         }
 
         // Set default values
@@ -71,18 +72,11 @@ class BannerController extends Controller
                 'page' => 'required|in:home,products,all',
             ]);
 
-            // Handle image upload
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
-                
-                // Delete old image
-                if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-                    Storage::disk('public')->delete($banner->image);
-                }
-                
-                // Store new image
-                $imagePath = $file->store('banners', 'public');
-                $banner->image = $imagePath;
+                $svc = new ImageUploadService;
+                $svc->delete($banner->image);
+                $banner->image = $svc->upload($file, 'banners');
             }
 
             // Update other fields
@@ -108,10 +102,7 @@ class BannerController extends Controller
 
     public function destroy(Banner $banner)
     {
-        if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-            Storage::disk('public')->delete($banner->image);
-        }
-
+        (new ImageUploadService)->delete($banner->image);
         $banner->delete();
 
         return redirect()->route('admin.banners.index')

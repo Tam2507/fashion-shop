@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -248,7 +249,7 @@ class ProductController extends Controller
             foreach ($request->input('images') as $index => $imageData) {
                 // Upload image
                 if ($request->hasFile("images.{$index}.file")) {
-                    $imagePath = $request->file("images.{$index}.file")->store('products', 'public');
+                    $imagePath = (new ImageUploadService)->upload($request->file("images.{$index}.file"), 'products');
                     
                     // Set first image as main product image
                     if ($firstImage) {
@@ -330,11 +331,9 @@ class ProductController extends Controller
 
         // Handle main image upload
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $svc = new ImageUploadService;
+            $svc->delete($product->image);
+            $validated['image'] = $svc->upload($request->file('image'), 'products');
         }
 
         // Update slug if name changed
@@ -360,9 +359,10 @@ class ProductController extends Controller
 
         // Handle new additional images
         if ($request->hasFile('images')) {
+            $svc = new ImageUploadService;
             $maxPosition = $product->images()->max('position') ?? 0;
             foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('products', 'public');
+                $path = $svc->upload($image, 'products');
                 ProductImage::create([
                     'product_id' => $product->id,
                     'path' => $path,
@@ -538,7 +538,7 @@ class ProductController extends Controller
                 
                 foreach ($request->file('images') as $index => $image) {
                     try {
-                        $path = $image->store('products', 'public');
+                        $path = (new ImageUploadService)->upload($image, 'products');
                         
                         $productImage = ProductImage::create([
                             'product_id' => $product->id,
@@ -588,10 +588,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($productId);
         $image = ProductImage::where('product_id', $product->id)->findOrFail($imageId);
         
-        if (Storage::disk('public')->exists($image->path)) {
-            Storage::disk('public')->delete($image->path);
-        }
-        
+        (new ImageUploadService)->delete($image->path);
         $image->delete();
 
         return response()->json([
