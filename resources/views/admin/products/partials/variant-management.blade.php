@@ -31,7 +31,7 @@
                     <td><span class="view-cell">{{ number_format($v->price,0,',','.') }}</span><input type="number" class="form-control form-control-sm edit-cell d-none" value="{{ $v->price }}"></td>
                     <td><span class="view-cell"><span class="badge {{ $v->stock_quantity > 0 ? 'bg-success' : 'bg-danger' }}">{{ $v->stock_quantity }}</span></span><input type="number" class="form-control form-control-sm edit-cell d-none" value="{{ $v->stock_quantity }}"></td>
                     <td>
-                        <button class="btn btn-xs btn-edit" onclick="startEdit(this)" title="Sua" style="padding:2px 8px;font-size:12px;background:#5B9BD5;color:white;border:none;border-radius:4px;cursor:pointer;">&#9998;</button>
+                        <button class="btn btn-xs btn-edit" onclick="startEdit(this)" title="Sua" style="padding:2px 8px;font-size:12px;background:#5B9BD5;color:white;border:none;border-radius:4px;cursor:pointer;">Sua</button>
                         <button class="btn btn-xs btn-save d-none" onclick="saveRow(this)" title="Luu" style="padding:2px 8px;font-size:12px;background:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;">&#10003;</button>
                         <button class="btn btn-xs btn-cancel d-none" onclick="cancelEdit(this)" title="Huy" style="padding:2px 8px;font-size:12px;background:#6c757d;color:white;border:none;border-radius:4px;cursor:pointer;">&#10005;</button>
                         <button class="btn btn-sm btn-delete" onclick="deleteVariant({{ $v->id }})">Xoa</button>
