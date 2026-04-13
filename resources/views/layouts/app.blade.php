@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
@@ -1030,7 +1030,7 @@
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         @foreach($paymentMethods as $method)
                             @if($method->logo)
-                                <img src="/storage/{{ $method->logo }}" alt="{{ $method->name }}" 
+                                <img src="{{ \App\Services\ImageUploadService::url($method->logo) }}" alt="{{ $method->name }}" 
                                      class="border rounded" style="height: 24px; max-width: 60px; object-fit: contain;">
                             @else
                                 <span class="badge bg-secondary">{{ $method->name }}</span>

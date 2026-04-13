@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Fashion Shop - Thời Trang Cao Cấp')
 
@@ -26,7 +26,7 @@
                         <a href="{{ $banner->link_url ?? route('products.index') }}" class="banner-link">
                             <div class="banner-container">
                                 @if($banner->image)
-                                    <div class="banner-image" style="background-image: url('/storage/{{ $banner->image }}');"></div>
+                                    <div class="banner-image" style="background-image: url('{{ \App\Services\ImageUploadService::url($banner->image) }}');"></div>
                                 @else
                                     <div class="banner-placeholder" style="background-color: #8B3A3A;">
                                         <div class="banner-content">
@@ -117,7 +117,7 @@
                                         $displayImage = $product->image ?? $product->images->first()->image_path ?? null;
                                     @endphp
                                     @if($displayImage)
-                                        <img src="/storage/{{ $displayImage }}" class="card-img-top" alt="{{ $product->name }}" />
+                                        <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" class="card-img-top" alt="{{ $product->name }}" />
                                     @else
                                         <div class="no-image">
                                             <i class="fas fa-image"></i>
@@ -200,7 +200,7 @@
                             $displayImage = $product->image ?? $product->images->first()->image_path ?? null;
                         @endphp
                         @if($displayImage)
-                            <img src="/storage/{{ $displayImage }}" class="card-img-top" alt="{{ $product->name }}" />
+                            <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" class="card-img-top" alt="{{ $product->name }}" />
                         @else
                             <div class="no-image">
                                 <i class="fas fa-image"></i>
@@ -277,7 +277,7 @@
             <div class="blog-card h-100">
                 <div class="blog-image">
                     @if($post->featured_image)
-                        <img src="/storage/{{ $post->featured_image }}" alt="{{ $post->title }}">
+                        <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" alt="{{ $post->title }}">
                     @else
                         <div class="blog-no-image">
                             <i class="fas fa-newspaper"></i>

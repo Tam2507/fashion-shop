@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Quản Lý Phương Thức Thanh Toán')
 
@@ -37,7 +37,7 @@
                         <tr>
                             <td>
                                 @if($method->logo)
-                                    <img src="/storage/{{ $method->logo }}" alt="{{ $method->name }}" 
+                                    <img src="{{ \App\Services\ImageUploadService::url($method->logo) }}" alt="{{ $method->name }}" 
                                          style="height: 30px; max-width: 60px; object-fit: contain;">
                                 @else
                                     <div class="bg-light d-flex align-items-center justify-content-center" 

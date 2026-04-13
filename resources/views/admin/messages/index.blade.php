@@ -1,4 +1,4 @@
-@extends('layouts.messenger')
+﻿@extends('layouts.messenger')
 
 @section('title', 'Tin Nhắn Khách Hàng')
 
@@ -475,7 +475,7 @@
                          data-message="{{ $conversation->message }}"
                          onclick="loadConversation(this)">
                         @if($conversation->user && $conversation->user->avatar)
-                            <img src="/storage/{{ $conversation->user->avatar }}" 
+                            <img src="{{ \App\Services\ImageUploadService::url($conversation->user->avatar) }}" 
                                  alt="{{ $conversation->user->name }}" 
                                  class="conversation-avatar">
                         @else

@@ -1,4 +1,4 @@
-@extends('layouts.messenger')
+﻿@extends('layouts.messenger')
 
 @section('title', 'Tin Nhắn')
 
@@ -204,7 +204,7 @@
 <!-- Chat Header -->
 <div class="chat-header">
     @if($firstMessage->user && $firstMessage->user->avatar)
-        <img src="/storage/{{ $firstMessage->user->avatar }}" 
+        <img src="{{ \App\Services\ImageUploadService::url($firstMessage->user->avatar) }}" 
              alt="{{ $firstMessage->user->name }}" 
              class="chat-header-avatar">
     @else
@@ -242,7 +242,7 @@
         <div class="message-group {{ $isMyMessage ? 'my-message' : 'other-message' }}">
             @if(!$isMyMessage)
                 @if($message->user && $message->user->avatar)
-                    <img src="/storage/{{ $message->user->avatar }}" 
+                    <img src="{{ \App\Services\ImageUploadService::url($message->user->avatar) }}" 
                          alt="{{ $message->user->name }}" 
                          class="message-avatar">
                 @else
@@ -255,7 +255,7 @@
             <div class="message-content">
                 <div class="message-bubble">
                     @if($message->image)
-                        <img src="/storage/{{ $message->image }}" 
+                        <img src="{{ \App\Services\ImageUploadService::url($message->image) }}" 
                              alt="Ảnh" 
                              style="max-width:220px; max-height:220px; border-radius:12px; display:block; cursor:pointer;"
                              onclick="window.open(this.src,'_blank')">

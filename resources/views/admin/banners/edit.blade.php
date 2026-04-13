@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Chỉnh Sửa Banner')
 
@@ -41,7 +41,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Ảnh hiện tại:</label>
                                 <div>
-                                    <img src="/storage/{{ $banner->image }}" alt="Banner" 
+                                    <img src="{{ \App\Services\ImageUploadService::url($banner->image) }}"  alt="Banner" 
                                          class="img-thumbnail mb-2" style="max-width: 100%; max-height: 200px;">
                                 </div>
                                 <small class="text-muted d-block mb-2">Upload ảnh mới để thay thế</small>

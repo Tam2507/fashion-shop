@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Chỉnh Sửa Phương Thức Thanh Toán')
 
@@ -49,7 +49,7 @@
                                         <i class="fas fa-edit"></i> Thay đổi
                                     </button>
                                 </div>
-                                <img src="/storage/{{ $paymentMethod->logo }}" alt="{{ $paymentMethod->name }}" 
+                                <img src="{{ \App\Services\ImageUploadService::url($paymentMethod->logo) }}" alt="{{ $paymentMethod->name }}" 
                                      class="img-thumbnail" style="max-height: 100px; max-width: 200px;">
                             </div>
                         @endif
@@ -125,7 +125,7 @@
             <div class="card-body text-center">
                 <div class="payment-preview p-3 border rounded">
                     @if($paymentMethod->logo)
-                        <img src="/storage/{{ $paymentMethod->logo }}" alt="{{ $paymentMethod->name }}" 
+                        <img src="{{ \App\Services\ImageUploadService::url($paymentMethod->logo) }}" alt="{{ $paymentMethod->name }}" 
                              style="max-height: 60px; max-width: 120px; object-fit: contain;">
                     @else
                         <div class="bg-light d-flex align-items-center justify-content-center mx-auto" 

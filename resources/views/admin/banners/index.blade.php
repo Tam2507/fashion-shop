@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Quản Lý Banner')
 
@@ -37,7 +37,7 @@
                     <tr>
                         <td>
                             @if($banner->image)
-                                <img src="/storage/{{ $banner->image }}" alt="{{ $banner->title }}" 
+                                <img src="{{ \App\Services\ImageUploadService::url($banner->image) }}"  alt="{{ $banner->title }}" 
                                      class="img-thumbnail" style="width: 80px; height: 50px; object-fit: cover;">
                             @else
                                 <div class="bg-light d-flex align-items-center justify-content-center" 

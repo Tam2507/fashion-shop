@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="row g-4 mb-5">
@@ -7,7 +7,7 @@
             <div class="main-image mb-3" style="background: #f5f1e8; border-radius: 4px; overflow: hidden; height: 600px; display: flex; align-items: center; justify-content: center;">
                 @php $first = $product->image ?? ($product->images->first()->path ?? null); @endphp
                 @if($first)
-                    <img src="/storage/{{ $first }}" id="mainImage" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ $product->name }}">
+                    <img src="{{ \App\Services\ImageUploadService::url($first) }}" id="mainImage" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ $product->name }}">
                 @else
                     <i class="fas fa-image text-muted" style="font-size: 5rem;"></i>
                 @endif
@@ -15,12 +15,12 @@
             <div class="thumbnails d-flex gap-2">
                 @if($product->image)
                     <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="{{ $product->image_color ?? '' }}">
-                        <img src="/storage/{{ $product->image }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
+                        <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
                     </div>
                 @endif
                 @foreach($product->images as $img)
                     <div class="thumbnail rounded" style="width: 80px; height: 80px; cursor: pointer; overflow: hidden;" data-color="{{ $img->color ?? '' }}">
-                        <img src="/storage/{{ $img->path }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
+                        <img src="{{ \App\Services\ImageUploadService::url($img->path) }}" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail" onclick="updateMainImage(this)">
                     </div>
                 @endforeach
             </div>
@@ -263,7 +263,7 @@
                         $displayImage = $rp->image ?? $rp->images->first()->path ?? null;
                     @endphp
                     @if($displayImage)
-                        <img src="/storage/{{ $displayImage }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $rp->name }}" />
+                        <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $rp->name }}" />
                     @else
                         <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                             <i class="fas fa-image fa-3x text-muted"></i>

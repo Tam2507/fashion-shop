@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container py-5">
@@ -55,7 +55,7 @@
                     <div class="position-relative">
                         <div class="product-image-wrapper" style="height: 300px; background: #f5f5f5; overflow: hidden;">
                             @if($displayImage)
-                                <img src="/storage/{{ $displayImage }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $product->name }}" />
+                                <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $product->name }}" />
                             @else
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                                     <i class="fas fa-image fa-3x text-muted"></i>

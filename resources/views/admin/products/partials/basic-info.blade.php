@@ -1,4 +1,4 @@
-<div class="card border-0 shadow-sm">
+﻿<div class="card border-0 shadow-sm">
     <div class="card-body p-4">
         <form method="POST" action="{{ route('admin.products.update', $product->id) }}" enctype="multipart/form-data">
             @csrf
@@ -60,7 +60,7 @@
                         <label class="form-label fw-bold">Ảnh Chính</label>
                         @if($product->image)
                         <div class="mb-3">
-                            <img src="/storage/{{ $product->image }}" class="img-fluid rounded" style="max-height: 200px;">
+                            <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" class="img-fluid rounded" style="max-height: 200px;">
                         </div>
                         @endif
                         <input type="file" name="image" class="form-control" accept="image/*">

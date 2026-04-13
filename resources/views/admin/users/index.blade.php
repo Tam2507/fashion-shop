@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Quản Lý Tài Khoản')
 
@@ -63,7 +63,7 @@
                         <td>{{ $u->email }}</td>
                         <td>
                             @if($u->avatar)
-                                <img src="/storage/{{ $u->avatar }}" alt="{{ $u->name }}"
+                                <img src="{{ \App\Services\ImageUploadService::url($u->avatar) }}" alt="{{ $u->name }}"
                                      class="rounded-circle" style="width:44px;height:44px;object-fit:cover;border:2px solid #dee2e6;">
                             @else
                                 <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"

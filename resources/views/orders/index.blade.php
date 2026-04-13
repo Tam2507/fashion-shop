@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container py-4">
@@ -20,7 +20,7 @@
                         $displayImage = $item->product->image ?? $item->product->images->first()->path ?? null;
                     @endphp
                     @if($displayImage)
-                        <img src="/storage/{{ $displayImage }}" 
+                        <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" 
                              alt="{{ $item->product->name }}" 
                              class="img-fluid rounded"
                              style="width: 100%; height: 100px; object-fit: cover;">

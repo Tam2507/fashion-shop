@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
@@ -23,7 +23,7 @@
                     <a href="{{ $banner->link_url ?? route('products.index') }}" class="banner-link">
                         <div class="banner-container">
                             @if($banner->image)
-                                <div class="banner-image" style="background-image: url('/storage/{{ $banner->image }}');"></div>
+                                <div class="banner-image" style="background-image: url('{{ \App\Services\ImageUploadService::url($banner->image) }}');"></div>
                             @else
                                 <div class="banner-placeholder" style="background-color: #8B3A3A;"></div>
                             @endif
@@ -101,7 +101,7 @@
         <div class="card h-100 product-card">
             <div class="product-image">
                 @if($displayImage)
-                    <img src="/storage/{{ $displayImage }}" class="card-img-top" alt="{{ $product->name }}" />
+                    <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" class="card-img-top" alt="{{ $product->name }}" />
                 @else
                     <div class="no-image"><i class="fas fa-image"></i></div>
                 @endif

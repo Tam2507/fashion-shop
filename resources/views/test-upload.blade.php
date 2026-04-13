@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Test Upload - Banner {{ $banner->id }}</title>
@@ -20,7 +20,7 @@
             <div class="card-body">
                 <h5>Ảnh hiện tại:</h5>
                 @if($banner->image)
-                    <img src="/storage/{{ $banner->image }}" alt="{{ $banner->title }}" class="img-thumbnail" style="max-height: 200px;">
+                    <img src="{{ \App\Services\ImageUploadService::url($banner->image) }}"  alt="{{ $banner->title }}" class="img-thumbnail" style="max-height: 200px;">
                     <p class="mt-2">Path: {{ $banner->image }}</p>
                 @else
                     <p class="text-muted">Chưa có ảnh</p>

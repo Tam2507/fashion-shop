@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Chi Tiết Banner')
 
@@ -114,7 +114,7 @@
                 <h5><i class="fas fa-image"></i> Hình ảnh</h5>
             </div>
             <div class="card-body text-center">
-                <img src="/storage/{{ $banner->image }}" alt="{{ $banner->title }}" 
+                <img src="{{ \App\Services\ImageUploadService::url($banner->image) }}"  alt="{{ $banner->title }}" 
                      class="img-fluid rounded">
             </div>
         </div>
@@ -128,7 +128,7 @@
             <div class="card-body">
                 <div class="banner-preview" style="background-color: {{ $banner->background_color }}; color: {{ $banner->text_color }}; padding: 20px; border-radius: 8px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
                     @if($banner->image)
-                        <img src="/storage/{{ $banner->image }}" alt="{{ $banner->title }}" 
+                        <img src="{{ \App\Services\ImageUploadService::url($banner->image) }}"  alt="{{ $banner->title }}" 
                              style="max-width: 100%; height: auto; margin-bottom: 10px;">
                     @endif
                     <h5 style="color: {{ $banner->text_color }}; margin-bottom: 8px;">{{ $banner->title }}</h5>
