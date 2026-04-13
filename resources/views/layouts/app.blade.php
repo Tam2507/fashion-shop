@@ -1205,9 +1205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '';
         
         products.forEach(product => {
-            const imageUrl = product.image 
-                ? `/storage/${product.image}` 
-                : (product.first_image ? `/storage/${product.first_image}` : null);
+            const imageUrl = product.image_url || null;
             
             html += `
                 <a href="/products/${product.id}" class="search-result-item-dropdown">

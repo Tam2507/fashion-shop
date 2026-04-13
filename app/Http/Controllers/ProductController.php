@@ -75,12 +75,12 @@ class ProductController extends Controller
             ->limit(10)
             ->get()
             ->map(function($product) {
+                $imagePath = $product->image ?? ($product->images->first()->path ?? null);
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
                     'price' => $product->price,
-                    'image' => $product->image,
-                    'first_image' => $product->images->first()->image_path ?? null,
+                    'image_url' => \App\Services\ImageUploadService::url($imagePath),
                     'category_name' => $product->category->name ?? null,
                 ];
             });
