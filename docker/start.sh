@@ -23,6 +23,9 @@ php artisan admin:create-super 2>/dev/null || true
 php artisan storage:link 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
 
+# Start queue worker in background để gửi mail bất đồng bộ
+php artisan queue:work --tries=3 --timeout=60 --sleep=3 &
+
 # Thay port trong nginx config
 sed -i "s/__PORT__/$PORT/g" /etc/nginx/nginx.conf
 

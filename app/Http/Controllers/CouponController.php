@@ -105,16 +105,14 @@ class CouponController extends Controller
 
     public function sendNotification(Coupon $coupon)
     {
-        // Redirect ngay, gửi mail trong background
         $users = User::where('is_admin', 0)->whereNotNull('email')->get();
         $count = $users->count();
 
-        // Dùng dispatch để gửi bất đồng bộ
         foreach ($users as $user) {
             try {
-                Mail::to($user->email)->send(new CouponNotificationMail($user, $coupon));
+                Mail::to($user->email)->queue(new CouponNotificationMail($user, $coupon));
             } catch (\Exception $e) {
-                \Log::error("Coupon mail failed: " . $e->getMessage());
+                \Log::error("Coupon mail queue failed: " . $e->getMessage());
             }
         }
 
