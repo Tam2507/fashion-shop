@@ -15,6 +15,8 @@ rm -rf storage/framework/views/*.php 2>/dev/null || true
 
 php artisan key:generate --force
 php artisan migrate --force 2>&1 || true
+php artisan session:table 2>/dev/null || true
+php artisan migrate --force 2>&1 || true
 php artisan admin:create-super 2>/dev/null || true
 php artisan storage:link 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
