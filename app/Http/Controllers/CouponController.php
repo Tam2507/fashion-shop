@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\CouponNotificationMail;
 use App\Models\Coupon;
 use App\Models\User;
+use App\Services\BrevoMailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -108,11 +109,14 @@ class CouponController extends Controller
         $users = User::where('is_admin', 0)->whereNotNull('email')->get();
         $count = $users->count();
 
+        $brevo = new BrevoMailService();
+
         foreach ($users as $user) {
             try {
-                Mail::to($user->email)->queue(new CouponNotificationMail($user, $coupon));
+                $html = view('emails.coupon-notification', ['user' => $user, 'coupon' => $coupon])->render();
+                $brevo->send($user->email, $user->name, '🎁 Ma Giam Gia Moi Danh Cho Ban!', $html);
             } catch (\Exception $e) {
-                \Log::error("Coupon mail queue failed: " . $e->getMessage());
+                \Log::error("Coupon notify failed for {$user->email}: " . $e->getMessage());
             }
         }
 
