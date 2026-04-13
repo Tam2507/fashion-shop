@@ -34,7 +34,7 @@
                         <button class="btn btn-xs btn-edit" onclick="startEdit(this)" title="Sua" style="padding:2px 8px;font-size:12px;background:#5B9BD5;color:white;border:none;border-radius:4px;cursor:pointer;">&#9998;</button>
                         <button class="btn btn-xs btn-save d-none" onclick="saveRow(this)" title="Luu" style="padding:2px 8px;font-size:12px;background:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;">&#10003;</button>
                         <button class="btn btn-xs btn-cancel d-none" onclick="cancelEdit(this)" title="Huy" style="padding:2px 8px;font-size:12px;background:#6c757d;color:white;border:none;border-radius:4px;cursor:pointer;">&#10005;</button>
-                        <button class="btn btn-sm btn-outline-danger btn-delete" onclick="deleteVariant({{ $v->id }})">Xoa</button>
+                        <button class="btn btn-sm btn-delete" onclick="deleteVariant({{ $v->id }})">Xoa</button>
                     </td>
                 </tr>
                 @endforeach
