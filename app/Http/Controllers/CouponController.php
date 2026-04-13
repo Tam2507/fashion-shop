@@ -113,7 +113,7 @@ class CouponController extends Controller
 
     private function sendCouponNotification(Coupon $coupon)
     {
-        $users = User::where('is_admin', 0)->get();
+        $users = User::where('is_admin', 0)->whereNotNull('email')->get();
         $count = 0;
 
         foreach ($users as $user) {
