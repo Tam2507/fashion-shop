@@ -166,19 +166,7 @@ Route::get('/test-banner', function () {
     }
 });
 
-// Test MoMo settings page without auth
-Route::get('/test-momo-settings', function () {
-    try {
-        return view('admin.settings.momo-simple');
-    } catch (Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString()
-        ], 500);
-    }
-});
+
 
 // Test route for image upload
 Route::get('/test-image-upload/{productId}', function ($productId) {
@@ -224,11 +212,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment/sepay/{orderId}', [\App\Http\Controllers\SePayController::class, 'checkout'])->name('payment.sepay');
 });
 
-// MoMo Payment Gateway Callbacks (no auth required)
-Route::get('/momo/callback', [\App\Http\Controllers\MoMoController::class, 'callback'])->name('momo.callback');
-Route::post('/momo/notify', [\App\Http\Controllers\MoMoController::class, 'notify'])->name('momo.notify');
-Route::get('/momo/demo', [\App\Http\Controllers\MoMoController::class, 'demo'])->name('momo.demo');
-Route::post('/momo/demo/process', [\App\Http\Controllers\MoMoController::class, 'processDemoPayment'])->name('momo.demo.process');
+
 
 // Wishlist and Reviews (auth required)
 Route::middleware('auth')->group(function () {
@@ -309,8 +293,6 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     
     // Settings
-    Route::get('/settings/momo', [\App\Http\Controllers\Admin\SettingsController::class, 'momoSettings'])->name('settings.momo');
-    Route::post('/settings/momo/upload', [\App\Http\Controllers\Admin\SettingsController::class, 'uploadMomoQR'])->name('settings.momo.upload');
     Route::get('/settings/sepay', [\App\Http\Controllers\Admin\SettingsController::class, 'sepaySettings'])->name('settings.sepay');
     Route::post('/settings/sepay', [\App\Http\Controllers\Admin\SettingsController::class, 'updateSepaySettings'])->name('settings.sepay.update');
     

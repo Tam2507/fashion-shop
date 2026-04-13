@@ -35,7 +35,7 @@
                             @error('code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">Mã duy nhất, ví dụ: visa, mastercard, momo</div>
+                            <div class="form-text">Mã duy nhất, ví dụ: visa, mastercard, atm</div>
                         </div>
                     </div>
 

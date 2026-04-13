@@ -164,7 +164,7 @@
                 <div class="card-body">
                     <div class="row">
                         @php
-                            $paymentMethods = ['visa', 'mastercard', 'jcb', 'atm', 'momo', 'zalopay'];
+                            $paymentMethods = ['visa', 'mastercard', 'jcb', 'atm', 'zalopay'];
                             $selectedMethods = old('payment_methods', $settings->payment_methods ?? []);
                         @endphp
                         

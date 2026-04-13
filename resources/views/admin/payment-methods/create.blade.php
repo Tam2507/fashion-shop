@@ -46,7 +46,7 @@
                             @error('code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text">Mã duy nhất, ví dụ: visa, mastercard, momo</div>
+                            <div class="form-text">Mã duy nhất, ví dụ: visa, mastercard, atm</div>
                         </div>
                     </div>
 
@@ -127,9 +127,7 @@
                     <li><strong>mastercard:</strong> Thẻ MasterCard</li>
                     <li><strong>jcb:</strong> Thẻ JCB</li>
                     <li><strong>atm:</strong> Thẻ ATM nội địa</li>
-                    <li><strong>momo:</strong> Ví MoMo</li>
                     <li><strong>zalopay:</strong> ZaloPay</li>
-                    <li><strong>vnpay:</strong> VNPay</li>
                 </ul>
                 
                 <h6>Kích thước logo khuyến nghị:</h6>

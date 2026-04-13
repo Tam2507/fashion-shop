@@ -578,7 +578,6 @@
             <li><a href="{{ route('admin.coupons.index') }}" class="{{ request()->is('admin/coupons*') ? 'active' : '' }}"><i class="fas fa-ticket-alt"></i> Quản Lý Mã Giảm Giá</a></li>
             <li><a href="{{ route('admin.product-sections.index') }}" class="{{ request()->is('admin/product-sections*') ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Section Sản Phẩm</a></li>
             <li><a href="{{ route('admin.posts.index') }}" class="{{ request()->is('admin/posts*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Quản Lý Bài Viết</a></li>
-            <li><a href="{{ route('admin.settings.momo') }}" class="{{ request()->is('admin/settings/momo*') ? 'active' : '' }}"><i class="fas fa-wallet"></i> Cấu Hình MoMo QR</a></li>
             <li><a href="{{ route('admin.contacts.index') }}" class="{{ request()->is('admin/contacts') ? 'active' : '' }}"><i class="fas fa-envelope"></i> Tin Nhắn Liên Hệ</a></li>
             <li><a href="{{ route('admin.contact-info.edit') }}" class="{{ request()->is('admin/contact-info*') ? 'active' : '' }}"><i class="fas fa-address-card"></i> Thông Tin Liên Hệ</a></li>
             <li><a href="{{ route('admin.about.edit') }}" class="{{ request()->is('admin/about*') ? 'active' : '' }}"><i class="fas fa-info-circle"></i> Trang Về Chúng Tôi</a></li>
