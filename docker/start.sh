@@ -15,6 +15,8 @@ rm -rf storage/framework/views/*.php 2>/dev/null || true
 
 php artisan key:generate --force
 php artisan migrate --force 2>&1 || true
+# Đảm bảo sessions table tồn tại
+php artisan tinker --execute="try { DB::statement('CREATE TABLE IF NOT EXISTS sessions (id VARCHAR(255) PRIMARY KEY, user_id BIGINT UNSIGNED NULL, ip_address VARCHAR(45) NULL, user_agent TEXT NULL, payload LONGTEXT NOT NULL, last_activity INT NOT NULL, INDEX sessions_user_id_index (user_id), INDEX sessions_last_activity_index (last_activity))'); echo \"sessions table OK\"; } catch(Exception \$e) { echo \$e->getMessage(); }" 2>/dev/null || true
 php artisan session:table 2>/dev/null || true
 php artisan migrate --force 2>&1 || true
 php artisan admin:create-super 2>/dev/null || true
