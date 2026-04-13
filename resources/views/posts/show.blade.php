@@ -66,7 +66,7 @@
                 <!-- Featured Image -->
                 @if($post->featured_image)
                     <div class="mb-4">
-                        <img src="{{ asset('storage/' . $post->featured_image) }}" 
+                        <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" 
                              alt="{{ $post->title }}" 
                              class="img-fluid rounded shadow">
                     </div>
@@ -92,7 +92,7 @@
                             @foreach($post->images as $image)
                                 <div class="col-md-6">
                                     <div class="image-item">
-                                        <img src="{{ asset('storage/' . $image->image_path) }}" 
+                                        <img src="{{ \App\Services\ImageUploadService::url($image->image_path) }}" 
                                              alt="{{ $image->caption ?? $post->title }}" 
                                              class="img-fluid rounded shadow-sm"
                                              data-bs-toggle="modal" 
@@ -112,7 +112,7 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body text-center">
-                                                    <img src="{{ asset('storage/' . $image->image_path) }}" 
+                                                    <img src="{{ \App\Services\ImageUploadService::url($image->image_path) }}" 
                                                          alt="{{ $image->caption ?? $post->title }}" 
                                                          class="img-fluid">
                                                 </div>
@@ -276,7 +276,7 @@
                         <div class="col-md-4">
                             <div class="card h-100">
                                 @if($relatedPost->featured_image)
-                                    <img src="{{ asset('storage/' . $relatedPost->featured_image) }}" 
+                                    <img src="{{ \App\Services\ImageUploadService::url($relatedPost->featured_image) }}" 
                                          class="card-img-top" 
                                          alt="{{ $relatedPost->title }}"
                                          style="height: 150px; object-fit: cover;">

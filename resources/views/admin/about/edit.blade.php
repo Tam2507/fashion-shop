@@ -68,7 +68,7 @@
                         @php $fieldName = "image_$i"; @endphp
                         @if($about->$fieldName)
                             <div class="mb-2 position-relative">
-                                <img src="{{ asset('storage/' . $about->$fieldName) }}" class="img-thumbnail" style="max-height: 200px; width: 100%; object-fit: cover;">
+                                <img src="{{ \App\Services\ImageUploadService::url($about->$fieldName) }}" class="img-thumbnail" style="max-height: 200px; width: 100%; object-fit: cover;">
                                 <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" onclick="deleteImage({{ $i }})">
                                     <i class="fas fa-trash"></i>
                                 </button>

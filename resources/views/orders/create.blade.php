@@ -120,7 +120,7 @@
                                     <label for="payment_{{ $method->id }}" class="payment-label">
                                         <div class="d-flex align-items-center">
                                             @if($method->logo)
-                                                <img src="{{ asset('storage/' . $method->logo) }}" alt="{{ $method->name }}" class="payment-logo me-3">
+                                                <img src="{{ \App\Services\ImageUploadService::url($method->logo) }}" alt="{{ $method->name }}" class="payment-logo me-3">
                                             @else
                                                 <div class="payment-icon me-3">
                                                     <i class="fas fa-{{ $method->code == 'cod' ? 'money-bill-wave' : 'credit-card' }}"></i>

@@ -33,7 +33,7 @@
                     
                     <div class="mb-3">
                         @if($user->avatar)
-                            <img src="{{ asset('storage/' . $user->avatar) }}" 
+                            <img src="{{ \App\Services\ImageUploadService::url($user->avatar) }}" 
                                  alt="Avatar" 
                                  id="avatarPreview"
                                  class="rounded-circle" 

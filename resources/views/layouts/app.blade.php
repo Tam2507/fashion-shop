@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
@@ -881,7 +881,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle user-dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                             @if(auth()->user()->avatar)
-                                <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="user-avatar-img">
+                                <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}" alt="Avatar" class="user-avatar-img">
                             @else
                                 <div class="user-avatar-placeholder">
                                     <i class="fas fa-user"></i>
@@ -893,7 +893,7 @@
                             <li class="dropdown-header">
                                 <div class="user-info-header">
                                     @if(auth()->user()->avatar)
-                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" class="user-avatar-large">
+                                        <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}" alt="Avatar" class="user-avatar-large">
                                     @else
                                         <div class="user-avatar-large-placeholder">
                                             <i class="fas fa-user"></i>

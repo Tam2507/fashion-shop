@@ -126,7 +126,7 @@
                                             $displayImage = $product->image ?? $product->images->first()->path ?? null;
                                         @endphp
                                         @if($displayImage)
-                                            <img src="{{ asset('storage/' . $displayImage) }}" alt="{{ $product->name }}" class="rounded">
+                                            <img src="{{ \App\Services\ImageUploadService::url($displayImage) }}" alt="{{ $product->name }}" class="rounded">
                                         @else
                                             <div class="no-image">
                                                 <i class="fas fa-image"></i>

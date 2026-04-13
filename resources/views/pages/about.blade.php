@@ -66,7 +66,7 @@
                 <div class="mb-5">
                     @if($about->image_1)
                     <div class="mb-3">
-                        <img src="{{ asset('storage/' . $about->image_1) }}" alt="About Image 1" class="about-image about-image-main">
+                        <img src="{{ \App\Services\ImageUploadService::url($about->image_1) }}" alt="About Image 1" class="about-image about-image-main">
                     </div>
                     @endif
                     
@@ -74,13 +74,13 @@
                     <div class="row">
                         @if($about->image_2)
                         <div class="col-md-6 mb-3">
-                            <img src="{{ asset('storage/' . $about->image_2) }}" alt="About Image 2" class="about-image about-image-secondary">
+                            <img src="{{ \App\Services\ImageUploadService::url($about->image_2) }}" alt="About Image 2" class="about-image about-image-secondary">
                         </div>
                         @endif
                         
                         @if($about->image_3)
                         <div class="col-md-6 mb-3">
-                            <img src="{{ asset('storage/' . $about->image_3) }}" alt="About Image 3" class="about-image about-image-secondary">
+                            <img src="{{ \App\Services\ImageUploadService::url($about->image_3) }}" alt="About Image 3" class="about-image about-image-secondary">
                         </div>
                         @endif
                     </div>

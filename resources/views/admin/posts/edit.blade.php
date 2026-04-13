@@ -88,7 +88,7 @@
                             @if($post->featured_image)
                                 <div class="mb-2" id="current-featured-image">
                                     <div class="position-relative d-inline-block">
-                                        <img src="{{ asset('storage/' . $post->featured_image) }}" 
+                                        <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" 
                                              alt="{{ $post->title }}" 
                                              class="img-thumbnail" 
                                              style="max-width: 200px;">
@@ -124,7 +124,7 @@
                                     @foreach($post->images as $image)
                                         <div class="col-6" id="existing-image-{{ $image->id }}">
                                             <div class="position-relative" style="margin-bottom: 10px;">
-                                                <img src="{{ asset('storage/' . $image->image_path) }}" 
+                                                <img src="{{ \App\Services\ImageUploadService::url($image->image_path) }}" 
                                                      class="img-thumbnail" 
                                                      style="width: 100%; height: 100px; object-fit: cover;">
                                                 <button type="button" 

@@ -106,7 +106,7 @@
                         <div class="col-md-4 col-6">
                             <div class="image-card">
                                 <div class="image-wrapper">
-                                    <img src="{{ asset('storage/' . $product->image) }}" class="img-fluid" alt="Main Image">
+                                    <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" class="img-fluid" alt="Main Image">
                                     <div class="image-badge">
                                         <span class="badge bg-primary">Ảnh Chính</span>
                                     </div>
@@ -119,7 +119,7 @@
                         <div class="col-md-4 col-6" id="image-{{ $image->id }}">
                             <div class="image-card">
                                 <div class="image-wrapper">
-                                    <img src="{{ asset('storage/' . $image->path) }}" class="img-fluid" alt="Product Image">
+                                    <img src="{{ \App\Services\ImageUploadService::url($image->path) }}" class="img-fluid" alt="Product Image">
                                     @if($image->color)
                                     <div class="image-badge">
                                         <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">

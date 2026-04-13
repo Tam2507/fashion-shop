@@ -115,12 +115,12 @@
                                         <i class="fas fa-grip-vertical text-muted"></i>
                                     </div>
                                     @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" 
+                                        <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" 
                                              alt="{{ $product->name }}" 
                                              style="width: 60px; height: 60px; object-fit: cover;" 
                                              class="rounded me-3">
                                     @elseif($product->images->first() && $product->images->first()->image_path)
-                                        <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
+                                        <img src="{{ \App\Services\ImageUploadService::url($product->images->first()->image_path) }}" 
                                              alt="{{ $product->name }}" 
                                              style="width: 60px; height: 60px; object-fit: cover;" 
                                              class="rounded me-3">
@@ -167,12 +167,12 @@
                                      onclick="toggleProduct(this)">
                                     <div class="d-flex align-items-center">
                                         @if($product->image)
-                                            <img src="{{ asset('storage/' . $product->image) }}" 
+                                            <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" 
                                                  alt="{{ $product->name }}" 
                                                  style="width: 50px; height: 50px; object-fit: cover;" 
                                                  class="rounded me-2">
                                         @elseif($product->images->first() && $product->images->first()->image_path)
-                                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
+                                            <img src="{{ \App\Services\ImageUploadService::url($product->images->first()->image_path) }}" 
                                                  alt="{{ $product->name }}" 
                                                  style="width: 50px; height: 50px; object-fit: cover;" 
                                                  class="rounded me-2">

@@ -39,7 +39,7 @@
                             <tr>
                                 <td>
                                     @if($post->featured_image)
-                                        <img src="{{ asset('storage/' . $post->featured_image) }}" 
+                                        <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" 
                                              alt="{{ $post->title }}" 
                                              class="img-thumbnail" 
                                              style="width: 50px; height: 50px; object-fit: cover;">

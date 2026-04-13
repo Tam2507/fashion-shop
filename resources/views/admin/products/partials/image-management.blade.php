@@ -67,7 +67,7 @@
                     <div class="col-md-4 col-6" id="main-image-card">
                         <div class="image-card-modern">
                             <div class="image-wrapper-modern">
-                                <img src="{{ asset('storage/' . $product->image) }}" alt="Main Image">
+                                <img src="{{ \App\Services\ImageUploadService::url($product->image) }}" alt="Main Image">
                                 <div class="image-badge-modern">
                                     <span class="badge bg-primary">Ảnh Chính</span>
                                 </div>
@@ -102,7 +102,7 @@
                     <div class="col-md-4 col-6" id="image-{{ $image->id }}">
                         <div class="image-card-modern">
                             <div class="image-wrapper-modern">
-                                <img src="{{ asset('storage/' . $image->path) }}" alt="Product Image">
+                                <img src="{{ \App\Services\ImageUploadService::url($image->path) }}" alt="Product Image">
                                 
                                 <!-- Delete Button (X đỏ ở góc) -->
                                 <button type="button" class="delete-btn-corner" onclick="deleteImageQuick({{ $image->id }})" title="Xóa ảnh">
