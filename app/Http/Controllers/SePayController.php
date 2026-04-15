@@ -70,7 +70,21 @@ class SePayController extends Controller
 
     public function cancel(Request $request)
     {
-        $order = Order::find($request->order_id);
+        $order = Order::with('items.variant', 'items.product')->find($request->order_id);
+
+        if ($order && in_array($order->status, ['received', 'pending'])) {
+            // Hoàn lại tồn kho
+            foreach ($order->items as $item) {
+                if ($item->variant_id && $item->variant) {
+                    $item->variant->increment('stock_quantity', $item->quantity);
+                    $item->product?->syncQuantity();
+                } elseif ($item->product) {
+                    $item->product->increment('quantity', $item->quantity);
+                }
+            }
+            $order->update(['status' => 'cancelled']);
+        }
+
         return view('payment.cancel', compact('order'));
     }
 
