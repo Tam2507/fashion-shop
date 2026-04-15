@@ -47,8 +47,8 @@ class PasswordResetLinkController extends Controller
             'updated_at' => now(),
         ], ['email'], ['otp', 'expires_at', 'updated_at']);
 
-        // Gửi mail
-        Mail::to($request->email)->send(new PasswordResetOtpMail($otp));
+        // Gửi mail qua queue (bất đồng bộ)
+        Mail::to($request->email)->queue(new PasswordResetOtpMail($otp));
 
         // Lưu email vào session để dùng ở bước sau
         session(['reset_email' => $request->email]);
