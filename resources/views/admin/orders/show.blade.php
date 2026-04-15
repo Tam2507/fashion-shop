@@ -143,9 +143,8 @@
                     <div class="mb-3">
                         <label for="status" class="form-label">Cập nhật trạng thái:</label>
                         <select name="status" id="status" class="form-select" required>
-                            <option value="received" {{ $order->status == 'received' ? 'selected' : '' }}>Đã nhận</option>
-                            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
                             <option value="confirmed" {{ $order->status == 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
+                            <option value="shipping" {{ $order->status == 'shipping' ? 'selected' : '' }}>Đang giao</option>
                             <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Đã giao hàng</option>
                             <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
                         </select>

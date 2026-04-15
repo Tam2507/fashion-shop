@@ -89,24 +89,26 @@ class Order extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'received' => 'Đã nhận',
+            'received'   => 'Chờ xác nhận',
             'processing' => 'Đang xử lý',
-            'confirmed' => 'Đã xác nhận',
-            'delivered' => 'Đã giao hàng',
-            'cancelled' => 'Đã hủy',
-            default => 'Không xác định'
+            'confirmed'  => 'Đã xác nhận',
+            'shipping'   => 'Đang giao',
+            'delivered'  => 'Đã giao hàng',
+            'cancelled'  => 'Đã hủy',
+            default      => 'Không xác định'
         };
     }
-    
+
     public function getStatusColorAttribute(): string
     {
         return match($this->status) {
-            'received' => 'warning',
+            'received'   => 'warning',
             'processing' => 'info',
-            'confirmed' => 'primary',
-            'delivered' => 'success',
-            'cancelled' => 'danger',
-            default => 'secondary'
+            'confirmed'  => 'primary',
+            'shipping'   => 'info',
+            'delivered'  => 'success',
+            'cancelled'  => 'danger',
+            default      => 'secondary'
         };
     }
     
