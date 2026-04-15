@@ -160,35 +160,7 @@ class OrderController extends Controller
             return redirect()->route('payment.sepay', $order->id);
         }
 
-        // Check if payment method is SePay
-        if ($validated['payment_method_id'] === 'sepay') {
-            return redirect()->route('payment.sepay', $order->id);
-        }
-
-        // Check if payment method is ATM (MoMo)
         $paymentMethod = \App\Models\PaymentMethod::find($validated['payment_method_id']);
-        if ($paymentMethod && $paymentMethod->code === 'atm') {
-            // Check if MoMo is configured
-            if (empty(env('MOMO_PARTNER_CODE')) || empty(env('MOMO_ACCESS_KEY')) || empty(env('MOMO_SECRET_KEY'))) {
-                // MoMo not configured - simulate payment for demo
-                return redirect()->route('momo.demo', ['order_id' => $order->id]);
-            }
-            
-            // Redirect to MoMo payment gateway
-            $momoService = new \App\Services\MoMoService();
-            $result = $momoService->createPayment(
-                $order->id,
-                $finalTotal,
-                "Thanh toán đơn hàng #{$order->id}"
-            );
-            
-            if (isset($result['payUrl']) && $result['resultCode'] == 0) {
-                return redirect($result['payUrl']);
-            } else {
-                $message = $momoService->getStatusMessage($result['resultCode'] ?? 99);
-                return redirect()->route('orders.show', $order)->with('error', 'Không thể tạo thanh toán MoMo: ' . $message);
-            }
-        }
 
         return redirect()->route('orders.show', $order)->with('success', 'Đặt hàng thành công');
     }
