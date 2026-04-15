@@ -146,44 +146,9 @@
                         <button class="btn btn-outline-dark w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;" id="wishlistBtn">
                             <i class="fas fa-heart"></i> YÊU THÍCH
                         </button>
-                        <button class="btn btn-outline-secondary w-100 py-3 fw-bold" style="border-radius: 0; letter-spacing: 1px;" data-bs-toggle="collapse" data-bs-target="#reviewForm">
-                            <i class="fas fa-star"></i> GỬI ĐÁNH GIÁ
-                        </button>
                     </div>
                 </div>
 
-                <div class="collapse mb-4" id="reviewForm">
-                    <div class="card card-body border-0 bg-light p-4">
-                        <h6 class="fw-bold mb-3"><i class="fas fa-star text-warning me-2"></i>Viết đánh giá của bạn</h6>
-                        @if(session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
-                        <form method="POST" action="{{ route('reviews.store', $product->id) }}">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Đánh giá</label>
-                                <div class="d-flex gap-2">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="rating" id="star{{ $i }}" value="{{ $i }}" required>
-                                            <label class="form-check-label" for="star{{ $i }}">
-                                                <i class="fas fa-star text-warning"></i> {{ $i }}
-                                            </label>
-                                        </div>
-                                    @endfor
-                                </div>
-                                @error('rating')<div class="text-danger small">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nhận xét</label>
-                                <textarea name="comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm...">{{ old('comment') }}</textarea>
-                            </div>
-                            <button type="submit" class="btn btn-dark fw-bold px-4">
-                                <i class="fas fa-paper-plane me-2"></i>Gửi Đánh Giá
-                            </button>
-                        </form>
-                    </div>
-                </div>
                 @endif
             @else
                 <a href="{{ route('login') }}" class="btn btn-dark w-100 py-3 fw-bold mb-3" style="border-radius: 0; letter-spacing: 1px;">
