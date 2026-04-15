@@ -28,18 +28,39 @@ class OrderController extends Controller
     // Hiển thị chi tiết đơn hàng
     public function show(string $id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::with(['items.product', 'items.variant'])->findOrFail($id);
         $user = auth()->user();
         if (! $user) {
             return redirect()->route('login');
         }
 
-        // Admin can view any order; regular users only their own orders
         if (! $user->is_admin && $order->user_id !== $user->id) {
             abort(403, 'Bạn không có quyền xem đơn hàng này');
         }
 
-        return view('orders.show', compact('order'));
+        // Lấy danh sách product_id đã được review bởi user này
+        $reviewedProductIds = \App\Models\Review::where('user_id', auth()->id())
+            ->pluck('product_id')->toArray();
+
+        return view('orders.show', compact('order', 'reviewedProductIds'));
+    }
+
+    // Khách hàng xác nhận đã nhận hàng
+    public function confirmReceived(string $id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($order->status !== 'shipping') {
+            return redirect()->back()->with('error', 'Không thể xác nhận đơn hàng này.');
+        }
+
+        $order->update(['status' => 'delivered']);
+
+        return redirect()->back()->with('success', 'Đã xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm ngay bây giờ.');
     }
 
     // Tạo đơn hàng từ giỏ hàng
