@@ -81,7 +81,7 @@ class OrderController extends Controller
         if ($carts->isEmpty()) {
             return redirect()->route('products.index')->with('error', 'Giỏ hàng trống');
         }
-        return view('orders.create', compact('carts'));
+        return view('orders.create', compact('carts'))->with('cartIds', $carts->pluck('id')->implode(','));
     }
 
     // Lưu đơn hàng
@@ -100,7 +100,13 @@ class OrderController extends Controller
             ]);
         }
 
-        $carts = Cart::where('user_id', auth()->id())->with(['product', 'variant'])->get();
+        $selectedIds = $request->input('selected_items');
+        if ($selectedIds) {
+            $ids = explode(',', $selectedIds);
+            $carts = Cart::whereIn('id', $ids)->where('user_id', auth()->id())->with(['product', 'variant'])->get();
+        } else {
+            $carts = Cart::where('user_id', auth()->id())->with(['product', 'variant'])->get();
+        }
         if ($carts->isEmpty()) {
             return redirect()->route('products.index')->with('error', 'Giỏ hàng trống');
         }
@@ -156,7 +162,7 @@ class OrderController extends Controller
             }
         }
 
-        Cart::where('user_id', auth()->id())->delete();
+        Cart::whereIn('id', $carts->pluck('id'))->delete();
 
         // Check if payment method is SePay
         if ($validated['payment_method_id'] === 'sepay') {

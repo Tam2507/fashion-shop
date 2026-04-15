@@ -13,6 +13,7 @@
     
     <form method="POST" action="{{ route('orders.store') }}" class="needs-validation" novalidate>
         @csrf
+        <input type="hidden" name="selected_items" value="{{ $cartIds ?? '' }}">
         <div class="row g-4">
             <div class="col-lg-8">
                 <!-- Shipping Information -->
