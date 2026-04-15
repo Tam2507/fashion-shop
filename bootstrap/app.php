@@ -17,5 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Khi CSRF token hết hạn, redirect về trang trước thay vì 419
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['csrf' => 'Phiên làm việc đã hết hạn. Vui lòng thử lại.']);
+        });
     })->create();
