@@ -144,6 +144,23 @@
                 </div>
             </div>
 
+            {{-- Nút hủy đơn hàng (chỉ khi chờ xác nhận) --}}
+            @if($order->status === 'received')
+            <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:4px solid #dc2626 !important;">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                    <p class="small text-muted mb-3">Đơn hàng chưa được xử lý. Bạn có thể hủy ngay bây giờ.</p>
+                    <form method="POST" action="{{ route('orders.cancel', $order->id) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold"
+                                onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">
+                            <i class="fas fa-times me-2"></i>Hủy đơn hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endif
+
             {{-- Nút xác nhận đã nhận hàng --}}
             @if($order->status === 'shipping')
             <div class="card border-0 shadow-sm rounded-3" style="border-left:4px solid #2e7d32 !important;">

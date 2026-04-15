@@ -66,6 +66,34 @@ class OrderController extends Controller
             ->with('show_review', true);
     }
 
+    // Khách hàng hủy đơn hàng (chỉ khi status = received)
+    public function cancel(string $id)
+    {
+        $order = Order::with('items.variant', 'items.product')->findOrFail($id);
+
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($order->status !== 'received') {
+            return redirect()->back()->with('error', 'Không thể hủy đơn hàng này vì đã được xử lý.');
+        }
+
+        // Hoàn lại tồn kho
+        foreach ($order->items as $item) {
+            if ($item->variant_id && $item->variant) {
+                $item->variant->increment('stock_quantity', $item->quantity);
+                $item->product?->syncQuantity();
+            } elseif ($item->product) {
+                $item->product->increment('quantity', $item->quantity);
+            }
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công.');
+    }
+
     // Tạo đơn hàng từ giỏ hàng
     public function create(Request $request)
     {

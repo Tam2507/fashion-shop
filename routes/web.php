@@ -209,6 +209,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/buy-now/{productId}', [OrderController::class, 'buyNow'])->name('orders.buy-now');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}/confirm-received', [OrderController::class, 'confirmReceived'])->name('orders.confirm-received');
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/coupon/apply', [OrderController::class, 'applyCoupon'])->name('coupon.apply');
     Route::get('/payment/sepay/{orderId}', [\App\Http\Controllers\SePayController::class, 'checkout'])->name('payment.sepay');
 });
