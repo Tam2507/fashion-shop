@@ -122,30 +122,23 @@
 
     {{-- Stats --}}
     <div class="row g-3 mb-4">
+        @php
+            $stats = [
+                ['icon'=>'fas fa-receipt',      'num'=>$orders->total(),                                                         'label'=>'Tổng đơn hàng', 'color'=>'#555'],
+                ['icon'=>'fas fa-check-circle', 'num'=>$orders->where('status','delivered')->count(),                            'label'=>'Đã nhận hàng',  'color'=>'#2e7d32'],
+                ['icon'=>'fas fa-spinner',      'num'=>$orders->whereIn('status',['pending','processing','shipping'])->count(),  'label'=>'Đang xử lý',    'color'=>'#b45309'],
+                ['icon'=>'fas fa-wallet',       'num'=>number_format($orders->sum('total_price'),0,',','.').'₫',                 'label'=>'Tổng chi tiêu', 'color'=>'#8B3A3A'],
+            ];
+        @endphp
+        @foreach($stats as $s)
         <div class="col-6 col-md-3">
-            <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2);">
-                <div class="stat-num text-white">{{ $orders->total() }}</div>
-                <div class="stat-label text-white">Tổng đơn hàng</div>
+            <div class="stat-card" style="background:#fff;border:1px solid #eee;">
+                <i class="{{ $s['icon'] }} mb-2 d-block" style="font-size:1.2rem;color:{{ $s['color'] }};"></i>
+                <div class="stat-num" style="color:{{ $s['color'] }};font-size:1.5rem;">{{ $s['num'] }}</div>
+                <div class="stat-label" style="color:#999;">{{ $s['label'] }}</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background:linear-gradient(135deg,#11998e,#38ef7d);">
-                <div class="stat-num text-white">{{ $orders->where('status','delivered')->count() }}</div>
-                <div class="stat-label text-white">Đã nhận hàng</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background:linear-gradient(135deg,#f7971e,#ffd200);">
-                <div class="stat-num text-dark">{{ $orders->whereIn('status',['pending','processing','shipping'])->count() }}</div>
-                <div class="stat-label text-dark">Đang xử lý</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card" style="background:linear-gradient(135deg,#8B3A3A,#C41E3A);">
-                <div class="stat-num text-white" style="font-size:1.3rem;">{{ number_format($orders->sum('total_price'),0,',','.') }}₫</div>
-                <div class="stat-label text-white">Tổng chi tiêu</div>
-            </div>
-        </div>
+        @endforeach
     </div>
 
     {{-- Filter --}}
