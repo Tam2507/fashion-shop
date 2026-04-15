@@ -27,8 +27,19 @@
             </div>
             @endguest
             
+            <div id="image-preview-box" style="display:none;" class="mb-2">
+                <div class="position-relative d-inline-block">
+                    <img id="image-preview" src="" style="max-height:80px;max-width:100%;border-radius:8px;border:1px solid #ddd;">
+                    <button type="button" id="remove-image" class="btn btn-sm btn-danger position-absolute top-0 end-0" style="padding:1px 5px;font-size:10px;">✕</button>
+                </div>
+            </div>
+
             <div class="input-group">
                 <input type="text" id="chat-message-input" class="form-control" placeholder="Nhập tin nhắn...">
+                <label for="chat-image-input" class="btn btn-outline-secondary" style="cursor:pointer;" title="Gửi ảnh">
+                    <i class="fas fa-image"></i>
+                </label>
+                <input type="file" id="chat-image-input" accept="image/*" style="display:none;">
                 <button id="chat-send-btn" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -174,8 +185,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const sendBtn = document.getElementById('chat-send-btn');
     const guestName = document.getElementById('guest-name');
     const guestEmail = document.getElementById('guest-email');
+    const imageInput = document.getElementById('chat-image-input');
+    const imagePreview = document.getElementById('image-preview');
+    const imagePreviewBox = document.getElementById('image-preview-box');
+    const removeImage = document.getElementById('remove-image');
 
     let guestEmailStored = localStorage.getItem('guest_email');
+
+    // Preview ảnh khi chọn
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                imagePreview.src = e.target.result;
+                imagePreviewBox.style.display = 'block';
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    removeImage.addEventListener('click', function() {
+        imageInput.value = '';
+        imagePreviewBox.style.display = 'none';
+        imagePreview.src = '';
+    });
 
     // Toggle chat box
     chatToggle.addEventListener('click', function() {
@@ -199,7 +232,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function sendMessage() {
         const message = messageInput.value.trim();
-        if (!message) return;
+        const hasImage = imageInput.files && imageInput.files[0];
+        if (!message && !hasImage) return;
 
         @guest
         const name = guestName.value.trim();
@@ -219,30 +253,33 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('guest_email', email);
         @endguest
 
-        const data = {
-            message: message,
-            @guest
-            guest_name: name,
-            guest_email: email,
-            @endguest
-        };
+        const formData = new FormData();
+        if (message) formData.append('message', message);
+        @guest
+        formData.append('guest_name', guestName.value.trim());
+        formData.append('guest_email', guestEmail.value.trim());
+        @endguest
+        if (hasImage) formData.append('image', imageInput.files[0]);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        sendBtn.disabled = true;
 
         fetch('{{ route("messages.store") }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(data)
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 messageInput.value = '';
+                imageInput.value = '';
+                imagePreviewBox.style.display = 'none';
+                imagePreview.src = '';
                 addMessageToUI(data.message);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error))
+        .finally(() => { sendBtn.disabled = false; });
     }
 
     function loadMessages() {
@@ -280,8 +317,15 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit'
         });
 
+        let content = '';
+        if (msg.message) content += `<div>${escapeHtml(msg.message)}</div>`;
+        if (msg.image) {
+            const imgUrl = msg.image.startsWith('http') ? msg.image : '/storage/' + msg.image;
+            content += `<div class="mt-1"><img src="${imgUrl}" style="max-width:180px;max-height:180px;border-radius:8px;cursor:pointer;" onclick="window.open('${imgUrl}','_blank')"></div>`;
+        }
+
         messageDiv.innerHTML = `
-            <div class="message-bubble">${escapeHtml(msg.message)}</div>
+            <div class="message-bubble">${content}</div>
             <div class="message-time">${time}</div>
         `;
         
