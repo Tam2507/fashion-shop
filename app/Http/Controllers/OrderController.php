@@ -11,12 +11,17 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     // Hiển thị lịch sử đơn hàng
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::where('user_id', auth()->id())
-            ->with(['items.product.images', 'items.variant'])
-            ->latest()
-            ->paginate(10);
+        $query = Order::where('user_id', auth()->id())
+            ->with(['items.product.images', 'items.variant', 'paymentMethod'])
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->paginate(10);
         return view('orders.index', compact('orders'));
     }
 
