@@ -75,6 +75,7 @@
                                 <small class="text-success fw-semibold">Đã đánh giá sản phẩm này</small>
                             </div>
                         @else
+                            @php $autoOpen = session('show_review') && $loop->first; @endphp
                             <div class="mt-2 mb-1">
                                 <button class="btn btn-sm btn-outline-warning rounded-pill"
                                         type="button"
@@ -82,30 +83,25 @@
                                         data-bs-target="#review-{{ $item->product->id }}">
                                     <i class="fas fa-star me-1"></i>Viết đánh giá
                                 </button>
-                                <div class="collapse mt-3" id="review-{{ $item->product->id }}">
+                                <div class="collapse mt-3 {{ $autoOpen ? 'show' : '' }}" id="review-{{ $item->product->id }}">
                                     <form method="POST" action="{{ route('reviews.store', $item->product->id) }}"
-                                          class="p-3 rounded-3" style="background:#fafafa;border:1px solid #f0f0f0;">
+                                          class="p-3 rounded-3" style="background:#fffbeb;border:1px solid #fde68a;">
                                         @csrf
-                                        <div class="mb-2">
-                                            <label class="form-label small fw-bold">Đánh giá sao</label>
-                                            <div class="d-flex gap-2">
-                                                @for($i=1;$i<=5;$i++)
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="rating"
-                                                           id="star-{{ $item->product->id }}-{{ $i }}" value="{{ $i }}" required>
-                                                    <label class="form-check-label" for="star-{{ $item->product->id }}-{{ $i }}">
-                                                        <i class="fas fa-star text-warning"></i> {{ $i }}
-                                                    </label>
-                                                </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold mb-1">Đánh giá của bạn</label>
+                                            <div class="star-rating d-flex gap-1" data-product="{{ $item->product->id }}">
+                                                @for($i=5;$i>=1;$i--)
+                                                <input type="radio" name="rating" id="star-{{ $item->product->id }}-{{ $i }}" value="{{ $i }}" required class="d-none">
+                                                <label for="star-{{ $item->product->id }}-{{ $i }}" class="star-label fs-4" style="cursor:pointer;color:#d1d5db;" title="{{ $i }} sao">★</label>
                                                 @endfor
                                             </div>
                                         </div>
                                         <div class="mb-2">
                                             <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                                      placeholder="Nhận xét của bạn..."></textarea>
+                                                      placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-sm btn-warning rounded-pill px-3">
-                                            Gửi đánh giá
+                                        <button type="submit" class="btn btn-sm btn-warning rounded-pill px-3 fw-semibold">
+                                            <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
                                         </button>
                                     </form>
                                 </div>
@@ -176,3 +172,25 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+.star-rating { flex-direction: row-reverse; }
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: #f59e0b !important; }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+@if(session('show_review'))
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstReview = document.querySelector('.star-rating');
+        if (firstReview) {
+            firstReview.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+@endif
+</script>
+@endpush

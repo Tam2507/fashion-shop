@@ -60,7 +60,9 @@ class OrderController extends Controller
 
         $order->update(['status' => 'delivered']);
 
-        return redirect()->back()->with('success', 'Đã xác nhận nhận hàng thành công! Bạn có thể đánh giá sản phẩm ngay bây giờ.');
+        return redirect()->route('orders.show', $order->id)
+            ->with('success', 'Đã xác nhận nhận hàng thành công! Hãy đánh giá sản phẩm bên dưới.')
+            ->with('show_review', true);
     }
 
     // Tạo đơn hàng từ giỏ hàng

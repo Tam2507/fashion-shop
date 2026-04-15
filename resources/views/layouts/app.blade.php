@@ -776,6 +776,7 @@
             background: linear-gradient(180deg, var(--accent) 0%, var(--primary) 100%);
         }
     </style>
+    @stack('styles')
 </head>
 <body>
 
@@ -1274,6 +1275,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Chat Box -->
 @include('components.chat-box')
-
+@stack('scripts')
 </body>
 </html>
