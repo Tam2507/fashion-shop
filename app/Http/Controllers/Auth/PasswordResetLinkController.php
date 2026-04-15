@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\PasswordResetOtpMail;
+use App\Services\BrevoMailService;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
@@ -47,11 +46,12 @@ class PasswordResetLinkController extends Controller
             'updated_at' => now(),
         ], ['email'], ['otp', 'expires_at', 'updated_at']);
 
-        // Gửi mail trực tiếp
-        try {
-            Mail::to($request->email)->send(new PasswordResetOtpMail($otp));
-        } catch (\Exception $e) {
-            \Log::error('OTP mail failed: ' . $e->getMessage());
+        // Gửi mail qua Brevo
+        $html = view('emails.password-reset-otp', ['otp' => $otp])->render();
+        $brevo = new BrevoMailService();
+        $sent = $brevo->send($request->email, $user->name, 'Mã xác nhận đặt lại mật khẩu', $html);
+
+        if (!$sent) {
             return back()->withErrors(['email' => 'Không thể gửi email. Vui lòng thử lại sau.'])->withInput();
         }
 
