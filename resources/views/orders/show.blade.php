@@ -38,8 +38,8 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
                     <h6 class="fw-bold mb-3">Sản phẩm đã đặt</h6>
-                    @foreach($order->items as $item)
-                    @php $img = $item->product->image ?? ($item->product->images->first()->path ?? null); @endphp
+                    @forelse($order->items as $item)
+                    @php $img = $item->product ? ($item->product->image ?? ($item->product->images->first()->path ?? null)) : null; @endphp
                     <div class="d-flex gap-3 mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
                         @if($img)
                             <img src="{{ \App\Services\ImageUploadService::url($img) }}"
@@ -50,7 +50,9 @@
                             </div>
                         @endif
                         <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size:.92rem;">{{ $item->product->name ?? 'N/A' }}</div>
+                            <div class="fw-semibold" style="font-size:.92rem;">
+                                {{ $item->product->name ?? 'Sản phẩm #'.$item->product_id }}
+                            </div>
                             @if($item->variant)
                                 <small class="text-muted">
                                     @if($item->variant->size) Size: {{ $item->variant->size }} @endif
@@ -110,7 +112,9 @@
                             </div>
                         @endif
                     @endif
-                    @endforeach
+                    @empty
+                        <p class="text-muted">Không có sản phẩm nào.</p>
+                    @endforelse
                 </div>
             </div>
         </div>

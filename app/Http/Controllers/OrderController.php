@@ -28,7 +28,7 @@ class OrderController extends Controller
     // Hiển thị chi tiết đơn hàng
     public function show(string $id)
     {
-        $order = Order::with(['items.product', 'items.variant'])->findOrFail($id);
+        $order = Order::with(['items.product.images', 'items.variant'])->findOrFail($id);
         $user = auth()->user();
         if (! $user) {
             return redirect()->route('login');
