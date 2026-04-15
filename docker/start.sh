@@ -13,7 +13,10 @@ chmod -R 777 storage bootstrap/cache
 # Xóa view cache cũ
 rm -rf storage/framework/views/*.php 2>/dev/null || true
 
-php artisan key:generate --force
+# Chỉ generate key nếu chưa có
+if [ -z "$APP_KEY" ]; then
+    php artisan key:generate --force
+fi
 php artisan migrate --force 2>&1 || true
 # Đảm bảo sessions table tồn tại
 php artisan tinker --execute="try { DB::statement('CREATE TABLE IF NOT EXISTS sessions (id VARCHAR(255) PRIMARY KEY, user_id BIGINT UNSIGNED NULL, ip_address VARCHAR(45) NULL, user_agent TEXT NULL, payload LONGTEXT NOT NULL, last_activity INT NOT NULL, INDEX sessions_user_id_index (user_id), INDEX sessions_last_activity_index (last_activity))'); echo \"sessions table OK\"; } catch(Exception \$e) { echo \$e->getMessage(); }" 2>/dev/null || true
