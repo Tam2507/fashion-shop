@@ -38,8 +38,9 @@ class OrderController extends Controller
             abort(403, 'Bạn không có quyền xem đơn hàng này');
         }
 
-        // Lấy danh sách product_id đã được review bởi user này
+        // Lấy danh sách product_id đã được review cho đơn hàng này
         $reviewedProductIds = \App\Models\Review::where('user_id', auth()->id())
+            ->where('order_id', $id)
             ->pluck('product_id')->toArray();
 
         return view('orders.show', compact('order', 'reviewedProductIds'));

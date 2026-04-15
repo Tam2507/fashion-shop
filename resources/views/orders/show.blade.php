@@ -87,6 +87,7 @@
                                     <form method="POST" action="{{ route('reviews.store', $item->product->id) }}"
                                           class="p-3 rounded-3" style="background:#fffbeb;border:1px solid #fde68a;">
                                         @csrf
+                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
                                         <div class="mb-3">
                                             <label class="form-label small fw-bold mb-1">Đánh giá của bạn</label>
                                             <div class="star-rating d-flex gap-1" data-product="{{ $item->product->id }}">
