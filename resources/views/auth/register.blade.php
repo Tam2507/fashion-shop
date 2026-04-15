@@ -21,18 +21,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mật khẩu</label>
-                        <div class="input-group">
-                            <input type="password" name="password" id="reg-password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('reg-password','reg-eye1')"><i class="fas fa-eye" id="reg-eye1"></i></button>
+                        <div class="position-relative">
+                            <input type="password" name="password" id="reg-password"
+                                   class="form-control form-control-lg @error('password') is-invalid @enderror"
+                                   style="padding-right:2.8rem;" required>
+                            <i class="fas fa-eye" id="reg-eye1" onclick="togglePwd('reg-password','reg-eye1')"
+                               style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#6c757d;"></i>
                         </div>
                         <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Mật khẩu phải có ít nhất 8 ký tự</small>
                         @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Xác nhận mật khẩu</label>
-                        <div class="input-group">
-                            <input type="password" name="password_confirmation" id="reg-password2" class="form-control form-control-lg" required>
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('reg-password2','reg-eye2')"><i class="fas fa-eye" id="reg-eye2"></i></button>
+                        <div class="position-relative">
+                            <input type="password" name="password_confirmation" id="reg-password2"
+                                   class="form-control form-control-lg"
+                                   style="padding-right:2.8rem;" required>
+                            <i class="fas fa-eye" id="reg-eye2" onclick="togglePwd('reg-password2','reg-eye2')"
+                               style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#6c757d;"></i>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-secondary btn-lg w-100 fw-bold mb-3">

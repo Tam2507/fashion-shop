@@ -21,12 +21,15 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mật khẩu</label>
-                        <div class="input-group">
-                            <input type="password" name="password" id="login-password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('login-password', 'login-eye')">
-                                <i class="fas fa-eye" id="login-eye"></i>
-                            </button>
+                        <div class="position-relative">
+                            <input type="password" name="password" id="login-password"
+                                   class="form-control form-control-lg @error('password') is-invalid @enderror"
+                                   style="padding-right: 2.8rem;" required>
+                            <i class="fas fa-eye" id="login-eye"
+                               onclick="togglePwd('login-password','login-eye')"
+                               style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#6c757d;"></i>
                         </div>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Mật khẩu phải có ít nhất 8 ký tự</small>
                         @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3 d-flex justify-content-between align-items-center">

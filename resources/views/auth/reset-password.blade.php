@@ -14,13 +14,12 @@
                     @csrf
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mật Khẩu Mới</label>
-                        <div class="input-group">
+                        <div class="position-relative">
                             <input type="password" name="password" id="password"
                                    class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                   required placeholder="Nhập mật khẩu mới" minlength="8">
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', 'eye1')">
-                                <i class="fas fa-eye" id="eye1"></i>
-                            </button>
+                                   style="padding-right:2.8rem;" required placeholder="Nhập mật khẩu mới" minlength="8">
+                            <i class="fas fa-eye" id="eye1" onclick="togglePassword('password','eye1')"
+                               style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#6c757d;"></i>
                         </div>
                         <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Mật khẩu phải có ít nhất 8 ký tự</small>
                         @error('password')
@@ -29,13 +28,12 @@
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-bold">Xác Nhận Mật Khẩu</label>
-                        <div class="input-group">
+                        <div class="position-relative">
                             <input type="password" name="password_confirmation" id="password_confirmation"
                                    class="form-control form-control-lg"
-                                   required placeholder="Nhập lại mật khẩu mới" minlength="8">
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password_confirmation', 'eye2')">
-                                <i class="fas fa-eye" id="eye2"></i>
-                            </button>
+                                   style="padding-right:2.8rem;" required placeholder="Nhập lại mật khẩu mới" minlength="8">
+                            <i class="fas fa-eye" id="eye2" onclick="togglePassword('password_confirmation','eye2')"
+                               style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#6c757d;"></i>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3">
