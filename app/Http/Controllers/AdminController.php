@@ -35,6 +35,15 @@ class AdminController extends Controller
         // Chỉ tính doanh thu từ đơn hàng đã giao hôm nay
         $todayRevenue = Order::where('status', 'delivered')->whereDate('created_at', today())->sum('total_price');
 
+        // Sản phẩm bán chạy (top 5 theo số lượng đã bán)
+        $topProducts = \App\Models\OrderItem::with('product.images')
+            ->whereHas('order', fn($q) => $q->whereNotIn('status', ['cancelled']))
+            ->selectRaw('product_id, SUM(quantity) as total_sold, SUM(quantity * price) as total_revenue')
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalOrders',
             'totalRevenue', 
@@ -44,7 +53,8 @@ class AdminController extends Controller
             'recentOrders',
             'todayOrders',
             'todayUsers',
-            'todayRevenue'
+            'todayRevenue',
+            'topProducts'
         ));
     }
 

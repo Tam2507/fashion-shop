@@ -197,7 +197,7 @@
 
     <!-- Quick Stats -->
     <div class="row g-4 mt-4">
-        <div class="col-lg-12">
+        <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
                 <div class="card-header" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
                     <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Hoạt Động Hôm Nay</h5>
@@ -223,6 +223,43 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Selling Products -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
+                    <h5 class="mb-0"><i class="fas fa-fire me-2 text-danger"></i> Sản Phẩm Bán Chạy</h5>
+                </div>
+                <div class="card-body p-0">
+                    @forelse($topProducts as $i => $item)
+                    @php $product = $item->product; @endphp
+                    @if($product)
+                    <div class="d-flex align-items-center gap-3 px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                        <span class="fw-bold text-muted" style="width:20px;">{{ $i+1 }}</span>
+                        @php $img = $product->image ?? $product->images->first()?->path ?? null; @endphp
+                        @if($img)
+                            <img src="{{ \App\Services\ImageUploadService::url($img) }}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+                        @else
+                            <div style="width:40px;height:40px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-box text-muted small"></i>
+                            </div>
+                        @endif
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="fw-semibold text-truncate" style="font-size:.85rem;">{{ $product->name }}</div>
+                            <small class="text-muted">{{ number_format($item->total_revenue, 0, ',', '.') }}₫</small>
+                        </div>
+                        <span class="badge bg-danger rounded-pill">{{ $item->total_sold }} đã bán</span>
+                    </div>
+                    @endif
+                    @empty
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2 opacity-25"></i>
+                        <p class="small mb-0">Chưa có dữ liệu</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
