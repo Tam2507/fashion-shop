@@ -21,12 +21,19 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mật khẩu</label>
-                        <input type="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
+                        <div class="input-group">
+                            <input type="password" name="password" id="reg-password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('reg-password','reg-eye1')"><i class="fas fa-eye" id="reg-eye1"></i></button>
+                        </div>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Mật khẩu phải có ít nhất 8 ký tự</small>
                         @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Xác nhận mật khẩu</label>
-                        <input type="password" name="password_confirmation" class="form-control form-control-lg" required>
+                        <div class="input-group">
+                            <input type="password" name="password_confirmation" id="reg-password2" class="form-control form-control-lg" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('reg-password2','reg-eye2')"><i class="fas fa-eye" id="reg-eye2"></i></button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-secondary btn-lg w-100 fw-bold mb-3">
                         <i class="fas fa-user-check"></i> Đăng Ký
@@ -38,4 +45,13 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePwd(fieldId, iconId) {
+    const f = document.getElementById(fieldId);
+    const i = document.getElementById(iconId);
+    if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye','fa-eye-slash'); }
+    else { f.type = 'password'; i.classList.replace('fa-eye-slash','fa-eye'); }
+}
+</script>
 @endsection

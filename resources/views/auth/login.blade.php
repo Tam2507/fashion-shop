@@ -21,7 +21,12 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mật khẩu</label>
-                        <input type="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
+                        <div class="input-group">
+                            <input type="password" name="password" id="login-password" class="form-control form-control-lg @error('password') is-invalid @enderror" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd('login-password', 'login-eye')">
+                                <i class="fas fa-eye" id="login-eye"></i>
+                            </button>
+                        </div>
                         @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3 d-flex justify-content-between align-items-center">
@@ -41,4 +46,13 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePwd(fieldId, iconId) {
+    const f = document.getElementById(fieldId);
+    const i = document.getElementById(iconId);
+    if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye','fa-eye-slash'); }
+    else { f.type = 'password'; i.classList.replace('fa-eye-slash','fa-eye'); }
+}
+</script>
 @endsection
