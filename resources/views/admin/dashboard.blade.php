@@ -171,7 +171,18 @@
                                         </td>
                                         <td><strong class="text-success">{{ number_format($order->total_price, 0, ',', '.') }}₫</strong></td>
                                         <td>
-                                            <span class="badge bg-warning">Đang xử lý</span>
+                                            @php
+                                                $badgeClass = match($order->status) {
+                                                    'received'   => 'bg-warning text-dark',
+                                                    'confirmed'  => 'bg-primary',
+                                                    'processing' => 'bg-info',
+                                                    'shipping'   => 'bg-info',
+                                                    'delivered'  => 'bg-success',
+                                                    'cancelled'  => 'bg-danger',
+                                                    default      => 'bg-secondary',
+                                                };
+                                            @endphp
+                                            <span class="badge {{ $badgeClass }}">{{ $order->status_label }}</span>
                                         </td>
                                         <td><small class="text-muted">{{ $order->created_at->format('d/m/Y H:i') }}</small></td>
                                         <td>
