@@ -32,21 +32,28 @@ class BannerController extends Controller
             'page' => 'required|in:home,products,all',
         ]);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = (new ImageUploadService)->upload($request->file('image'), 'banners');
+        try {
+            if ($request->hasFile('image')) {
+                $validated['image'] = (new ImageUploadService)->upload($request->file('image'), 'banners');
+            }
+
+            $validated['subtitle'] = null;
+            $validated['description'] = null;
+            $validated['background_color'] = '#8B3A3A';
+            $validated['text_color'] = '#FFFFFF';
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+            Banner::create($validated);
+
+            return redirect()->route('admin.banners.index')
+                ->with('success', 'Banner đã được tạo thành công!');
+
+        } catch (\Exception $e) {
+            \Log::error('Banner store error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Lỗi upload ảnh: ' . $e->getMessage());
         }
-
-        // Set default values
-        $validated['subtitle'] = null;
-        $validated['description'] = null;
-        $validated['background_color'] = '#8B3A3A';
-        $validated['text_color'] = '#FFFFFF';
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-
-        Banner::create($validated);
-
-        return redirect()->route('admin.banners.index')
-            ->with('success', 'Banner đã được tạo thành công!');
     }
 
     public function show(Banner $banner)
