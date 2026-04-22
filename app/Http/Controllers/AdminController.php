@@ -176,7 +176,7 @@ class AdminController extends Controller
         $validated['is_admin'] = true;
 
         User::create($validated);
-        return redirect()->route('admin.admins.index')->with('success', 'Tài khoản admin mới đã được tạo');
+        return redirect()->route('admin.users')->with('success', 'Tài khoản admin mới đã được tạo');
     }
 
     public function editAdmin($id)
@@ -202,7 +202,7 @@ class AdminController extends Controller
         }
 
         $admin->update($validated);
-        return redirect()->route('admin.admins.index')->with('success', 'Tài khoản admin đã được cập nhật');
+        return redirect()->route('admin.users')->with('success', 'Tài khoản admin đã được cập nhật');
     }
 
     public function deleteAdmin($id)
@@ -215,7 +215,7 @@ class AdminController extends Controller
         }
 
         $admin->delete();
-        return redirect()->back()->with('success', 'Tài khoản admin đã được xóa');
+        return redirect()->route('admin.users')->with('success', 'Tài khoản admin đã được xóa');
     }
 
     public function index()

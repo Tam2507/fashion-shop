@@ -330,8 +330,7 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('users.delete');
     
-    // Admin accounts management
-    Route::get('/admins', [AdminController::class, 'admins'])->name('admins.index');
+    // Admin accounts management (tạo/sửa admin từ trang users)
     Route::get('/admins/create', [AdminController::class, 'createAdmin'])->name('admins.create');
     Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admins.store');
     Route::get('/admins/{id}/edit', [AdminController::class, 'editAdmin'])->name('admins.edit');

@@ -117,14 +117,6 @@
                             </div>
                             <span class="badge bg-warning">{{ $totalUsers ?? 0 }}</span>
                         </a>
-                        <a href="{{ route('admin.admins.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-user-shield me-2 text-danger"></i> 
-                                <strong>Quản Trị Viên</strong>
-                                <br><small class="text-muted">Quản lý admin</small>
-                            </div>
-                            <span class="badge bg-danger">Admin</span>
-                        </a>
                         <a href="{{ route('admin.users') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-top-2" style="border-top: 2px solid #8B3A3A !important;">
                             <div>
                                 <i class="fas fa-user-cog me-2 text-primary"></i> 
