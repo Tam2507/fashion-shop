@@ -22,26 +22,36 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
-            'link_url' => 'nullable|string|max:500',
-            'link_text' => 'nullable|string|max:100',
-            'position' => 'required|integer|min:0',
+        // Debug: dump all input
+        \Log::info('Banner store input: ' . json_encode($request->except('image')) . ' | has_image: ' . ($request->hasFile('image') ? 'yes' : 'no'));
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'title'       => 'required|string|max:255',
+            'image'       => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'link_url'    => 'nullable|string|max:500',
+            'link_text'   => 'nullable|string|max:100',
+            'position'    => 'required|integer|min:0',
             'banner_type' => 'required|in:hero,promotion,announcement',
-            'page' => 'required|in:home,products,all',
+            'page'        => 'required|in:home,products,all',
         ]);
+
+        if ($validator->fails()) {
+            \Log::error('Banner validation failed: ' . json_encode($validator->errors()->all()));
+            return response('Validation failed: ' . implode(', ', $validator->errors()->all()), 422);
+        }
+
+        $validated = $validator->validated();
 
         try {
             if ($request->hasFile('image')) {
                 $validated['image'] = (new ImageUploadService)->upload($request->file('image'), 'banners');
             }
 
-            $validated['subtitle'] = null;
-            $validated['description'] = null;
+            $validated['subtitle']         = null;
+            $validated['description']      = null;
             $validated['background_color'] = '#8B3A3A';
-            $validated['text_color'] = '#FFFFFF';
-            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['text_color']       = '#FFFFFF';
+            $validated['is_active']        = $request->has('is_active') ? 1 : 0;
 
             Banner::create($validated);
 
@@ -50,7 +60,7 @@ class BannerController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Banner store error: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
-            return response('Lỗi: ' . $e->getMessage() . ' tại ' . $e->getFile() . ':' . $e->getLine(), 500);
+            return response('Lỗi: ' . $e->getMessage(), 500);
         }
     }
 
