@@ -24,6 +24,7 @@ php artisan session:table 2>/dev/null || true
 php artisan migrate --force 2>&1 || true
 php artisan storage:link 2>/dev/null || true
 php artisan route:cache 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
 
 # Start queue worker in background để gửi mail bất đồng bộ
 php artisan queue:work --tries=3 --timeout=60 --sleep=3 &

@@ -50,9 +50,7 @@ class BannerController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Banner store error: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Lỗi upload ảnh: ' . $e->getMessage());
+            return response('Lỗi: ' . $e->getMessage() . ' tại ' . $e->getFile() . ':' . $e->getLine(), 500);
         }
     }
 
