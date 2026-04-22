@@ -184,6 +184,9 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/category/{categoryId}', [ProductController::class, 'byCategory'])->name('products.category');
 
+// Blog public
+Route::get('/blog', [\App\Http\Controllers\PostController::class, 'publicIndex'])->name('posts.index');
+
 // Search API
 Route::get('/api/search', [ProductController::class, 'search'])->name('api.search');
 

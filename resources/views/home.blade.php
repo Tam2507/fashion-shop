@@ -303,8 +303,8 @@
     </div>
     
     <div class="text-center mt-4">
-        <a href="{{ route('home') }}#blog" class="btn btn-outline-primary btn-lg">
-            <i class="fas fa-book-open"></i> Xem Thêm Bài Viết
+        <a href="{{ route('posts.index') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-book-open"></i> Xem Tất Cả Bài Viết
         </a>
     </div>
 </div>
