@@ -90,7 +90,7 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ route('admin.admins.index') }}" class="btn btn-secondary btn-lg">
+                            <a href="{{ route('admin.users') }}" class="btn btn-secondary btn-lg">
                                 <i class="fas fa-times me-2"></i> Hủy
                             </a>
                             <button type="submit" class="btn btn-dark btn-lg">
