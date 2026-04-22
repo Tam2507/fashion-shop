@@ -22,10 +22,7 @@ class BannerController extends Controller
 
     public function store(Request $request)
     {
-        // Debug: dump all input
-        \Log::info('Banner store input: ' . json_encode($request->except('image')) . ' | has_image: ' . ($request->hasFile('image') ? 'yes' : 'no'));
-
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'image'       => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'link_url'    => 'nullable|string|max:500',
@@ -34,13 +31,6 @@ class BannerController extends Controller
             'banner_type' => 'required|in:hero,promotion,announcement',
             'page'        => 'required|in:home,products,all',
         ]);
-
-        if ($validator->fails()) {
-            \Log::error('Banner validation failed: ' . json_encode($validator->errors()->all()));
-            return response('Validation failed: ' . implode(', ', $validator->errors()->all()), 422);
-        }
-
-        $validated = $validator->validated();
 
         try {
             if ($request->hasFile('image')) {
@@ -59,8 +49,9 @@ class BannerController extends Controller
                 ->with('success', 'Banner đã được tạo thành công!');
 
         } catch (\Exception $e) {
-            \Log::error('Banner store error: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
-            return response('Lỗi: ' . $e->getMessage(), 500);
+            \Log::error('Banner store error: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'Lỗi upload ảnh: ' . $e->getMessage());
         }
     }
 
