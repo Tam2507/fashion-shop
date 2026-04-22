@@ -49,7 +49,7 @@ class BannerController extends Controller
                 ->with('success', 'Banner đã được tạo thành công!');
 
         } catch (\Exception $e) {
-            \Log::error('Banner store error: ' . $e->getMessage());
+            \Log::error('Banner store error: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Lỗi upload ảnh: ' . $e->getMessage());
