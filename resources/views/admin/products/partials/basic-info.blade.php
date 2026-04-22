@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Giá (VND) <span class="text-danger">*</span></label>
-                            <input type="number" name="price" class="form-control form-control-lg" value="{{ $product->price }}" min="0" step="1000" required>
+                            <input type="number" name="price" class="form-control form-control-lg" value="{{ (int) $product->price }}" min="0" step="1000" required>
                         </div>
                     </div>
                     
