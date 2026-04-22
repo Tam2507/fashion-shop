@@ -11,7 +11,7 @@ use App\Http\Middleware\IsAdmin;
 // Public routes
 Route::get('/', function () {
     try {
-        $latestPosts = \App\Models\Post::published()->ordered()->limit(3)->get();
+        $latestPosts = \App\Models\Post::published()->ordered()->get();
         return view('home', compact('latestPosts'));
     } catch (Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);

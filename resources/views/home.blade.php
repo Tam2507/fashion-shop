@@ -270,44 +270,71 @@
         <h2 class="section-title">FASHION BLOG</h2>
         <p class="section-subtitle">ĐÓN ĐẦU XU HƯỚNG, ĐỊNH HÌNH PHONG CÁCH</p>
     </div>
-    
-    <div class="row g-4">
-        @foreach($latestPosts as $post)
-        <div class="col-lg-4 col-md-6">
-            <div class="blog-card h-100">
-                <div class="blog-image">
-                    @if($post->featured_image)
-                        <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" alt="{{ $post->title }}">
-                    @else
-                        <div class="blog-no-image">
-                            <i class="fas fa-newspaper"></i>
+
+    <div class="swiper blog-swiper">
+        <div class="swiper-wrapper">
+            @foreach($latestPosts as $post)
+            <div class="swiper-slide">
+                <div class="blog-card h-100">
+                    <div class="blog-image">
+                        @if($post->featured_image)
+                            <img src="{{ \App\Services\ImageUploadService::url($post->featured_image) }}" alt="{{ $post->title }}">
+                        @else
+                            <div class="blog-no-image">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                        @endif
+                        <div class="blog-overlay">
+                            <a href="{{ route('posts.show', $post->slug) }}" class="btn btn-light">
+                                <i class="fas fa-arrow-right"></i> Đọc Thêm
+                            </a>
                         </div>
-                    @endif
-                    <div class="blog-overlay">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="btn btn-light">
-                            <i class="fas fa-arrow-right"></i> Đọc Thêm
-                        </a>
                     </div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-meta">
-                        <span><i class="far fa-calendar"></i> {{ $post->created_at->format('d/m/Y') }}</span>
-                        <span><i class="far fa-user"></i> {{ $post->author->name ?? 'Admin' }}</span>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span><i class="far fa-calendar"></i> {{ $post->created_at->format('d/m/Y') }}</span>
+                            <span><i class="far fa-user"></i> {{ $post->author->name ?? 'Admin' }}</span>
+                        </div>
+                        <h4 class="blog-title">{{ $post->title }}</h4>
+                        <p class="blog-excerpt">{{ Str::limit($post->excerpt ?? strip_tags($post->content), 120) }}</p>
                     </div>
-                    <h4 class="blog-title">{{ $post->title }}</h4>
-                    <p class="blog-excerpt">{{ Str::limit($post->excerpt ?? strip_tags($post->content), 120) }}</p>
                 </div>
             </div>
+            @endforeach
         </div>
-        @endforeach
+        <div class="swiper-pagination mt-3"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
     </div>
-    
+
     <div class="text-center mt-4">
         <a href="{{ route('posts.index') }}" class="btn btn-outline-primary btn-lg">
             <i class="fas fa-book-open"></i> Xem Tất Cả Bài Viết
         </a>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Swiper('.blog-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 24,
+        loop: true,
+        autoplay: { delay: 3500, disableOnInteraction: false },
+        pagination: { el: '.blog-swiper .swiper-pagination', clickable: true },
+        navigation: {
+            nextEl: '.blog-swiper .swiper-button-next',
+            prevEl: '.blog-swiper .swiper-button-prev',
+        },
+        breakpoints: {
+            768:  { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+        }
+    });
+});
+</script>
+@endpush
 @endif
 
 <!-- Features Section -->
