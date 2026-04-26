@@ -246,14 +246,15 @@
                         </div>
                         <div class="d-flex justify-content-between mb-3 text-muted small">
                             <span>Phí giao hàng:</span>
-                            <span>0 ₫</span>
+                            <span id="shippingFee">30.000 ₫</span>
                         </div>
+                        <input type="hidden" name="shipping_fee" id="shippingFeeInput" value="30000">
                         
                         <hr class="my-3">
                         
                         <div class="d-flex justify-content-between fw-bold" style="font-size: 1.4rem;">
                             <span>Tổng:</span>
-                            <span class="text-danger" id="finalTotal">{{ number_format($total, 0, ',', '.') }} ₫</span>
+                            <span class="text-danger" id="finalTotal">{{ number_format($total + 30000, 0, ',', '.') }} ₫</span>
                         </div>
                     </div>
                     <div class="card-footer bg-white p-4 border-top">
@@ -362,7 +363,12 @@
 
     // Coupon
     const originalTotal = {{ $total }};
+    const SHIPPING_FEE = 30000;
     let discountValue = 0;
+    let freeShipping = false;
+
+    // Hiển thị tổng ban đầu có phí ship
+    document.getElementById('finalTotal').textContent = formatMoney(originalTotal + SHIPPING_FEE) + ' ₫';
 
     async function applyCoupon() {
         const code = document.getElementById('couponInput').value.trim().toUpperCase();
@@ -382,20 +388,29 @@
             const data = await res.json();
             if (data.success) {
                 discountValue = data.discount;
+                freeShipping = data.free_shipping || false;
                 document.getElementById('couponCode').value = code;
                 document.getElementById('discountRow').style.display = 'flex';
-                if (data.free_shipping) {
+                if (freeShipping) {
                     document.getElementById('discountAmount').textContent = 'Miễn phí ship';
+                    document.getElementById('shippingFee').textContent = '0 ₫';
+                    document.getElementById('shippingFeeInput').value = 0;
                 } else {
                     document.getElementById('discountAmount').textContent = '-' + formatMoney(discountValue) + ' ₫';
+                    document.getElementById('shippingFee').textContent = formatMoney(SHIPPING_FEE) + ' ₫';
+                    document.getElementById('shippingFeeInput').value = SHIPPING_FEE;
                 }
-                document.getElementById('finalTotal').textContent = formatMoney(originalTotal - discountValue) + ' ₫';
+                const shipping = freeShipping ? 0 : SHIPPING_FEE;
+                document.getElementById('finalTotal').textContent = formatMoney(originalTotal - discountValue + shipping) + ' ₫';
                 msg.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> ' + data.message + '</span>';
             } else {
                 discountValue = 0;
+                freeShipping = false;
                 document.getElementById('couponCode').value = '';
                 document.getElementById('discountRow').style.display = 'none';
-                document.getElementById('finalTotal').textContent = formatMoney(originalTotal) + ' ₫';
+                document.getElementById('shippingFee').textContent = formatMoney(SHIPPING_FEE) + ' ₫';
+                document.getElementById('shippingFeeInput').value = SHIPPING_FEE;
+                document.getElementById('finalTotal').textContent = formatMoney(originalTotal + SHIPPING_FEE) + ' ₫';
                 msg.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> ' + data.message + '</span>';
             }
         } catch(e) {

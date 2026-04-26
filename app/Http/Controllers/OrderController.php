@@ -147,14 +147,18 @@ class OrderController extends Controller
         // Áp dụng mã giảm giá nếu có
         $couponCode = strtoupper(trim($request->input('coupon_code', '')));
         $discount = 0;
+        $shippingFee = (int) $request->input('shipping_fee', 30000);
         if ($couponCode) {
             $coupon = \App\Models\Coupon::where('code', $couponCode)->first();
             if ($coupon && $coupon->canBeUsedBy(auth()->id())) {
                 $discount = $coupon->calculateDiscount($total);
+                if ($coupon->type === 'free_shipping') {
+                    $shippingFee = 0;
+                }
                 $coupon->increment('used_count');
             }
         }
-        $finalTotal = max(0, $total - $discount);
+        $finalTotal = max(0, $total - $discount + $shippingFee);
 
         $order = Order::create([
             'user_id'          => auth()->id(),
