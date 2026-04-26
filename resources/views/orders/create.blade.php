@@ -384,7 +384,11 @@
                 discountValue = data.discount;
                 document.getElementById('couponCode').value = code;
                 document.getElementById('discountRow').style.display = 'flex';
-                document.getElementById('discountAmount').textContent = '-' + formatMoney(discountValue) + ' ₫';
+                if (data.free_shipping) {
+                    document.getElementById('discountAmount').textContent = 'Miễn phí ship';
+                } else {
+                    document.getElementById('discountAmount').textContent = '-' + formatMoney(discountValue) + ' ₫';
+                }
                 document.getElementById('finalTotal').textContent = formatMoney(originalTotal - discountValue) + ' ₫';
                 msg.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> ' + data.message + '</span>';
             } else {

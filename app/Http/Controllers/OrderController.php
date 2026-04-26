@@ -218,6 +218,20 @@ class OrderController extends Controller
         }
 
         $discount = $coupon->calculateDiscount($total);
+
+        // free_shipping: discount = 0 nhưng vẫn hợp lệ
+        if ($coupon->type === 'free_shipping') {
+            if ($coupon->minimum_amount && $total < $coupon->minimum_amount) {
+                return response()->json(['success' => false, 'message' => 'Đơn hàng chưa đạt điều kiện áp dụng mã này (tối thiểu ' . number_format($coupon->minimum_amount, 0, ',', '.') . '₫).']);
+            }
+            return response()->json([
+                'success'      => true,
+                'discount'     => 0,
+                'free_shipping' => true,
+                'message'      => 'Áp dụng thành công! Miễn phí vận chuyển.',
+            ]);
+        }
+
         if ($discount <= 0) {
             return response()->json(['success' => false, 'message' => 'Đơn hàng chưa đạt điều kiện áp dụng mã này (tối thiểu ' . number_format($coupon->minimum_amount, 0, ',', '.') . '₫).']);
         }
