@@ -228,6 +228,9 @@
                             <label class="form-label fw-bold small text-uppercase" style="letter-spacing: 0.5px;">Mã giảm giá</label>
                             <div class="input-group">
                                 <input type="text" id="couponInput" class="form-control" placeholder="Nhập mã..." style="text-transform:uppercase;">
+                                <button type="button" class="btn btn-outline-danger d-none" id="removeCouponBtn" onclick="removeCoupon()" title="Hủy mã">
+                                    <i class="fas fa-times"></i>
+                                </button>
                                 <button type="button" class="btn btn-outline-primary fw-bold" onclick="applyCoupon()">Áp dụng</button>
                             </div>
                             <div id="couponMsg" class="small mt-1"></div>
@@ -370,6 +373,19 @@
     // Hiển thị tổng ban đầu có phí ship
     document.getElementById('finalTotal').textContent = formatMoney(originalTotal + SHIPPING_FEE) + ' ₫';
 
+    function removeCoupon() {
+        discountValue = 0;
+        freeShipping = false;
+        document.getElementById('couponInput').value = '';
+        document.getElementById('couponCode').value = '';
+        document.getElementById('couponMsg').innerHTML = '';
+        document.getElementById('discountRow').style.display = 'none';
+        document.getElementById('removeCouponBtn').classList.add('d-none');
+        document.getElementById('shippingFee').textContent = formatMoney(SHIPPING_FEE) + ' ₫';
+        document.getElementById('shippingFeeInput').value = SHIPPING_FEE;
+        document.getElementById('finalTotal').textContent = formatMoney(originalTotal + SHIPPING_FEE) + ' ₫';
+    }
+
     async function applyCoupon() {
         const code = document.getElementById('couponInput').value.trim().toUpperCase();
         const msg = document.getElementById('couponMsg');
@@ -391,6 +407,7 @@
                 freeShipping = data.free_shipping || false;
                 document.getElementById('couponCode').value = code;
                 document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('removeCouponBtn').classList.remove('d-none');
                 if (freeShipping) {
                     document.getElementById('discountAmount').textContent = 'Miễn phí ship';
                     document.getElementById('shippingFee').textContent = '0 ₫';
@@ -408,6 +425,7 @@
                 freeShipping = false;
                 document.getElementById('couponCode').value = '';
                 document.getElementById('discountRow').style.display = 'none';
+                document.getElementById('removeCouponBtn').classList.add('d-none');
                 document.getElementById('shippingFee').textContent = formatMoney(SHIPPING_FEE) + ' ₫';
                 document.getElementById('shippingFeeInput').value = SHIPPING_FEE;
                 document.getElementById('finalTotal').textContent = formatMoney(originalTotal + SHIPPING_FEE) + ' ₫';
