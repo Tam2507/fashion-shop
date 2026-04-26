@@ -72,10 +72,17 @@ class ContactController extends Controller
             'replied_at' => now(),
         ]);
 
-        // Send email to customer with reply
+        // Gửi email qua Brevo
         try {
-            Mail::to($contact->email)->send(new ContactReplyMail($contact));
-            return redirect()->back()->with('success', 'Đã gửi phản hồi qua email thành công!');
+            $html = view('emails.contact-reply', ['contact' => $contact])->render();
+            $brevo = new \App\Services\BrevoMailService();
+            $sent = $brevo->send($contact->email, $contact->name, 'Phản hồi: ' . $contact->subject, $html);
+
+            if ($sent) {
+                return redirect()->back()->with('success', 'Đã gửi phản hồi qua email thành công!');
+            } else {
+                return redirect()->back()->with('warning', 'Đã lưu phản hồi nhưng không thể gửi email.');
+            }
         } catch (\Exception $e) {
             return redirect()->back()->with('warning', 'Đã lưu phản hồi nhưng không thể gửi email: ' . $e->getMessage());
         }
