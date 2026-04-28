@@ -72,7 +72,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/wishlist-clear', [\App\Http\Controllers\WishlistController::class, 'clear'])->name('wishlist.clear');
 
     Route::post('/products/{product}/reviews', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
-    Route::post('/reviews/{review}/replies', [\App\Http\Controllers\ReviewController::class, 'storeReply'])->name('reviews.replies.store');
     
     // Profile
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');

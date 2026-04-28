@@ -29,9 +29,4 @@ class Review extends Model
     {
         return $this->hasMany(ReviewPhoto::class);
     }
-
-    public function replies()
-    {
-        return $this->hasMany(ReviewReply::class)->orderBy('created_at', 'asc');
-    }
 }

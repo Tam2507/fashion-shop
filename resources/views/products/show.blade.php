@@ -192,7 +192,7 @@
                 <p>Chấp nhận hoàn hàng trong 30 ngày nếu không hài lòng.</p>
             </div>
             <div id="reviews" class="tab-pane fade">
-                @foreach($product->reviews()->where('approved', true)->with('replies.user')->latest()->get() as $r)
+                @foreach($product->reviews()->where('approved', true)->latest()->get() as $r)
                     <div class="mb-4 pb-4 border-bottom">
                         <div class="d-flex justify-content-between align-items-start">
                             <strong>{{ $r->user->name ?? 'Khách' }}</strong>
@@ -203,50 +203,7 @@
                                 <i class="fas fa-star {{ $i <= $r->rating ? 'text-warning' : 'text-muted' }}"></i>
                             @endfor
                         </div>
-                        <p class="mb-2 text-muted">{{ $r->comment }}</p>
-
-                        {{-- Phản hồi đánh giá --}}
-                        @if($r->replies->count() > 0)
-                        <div class="ms-4 mt-2">
-                            @foreach($r->replies as $reply)
-                            <div class="d-flex gap-2 mb-2 p-2 rounded" style="background:#f8f9fa;">
-                                <div>
-                                    <span class="fw-semibold" style="font-size:.88rem;">
-                                        {{ $reply->author_name }}
-                                        @if($reply->is_admin)
-                                            <span class="badge bg-danger ms-1" style="font-size:.7rem;">Shop</span>
-                                        @endif
-                                    </span>
-                                    <span class="text-muted ms-2" style="font-size:.8rem;">{{ $reply->created_at->format('d/m/Y') }}</span>
-                                    <p class="mb-0 text-muted" style="font-size:.88rem;">{{ $reply->comment }}</p>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endif
-
-                        {{-- Form phản hồi --}}
-                        <div class="ms-4 mt-2">
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill"
-                                    type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#reply-form-{{ $r->id }}">
-                                <i class="fas fa-reply me-1"></i>Phản hồi
-                            </button>
-                            <div class="collapse mt-2" id="reply-form-{{ $r->id }}">
-                                <form method="POST" action="{{ route('reviews.replies.store', $r->id) }}">
-                                    @csrf
-                                    @guest
-                                    <input type="text" name="guest_name" class="form-control form-control-sm mb-2"
-                                           placeholder="Tên của bạn" required>
-                                    @endguest
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" name="comment" class="form-control"
-                                               placeholder="Nhập phản hồi..." required>
-                                        <button type="submit" class="btn btn-primary btn-sm">Gửi</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                        <p class="mb-0 text-muted">{{ $r->comment }}</p>
                     </div>
                 @endforeach
                 @if($product->reviews()->where('approved', true)->count() == 0)
