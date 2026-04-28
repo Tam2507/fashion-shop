@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use App\Models\ReviewReply;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -38,5 +39,24 @@ class ReviewController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Đánh giá của bạn đã được gửi thành công.');
+    }
+
+    public function storeReply(Request $request, $reviewId)
+    {
+        $request->validate([
+            'comment'    => 'required|string|max:1000',
+            'guest_name' => 'nullable|string|max:255',
+        ]);
+
+        $review = Review::findOrFail($reviewId);
+
+        ReviewReply::create([
+            'review_id'  => $review->id,
+            'user_id'    => auth()->id(),
+            'guest_name' => auth()->check() ? null : ($request->input('guest_name') ?: 'Khách'),
+            'comment'    => $request->input('comment'),
+        ]);
+
+        return redirect()->back()->with('success', 'Phản hồi của bạn đã được gửi.');
     }
 }
