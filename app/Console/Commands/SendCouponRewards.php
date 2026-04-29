@@ -2,13 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\CouponRewardMail;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\BrevoMailService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class SendCouponRewards extends Command
@@ -111,12 +109,19 @@ class SendCouponRewards extends Command
             // Gửi email
             if (!$dryRun) {
                 try {
-                    Mail::to($user->email)->send(new CouponRewardMail($user, $coupon, $totalSpent));
-                    $this->info("      ✅ Đã gửi email thành công!");
-                    $sentCount++;
+                    $html = "<p>Xin chào <strong>{$user->name}</strong>,</p>
+                             <p>Tổng chi tiêu: <strong>" . number_format($totalSpent, 0, ',', '.') . "₫</strong></p>
+                             <p>Mã giảm giá: <strong>{$couponCode}</strong> — giảm {$discountPercent}% (tối đa 100.000₫), hiệu lực {$validDays} ngày.</p>";
+                    $sent = (new BrevoMailService())->send($user->email, $user->name, 'Phần thưởng khách hàng thân thiết!', $html);
+                    if ($sent) {
+                        $this->info("      ✅ Đã gửi email thành công!");
+                        $sentCount++;
+                    } else {
+                        $this->error("      ❌ Gửi email thất bại");
+                        $coupon->delete();
+                    }
                 } catch (\Exception $e) {
-                    $this->error("      ❌ Lỗi gửi email: " . $e->getMessage());
-                    // Xóa coupon nếu gửi email thất bại
+                    $this->error("      ❌ Lỗi: " . $e->getMessage());
                     $coupon->delete();
                 }
             } else {
