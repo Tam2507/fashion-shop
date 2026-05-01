@@ -1,4 +1,4 @@
-﻿@extends('layouts.messenger')
+﻿@extends('layouts.admin')
 
 @section('title', 'Tin Nhắn')
 
