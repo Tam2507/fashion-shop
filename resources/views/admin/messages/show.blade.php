@@ -271,7 +271,7 @@
 
             @if($isMyMessage)
                 @if(auth()->user()->avatar)
-                    <img src="/storage/{{ auth()->user()->avatar }}" 
+                    <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}" 
                          alt="{{ auth()->user()->name }}" 
                          class="message-avatar">
                 @else

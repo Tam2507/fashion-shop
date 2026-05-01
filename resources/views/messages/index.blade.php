@@ -284,7 +284,7 @@ async function loadMessages() {
                         
                         ${isMyMessage ? `
                             @if(auth()->user()->avatar)
-                                <img src="/storage/{{ auth()->user()->avatar }}" 
+                                <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}" 
                                      alt="{{ auth()->user()->name }}" 
                                      class="message-avatar">
                             @else
@@ -384,7 +384,7 @@ function previewUserImage(input) {
                     </div>
                 </div>
                 @if(auth()->user()->avatar)
-                    <img src="/storage/{{ auth()->user()->avatar }}" class="message-avatar">
+                    <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}" class="message-avatar">
                 @else
                     <div class="message-avatar-placeholder"><i class="fas fa-user"></i></div>
                 @endif
