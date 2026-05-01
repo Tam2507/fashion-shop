@@ -105,7 +105,7 @@
                     <div class="user-info">
                         <span class="text-muted small">{{ auth()->user()->name }}</span>
                         @if(auth()->user()->avatar)
-                            <img src="/storage/{{ auth()->user()->avatar }}"
+                            <img src="{{ \App\Services\ImageUploadService::url(auth()->user()->avatar) }}"
                                  alt="{{ auth()->user()->name }}"
                                  class="user-avatar">
                         @else
