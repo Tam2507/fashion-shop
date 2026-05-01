@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-
 class Order extends Model
 {
     use HasFactory;
@@ -50,19 +49,9 @@ class Order extends Model
         return $this->orderItems();
     }
     
-    public function paymentTransactions(): HasMany
-    {
-        return $this->hasMany(PaymentTransaction::class);
-    }
-    
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
-    }
-    
-    public function shipments(): HasMany
-    {
-        return $this->hasMany(Shipment::class);
     }
     
     public function coupon(): BelongsTo
