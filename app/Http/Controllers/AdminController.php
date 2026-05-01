@@ -122,17 +122,75 @@ class AdminController extends Controller
     // Thống kê doanh thu
     public function statistics()
     {
-        // Chỉ tính doanh thu từ đơn hàng đã giao
-        $totalRevenue = Order::where('status', 'delivered')->sum('total_price');
-        $monthlyRevenue = Order::where('status', 'delivered')
-            ->selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
+        // Doanh thu 12 tháng gần nhất
+        $revenueByMonth = \App\Models\Order::where('status', 'delivered')
+            ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(total_price) as total')
             ->groupBy('month')
-            ->get();
-        $orderStats = Order::selectRaw('status, COUNT(*) as count')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+
+        // Tạo mảng 12 tháng đầy đủ
+        $months = [];
+        $revenueData = [];
+        $orderCountData = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $key = now()->subMonths($i)->format('Y-m');
+            $label = now()->subMonths($i)->format('m/Y');
+            $months[] = $label;
+            $revenueData[] = $revenueByMonth[$key]->total ?? 0;
+        }
+
+        // Đơn hàng 12 tháng
+        $ordersByMonth = \App\Models\Order::where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+        for ($i = 11; $i >= 0; $i--) {
+            $key = now()->subMonths($i)->format('Y-m');
+            $orderCountData[] = $ordersByMonth[$key]->total ?? 0;
+        }
+
+        // Thống kê trạng thái đơn hàng
+        $orderStats = \App\Models\Order::selectRaw('status, COUNT(*) as count')
             ->groupBy('status')
             ->get();
 
-        return view('admin.statistics', compact('totalRevenue', 'monthlyRevenue', 'orderStats'));
+        // Top 5 sản phẩm bán chạy
+        $topProducts = \App\Models\OrderItem::with('product')
+            ->whereHas('order', fn($q) => $q->whereNotIn('status', ['cancelled']))
+            ->selectRaw('product_id, SUM(quantity) as total_sold, SUM(quantity * price) as total_revenue')
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
+        // Khách hàng mới theo tháng (6 tháng)
+        $newUsersByMonth = \App\Models\User::where('is_admin', false)
+            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+        $userMonths = [];
+        $newUsersData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $key = now()->subMonths($i)->format('Y-m');
+            $userMonths[] = now()->subMonths($i)->format('m/Y');
+            $newUsersData[] = $newUsersByMonth[$key]->total ?? 0;
+        }
+
+        $totalRevenue = \App\Models\Order::where('status', 'delivered')->sum('total_price');
+
+        return view('admin.statistics', compact(
+            'months', 'revenueData', 'orderCountData',
+            'orderStats', 'topProducts',
+            'userMonths', 'newUsersData', 'totalRevenue'
+        ));
     }
 
     // Xóa người dùng
