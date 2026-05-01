@@ -272,9 +272,8 @@
     <div class="row g-4 mt-2">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
+                <div class="card-header" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
                     <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Doanh Thu 7 Ngày Gần Nhất</h5>
-                    <a href="{{ route('admin.statistics') }}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
                 </div>
                 <div class="card-body">
                     <canvas id="dashboardRevenueChart" height="60"></canvas>
