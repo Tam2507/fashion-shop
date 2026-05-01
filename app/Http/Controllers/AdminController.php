@@ -44,6 +44,23 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
+        // Doanh thu 7 ngày gần nhất cho biểu đồ dashboard
+        $revenueByDay = \App\Models\Order::where('status', 'delivered')
+            ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->selectRaw('DATE(created_at) as day, SUM(total_price) as total')
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        $chartDays = [];
+        $chartRevenue = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $key = now()->subDays($i)->format('Y-m-d');
+            $chartDays[] = now()->subDays($i)->format('d/m');
+            $chartRevenue[] = $revenueByDay[$key]->total ?? 0;
+        }
+
         return view('admin.dashboard', compact(
             'totalOrders',
             'totalRevenue', 
@@ -54,7 +71,9 @@ class AdminController extends Controller
             'todayOrders',
             'todayUsers',
             'todayRevenue',
-            'topProducts'
+            'topProducts',
+            'chartDays',
+            'chartRevenue'
         ));
     }
 

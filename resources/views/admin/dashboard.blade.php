@@ -267,7 +267,47 @@
             </div>
         </div>
     </div>
+
+    {{-- Biểu đồ doanh thu 7 ngày --}}
+    <div class="row g-4 mt-2">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: #f5f1e8; border-bottom: 2px solid #8B3A3A;">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Doanh Thu 7 Ngày Gần Nhất</h5>
+                    <a href="{{ route('admin.statistics') }}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                </div>
+                <div class="card-body">
+                    <canvas id="dashboardRevenueChart" height="60"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('dashboardRevenueChart'), {
+    type: 'line',
+    data: {
+        labels: @json($chartDays),
+        datasets: [{
+            label: 'Doanh thu (₫)',
+            data: @json($chartRevenue),
+            borderColor: '#8B3A3A',
+            backgroundColor: 'rgba(139,58,58,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#8B3A3A',
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('vi-VN') + '₫' } } }
+    }
+});
+</script>
+@endpush
 
 <style>
 .list-group-item {
