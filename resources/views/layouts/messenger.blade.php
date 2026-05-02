@@ -98,7 +98,7 @@
 <body>
     <div class="messenger-app">
         <div class="messenger-topbar">
-            <h4><i class="fas fa-comments text-primary"></i> Messenger</h4>
+            <h4><i class="fas fa-comments text-primary"></i> Tin Nhắn Hỗ Trợ Khách Hàng</h4>
 
             <div class="topbar-actions">
                 @auth
