@@ -577,43 +577,30 @@ function initChatInput(conversationId) {
     const imgInput    = document.querySelector('#chatArea #adminImageInput');
     const msgInput    = document.querySelector('#chatArea #adminMsgInput');
     const cm          = document.querySelector('#chatArea .chat-messages');
+    const previewBox  = document.querySelector('#chatArea #imgPreviewBox');
+    const previewThumb= document.querySelector('#chatArea #imgPreviewThumb');
 
     if (!form || !imgInput || !msgInput || !cm) return;
 
-    // Override form action với đúng conversationId
     form.action = `/admin/messages/${conversationId}/reply`;
 
-    // Preview ảnh trong chat
+    // Preview ảnh trong ô soạn tin
     imgInput.addEventListener('change', function() {
         if (!this.files || !this.files[0]) return;
-        removePreviewBubble(cm);
-
         const objectUrl = URL.createObjectURL(this.files[0]);
-        previewBubbleId = 'preview-bubble-' + Date.now();
-
-        const wrap = document.createElement('div');
-        wrap.className = 'message-group my-message';
-        wrap.id = previewBubbleId;
-        wrap.style.opacity = '0.65';
-        wrap.innerHTML =
-            '<div class="message-content">'
-            + '<div class="message-bubble" style="position:relative;padding:6px;">'
-            + '<img src="' + objectUrl + '" style="max-width:220px;max-height:220px;border-radius:12px;display:block;">'
-            + '<button class="cancel-preview-btn" type="button" '
-            + 'style="position:absolute;top:-8px;right:-8px;background:#555;border:none;color:white;'
-            + 'border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;">✕</button>'
-            + '</div>'
-            + '<div class="message-time" style="font-style:italic;color:#aaa;">Chưa gửi...</div>'
-            + '</div>'
-            + '<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>';
-        cm.appendChild(wrap);
-        cm.scrollTop = cm.scrollHeight;
-
-        wrap.querySelector('.cancel-preview-btn').addEventListener('click', function() {
-            imgInput.value = '';
-            removePreviewBubble(cm);
-        });
+        if (previewThumb) previewThumb.src = objectUrl;
+        if (previewBox)   previewBox.style.display = 'flex';
     });
+
+    // Nút xóa ảnh preview
+    const removeBtn = document.querySelector('#chatArea #removeImgPreview');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            imgInput.value = '';
+            if (previewBox)   previewBox.style.display = 'none';
+            if (previewThumb) previewThumb.src = '';
+        });
+    }
 
     // Auto resize textarea
     msgInput.addEventListener('input', function() {
@@ -640,13 +627,13 @@ async function doSend(form, imgInput, msgInput, cm, conversationId) {
 
     // Lấy preview src trước khi xóa
     let previewSrc = '';
-    if (previewBubbleId) {
-        const el = document.getElementById(previewBubbleId);
-        if (el) {
-            const img = el.querySelector('img');
-            if (img) previewSrc = img.src;
-        }
-    }
+    const previewThumb = document.querySelector('#chatArea #imgPreviewThumb');
+    if (previewThumb && previewThumb.src) previewSrc = previewThumb.src;
+
+    // Clear preview box
+    const previewBox = document.querySelector('#chatArea #imgPreviewBox');
+    if (previewBox) previewBox.style.display = 'none';
+    if (previewThumb) previewThumb.src = '';
     removePreviewBubble(cm);
 
     const fd = new FormData();
