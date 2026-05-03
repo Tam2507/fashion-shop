@@ -310,10 +310,12 @@
 
 <script>
 (function() {
+    console.log('[CHAT] script start');
     var adminImageInput = document.getElementById('adminImageInput');
     var adminMsgInput   = document.getElementById('adminMsgInput');
     var adminReplyForm  = document.getElementById('adminReplyForm');
     var cm              = document.getElementById('chatMessages');
+    console.log('[CHAT] elements:', adminImageInput, adminMsgInput, adminReplyForm, cm);
 
     // Scroll to bottom
     if (cm) cm.scrollTop = cm.scrollHeight;
@@ -323,6 +325,7 @@
 
     // Khi chọn ảnh → hiện preview trong chat như bubble "đang soạn"
     adminImageInput.addEventListener('change', function() {
+        console.log('[CHAT] image selected:', this.files);
         if (!this.files || !this.files[0]) return;
 
         // Xóa bubble preview cũ nếu có
