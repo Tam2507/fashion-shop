@@ -309,7 +309,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     var adminImageInput = document.getElementById('adminImageInput');
     var adminMsgInput   = document.getElementById('adminMsgInput');
     var adminReplyForm  = document.getElementById('adminReplyForm');
@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
         d.textContent = text;
         return d.innerHTML;
     }
-});
+})();
 </script>
 
 @endsection
