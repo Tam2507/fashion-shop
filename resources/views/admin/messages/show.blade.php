@@ -393,7 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function submitMsg() {
         var msg = adminMsgInput ? adminMsgInput.value.trim() : '';
         var imgFile = adminImageInput && adminImageInput.files[0];
-        if (!msg && !imgFile) return;
+        console.log('[DEBUG] submitMsg called, msg:', msg, 'imgFile:', imgFile);
+        if (!msg && !imgFile) { console.log('[DEBUG] nothing to send'); return; }
 
         var localImgSrc = '';
         if (imgFile && imgPreviewThumb) {
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Accept': 'application/json' }
             });
             var data = await res.json();
+            console.log('[DEBUG] response:', data);
             if (data.success) {
                 var savedMsg = msg;
                 if (adminMsgInput) { adminMsgInput.value = ''; adminMsgInput.style.height = 'auto'; }
@@ -430,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     cm.scrollTop = cm.scrollHeight;
                 }
             }
-        } catch(err) { console.error('Lỗi:', err); }
+        } catch(err) { console.error('[DEBUG] Lỗi fetch:', err); }
     }
 
     function escapeHtml(text) {
