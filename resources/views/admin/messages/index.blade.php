@@ -526,78 +526,182 @@
 @section('scripts')
 <script>
 let currentConversationId = null;
+let previewBubbleId = null;
 
 function loadConversation(element) {
-    // Remove active class from all conversations
-    document.querySelectorAll('.conversation-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Add active class to clicked conversation
+    document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
     element.classList.add('active');
-    
+
     const conversationId = element.dataset.id;
     currentConversationId = conversationId;
-    
-    // Load messages
+
     fetch(`/admin/messages/${conversationId}`)
-        .then(response => response.text())
+        .then(r => r.text())
         .then(html => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            
-            const chatHeader = doc.querySelector('.chat-header');
+
+            const chatHeader   = doc.querySelector('.chat-header');
             const chatMessages = doc.querySelector('.chat-messages');
-            const chatInput = doc.querySelector('.chat-input');
-            
-            if (chatHeader && chatMessages && chatInput) {
-                // Thêm nút back mobile vào header
-                const backBtn = document.createElement('button');
-                backBtn.className = 'btn-back-mobile';
-                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-                backBtn.onclick = showSidebar;
-                chatHeader.insertBefore(backBtn, chatHeader.firstChild);
+            const chatInput    = doc.querySelector('.chat-input');
 
-                document.getElementById('chatArea').innerHTML = `
-                    ${chatHeader.outerHTML}
-                    ${chatMessages.outerHTML}
-                    ${chatInput.outerHTML}
-                `;
+            if (!chatHeader || !chatMessages || !chatInput) return;
 
-                // Mobile: ẩn sidebar, hiện chat
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.conversations-sidebar').classList.add('hidden-mobile');
-                    document.getElementById('chatArea').classList.add('visible-mobile');
-                    // Gắn lại sự kiện cho nút back (vì innerHTML đã replace)
-                    const btn = document.querySelector('.btn-back-mobile');
-                    if (btn) btn.onclick = showSidebar;
-                }
-                
-                scrollToBottom();
-                
-                const form = document.querySelector('#chatArea form');
-                if (form) {
-                    form.addEventListener('submit', handleMessageSubmit);
-                }
-                
-                const textarea = document.querySelector('#chatArea textarea');
-                if (textarea) {
-                    textarea.addEventListener('input', function() {
-                        this.style.height = 'auto';
-                        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-                    });
-                    textarea.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            form.dispatchEvent(new Event('submit'));
-                        }
-                    });
-                }
+            // Nút back mobile
+            const backBtn = document.createElement('button');
+            backBtn.className = 'btn-back-mobile';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+            backBtn.onclick = showSidebar;
+            chatHeader.insertBefore(backBtn, chatHeader.firstChild);
+
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = chatHeader.outerHTML + chatMessages.outerHTML + chatInput.outerHTML;
+
+            if (window.innerWidth <= 768) {
+                document.querySelector('.conversations-sidebar').classList.add('hidden-mobile');
+                chatArea.classList.add('visible-mobile');
+                const btn = chatArea.querySelector('.btn-back-mobile');
+                if (btn) btn.onclick = showSidebar;
             }
+
+            scrollToBottom();
+            initChatInput(conversationId);
         })
-        .catch(error => {
-            console.error('Error loading conversation:', error);
+        .catch(err => console.error('Error loading conversation:', err));
+}
+
+function initChatInput(conversationId) {
+    previewBubbleId = null;
+
+    const form        = document.querySelector('#chatArea #adminReplyForm');
+    const imgInput    = document.querySelector('#chatArea #adminImageInput');
+    const msgInput    = document.querySelector('#chatArea #adminMsgInput');
+    const cm          = document.querySelector('#chatArea .chat-messages');
+
+    if (!form || !imgInput || !msgInput || !cm) return;
+
+    // Override form action với đúng conversationId
+    form.action = `/admin/messages/${conversationId}/reply`;
+
+    // Preview ảnh trong chat
+    imgInput.addEventListener('change', function() {
+        if (!this.files || !this.files[0]) return;
+        removePreviewBubble(cm);
+
+        const objectUrl = URL.createObjectURL(this.files[0]);
+        previewBubbleId = 'preview-bubble-' + Date.now();
+
+        const wrap = document.createElement('div');
+        wrap.className = 'message-group my-message';
+        wrap.id = previewBubbleId;
+        wrap.style.opacity = '0.65';
+        wrap.innerHTML =
+            '<div class="message-content">'
+            + '<div class="message-bubble" style="position:relative;padding:6px;">'
+            + '<img src="' + objectUrl + '" style="max-width:220px;max-height:220px;border-radius:12px;display:block;">'
+            + '<button class="cancel-preview-btn" type="button" '
+            + 'style="position:absolute;top:-8px;right:-8px;background:#555;border:none;color:white;'
+            + 'border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;">✕</button>'
+            + '</div>'
+            + '<div class="message-time" style="font-style:italic;color:#aaa;">Chưa gửi...</div>'
+            + '</div>'
+            + '<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>';
+        cm.appendChild(wrap);
+        cm.scrollTop = cm.scrollHeight;
+
+        wrap.querySelector('.cancel-preview-btn').addEventListener('click', function() {
+            imgInput.value = '';
+            removePreviewBubble(cm);
         });
+    });
+
+    // Auto resize textarea
+    msgInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+    msgInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            doSend(form, imgInput, msgInput, cm, conversationId);
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        doSend(form, imgInput, msgInput, cm, conversationId);
+    });
+}
+
+async function doSend(form, imgInput, msgInput, cm, conversationId) {
+    const msg     = msgInput.value.trim();
+    const imgFile = imgInput.files && imgInput.files[0];
+    if (!msg && !imgFile) return;
+
+    // Lấy preview src trước khi xóa
+    let previewSrc = '';
+    if (previewBubbleId) {
+        const el = document.getElementById(previewBubbleId);
+        if (el) {
+            const img = el.querySelector('img');
+            if (img) previewSrc = img.src;
+        }
+    }
+    removePreviewBubble(cm);
+
+    const fd = new FormData();
+    fd.append('_token', form.querySelector('input[name="_token"]').value);
+    if (msg)     fd.append('message', msg);
+    if (imgFile) fd.append('image', imgFile);
+
+    msgInput.value = '';
+    msgInput.style.height = 'auto';
+    imgInput.value = '';
+
+    try {
+        const res  = await fetch(`/admin/messages/${conversationId}/reply`, {
+            method: 'POST',
+            body: fd,
+            headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const imgSrc  = data.image_url || (previewSrc.length > 10 ? previewSrc : '');
+            const imgHtml = imgSrc ? `<img src="${imgSrc}" style="max-width:220px;max-height:220px;border-radius:12px;display:block;cursor:pointer;" onclick="window.open(this.src,'_blank')">` : '';
+            const txtHtml = msg   ? `<span style="${imgSrc ? 'display:block;margin-top:6px;' : ''}">${escapeHtml(msg)}</span>` : '';
+
+            const now = new Date();
+            const t   = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            const div = document.createElement('div');
+            div.className = 'message-group my-message';
+            div.innerHTML =
+                '<div class="message-content"><div class="message-bubble">' + imgHtml + txtHtml + '</div>'
+                + '<div class="message-time">' + t + '</div></div>'
+                + '<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>';
+            cm.appendChild(div);
+            cm.scrollTop = cm.scrollHeight;
+
+            // Cập nhật preview trong sidebar
+            const activeConv = document.querySelector('.conversation-item.active');
+            if (activeConv && msg) {
+                const preview = activeConv.querySelector('.conversation-preview');
+                if (preview) preview.textContent = msg.substring(0, 35);
+            }
+        } else {
+            alert(data.error || 'Gửi thất bại');
+        }
+    } catch(err) {
+        alert('Lỗi: ' + err.message);
+    }
+}
+
+function removePreviewBubble(cm) {
+    if (previewBubbleId) {
+        const el = document.getElementById(previewBubbleId);
+        if (el) el.remove();
+        previewBubbleId = null;
+    }
 }
 
 function showSidebar() {
@@ -605,82 +709,31 @@ function showSidebar() {
     document.getElementById('chatArea').classList.remove('visible-mobile');
 }
 
-function handleMessageSubmit(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const formData = new FormData(form);
-    const textarea = form.querySelector('textarea');
-    const message = textarea.value.trim();
-    
-    if (!message) return;
-    
-    // Disable form
-    textarea.disabled = true;
-    form.querySelector('button').disabled = true;
-    
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Clear textarea
-            textarea.value = '';
-            textarea.style.height = 'auto';
-            
-            // Reload conversation
-            const activeConv = document.querySelector('.conversation-item.active');
-            if (activeConv) {
-                loadConversation(activeConv);
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error sending message:', error);
-        alert('Có lỗi xảy ra khi gửi tin nhắn');
-    })
-    .finally(() => {
-        textarea.disabled = false;
-        form.querySelector('button').disabled = false;
-        textarea.focus();
-    });
-}
-
 function scrollToBottom() {
     const chatMessages = document.querySelector('#chatArea .chat-messages');
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function filterConversations() {
-    const searchInput = document.getElementById('searchConversations').value.toLowerCase();
-    const conversations = document.querySelectorAll('.conversation-item');
-    
-    conversations.forEach(conv => {
-        const name = conv.getAttribute('data-name').toLowerCase();
-        const message = conv.getAttribute('data-message').toLowerCase();
-        
-        if (name.includes(searchInput) || message.includes(searchInput)) {
-            conv.style.display = 'flex';
-        } else {
-            conv.style.display = 'none';
-        }
+    const q = document.getElementById('searchConversations').value.toLowerCase();
+    document.querySelectorAll('.conversation-item').forEach(conv => {
+        const name = (conv.dataset.name || '').toLowerCase();
+        const msg  = (conv.dataset.message || '').toLowerCase();
+        conv.style.display = (name.includes(q) || msg.includes(q)) ? 'flex' : 'none';
     });
 }
 
-// Auto refresh every 10 seconds
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+// Auto refresh mỗi 10 giây
 setInterval(() => {
     if (currentConversationId) {
         const activeConv = document.querySelector('.conversation-item.active');
-        if (activeConv) {
-            loadConversation(activeConv);
-        }
+        if (activeConv) loadConversation(activeConv);
     }
 }, 10000);
 </script>
