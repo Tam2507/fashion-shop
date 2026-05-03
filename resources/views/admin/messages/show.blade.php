@@ -295,8 +295,7 @@
 
     <form action="{{ route('admin.messages.reply', $firstMessage->id) }}" method="POST" class="chat-input-form" enctype="multipart/form-data" id="adminReplyForm">
         @csrf
-        <input type="file" id="adminImageInput" name="image" accept="image/*" style="display:none;"
-               onchange="showChatPreview(this)">
+        <input type="file" id="adminImageInput" name="image" accept="image/*" style="display:none;">
 
         {{-- Nút ảnh nằm ngoài ô nhắn tin --}}
         <label for="adminImageInput" style="cursor:pointer;color:#0084ff;padding:6px;flex-shrink:0;display:flex;align-items:center;" title="Gửi ảnh">
@@ -333,97 +332,112 @@
 </div>
 
 <script>
-// Định nghĩa sớm để onchange inline gọi được
-window.showChatPreview = function(input) {
-    if (!input.files || !input.files[0]) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        var thumb = document.getElementById('imgPreviewThumb');
-        var area = document.getElementById('imgPreviewArea');
-        if (thumb && area) {
-            thumb.src = e.target.result;
-            area.style.cssText = 'display:block;padding:8px 12px 4px;';
-        }
-    };
-    reader.readAsDataURL(input.files[0]);
-};
+// Gắn event listener sau khi DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    var adminImageInput = document.getElementById('adminImageInput');
+    var imgPreviewThumb = document.getElementById('imgPreviewThumb');
+    var imgPreviewArea = document.getElementById('imgPreviewArea');
+    var adminMsgInput = document.getElementById('adminMsgInput');
+    var adminReplyForm = document.getElementById('adminReplyForm');
+    var cm = document.getElementById('chatMessages');
 
-window.clearImg = function() {
-    var inp = document.getElementById('adminImageInput');
-    var area = document.getElementById('imgPreviewArea');
-    var thumb = document.getElementById('imgPreviewThumb');
-    if (inp) inp.value = '';
-    if (area) area.style.display = 'none';
-    if (thumb) thumb.src = '';
-};
+    // Scroll to bottom
+    if (cm) cm.scrollTop = cm.scrollHeight;
 
-// Scroll to bottom
-var cm = document.getElementById('chatMessages');
-if (cm) cm.scrollTop = cm.scrollHeight;
-
-// Auto resize textarea
-var ta = document.getElementById('adminMsgInput');
-if (ta) {
-    ta.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-    });
-    ta.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            submitMsg();
-        }
-    });
-}
-
-async function submitMsg() {
-    var msg = document.getElementById('adminMsgInput').value.trim();
-    var imgInput = document.getElementById('adminImageInput');
-    var imgFile = imgInput && imgInput.files[0];
-    if (!msg && !imgFile) return;
-
-    var localImgSrc = '';
-    if (imgFile) {
-        var thumb = document.getElementById('imgPreviewThumb');
-        localImgSrc = thumb ? thumb.src : '';
+    // Preview ảnh khi chọn
+    if (adminImageInput) {
+        adminImageInput.addEventListener('change', function() {
+            if (!this.files || !this.files[0]) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                if (imgPreviewThumb && imgPreviewArea) {
+                    imgPreviewThumb.src = e.target.result;
+                    imgPreviewArea.style.cssText = 'display:block;padding:8px 12px 4px;';
+                }
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
     }
 
-    var fd = new FormData(document.getElementById('adminReplyForm'));
-    try {
-        var res = await fetch('{{ route('admin.messages.reply', $firstMessage->id) }}', {
-            method: 'POST',
-            body: fd,
-            headers: { 'Accept': 'application/json' }
+    // Auto resize textarea
+    if (adminMsgInput) {
+        adminMsgInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
         });
-        var data = await res.json();
-        if (data.success) {
-            var savedMsg = msg;
-            document.getElementById('adminMsgInput').value = '';
-            document.getElementById('adminMsgInput').style.height = 'auto';
-            clearImg();
+        adminMsgInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitMsg();
+            }
+        });
+    }
 
-            var m = data.message;
-            var imgSrc = data.image_url ? data.image_url : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
-            var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
-            var txtHtml = savedMsg ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+savedMsg+'</span>' : '';
-            if (!imgHtml && !txtHtml) return;
+    // Submit form
+    if (adminReplyForm) {
+        adminReplyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitMsg();
+        });
+    }
 
-            var now = new Date();
-            var t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-            cm.insertAdjacentHTML('beforeend',
-                '<div class="message-group my-message">'
-                +'<div class="message-content"><div class="message-bubble">'+imgHtml+txtHtml+'</div>'
-                +'<div class="message-time">'+t+'</div></div>'
-                +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
-                +'</div>');
-            cm.scrollTop = cm.scrollHeight;
+    function clearImg() {
+        if (adminImageInput) adminImageInput.value = '';
+        if (imgPreviewArea) imgPreviewArea.style.display = 'none';
+        if (imgPreviewThumb) imgPreviewThumb.src = '';
+    }
+
+    // Expose clearImg globally for the ✕ button onclick
+    window.clearImg = clearImg;
+
+    async function submitMsg() {
+        var msg = adminMsgInput ? adminMsgInput.value.trim() : '';
+        var imgFile = adminImageInput && adminImageInput.files[0];
+        if (!msg && !imgFile) return;
+
+        var localImgSrc = '';
+        if (imgFile && imgPreviewThumb) {
+            localImgSrc = imgPreviewThumb.src || '';
         }
-    } catch(err) { console.error('Lỗi:', err); }
-}
 
-document.getElementById('adminReplyForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitMsg();
+        var fd = new FormData(adminReplyForm);
+        try {
+            var res = await fetch('{{ route('admin.messages.reply', $firstMessage->id) }}', {
+                method: 'POST',
+                body: fd,
+                headers: { 'Accept': 'application/json' }
+            });
+            var data = await res.json();
+            if (data.success) {
+                var savedMsg = msg;
+                if (adminMsgInput) { adminMsgInput.value = ''; adminMsgInput.style.height = 'auto'; }
+                clearImg();
+
+                var imgSrc = data.image_url ? data.image_url : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
+                var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
+                var txtHtml = savedMsg ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+escapeHtml(savedMsg)+'</span>' : '';
+                if (!imgHtml && !txtHtml) return;
+
+                var now = new Date();
+                var t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+                if (cm) {
+                    cm.insertAdjacentHTML('beforeend',
+                        '<div class="message-group my-message">'
+                        +'<div class="message-content"><div class="message-bubble">'+imgHtml+txtHtml+'</div>'
+                        +'<div class="message-time">'+t+'</div></div>'
+                        +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
+                        +'</div>');
+                    cm.scrollTop = cm.scrollHeight;
+                }
+            }
+        } catch(err) { console.error('Lỗi:', err); }
+    }
+
+    function escapeHtml(text) {
+        var d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
 });
 </script>
 
