@@ -332,28 +332,24 @@
 </div>
 
 <script>
-// Gắn event listener sau khi DOM load
 document.addEventListener('DOMContentLoaded', function() {
     var adminImageInput = document.getElementById('adminImageInput');
     var imgPreviewThumb = document.getElementById('imgPreviewThumb');
-    var imgPreviewArea = document.getElementById('imgPreviewArea');
-    var adminMsgInput = document.getElementById('adminMsgInput');
-    var adminReplyForm = document.getElementById('adminReplyForm');
+    var imgPreviewArea  = document.getElementById('imgPreviewArea');
+    var adminMsgInput   = document.getElementById('adminMsgInput');
+    var adminReplyForm  = document.getElementById('adminReplyForm');
     var cm = document.getElementById('chatMessages');
 
-    // Scroll to bottom
     if (cm) cm.scrollTop = cm.scrollHeight;
 
-    // Preview ảnh khi chọn
+    // Preview ảnh
     if (adminImageInput) {
         adminImageInput.addEventListener('change', function() {
             if (!this.files || !this.files[0]) return;
             var reader = new FileReader();
             reader.onload = function(e) {
-                if (imgPreviewThumb && imgPreviewArea) {
-                    imgPreviewThumb.src = e.target.result;
-                    imgPreviewArea.style.cssText = 'display:block;padding:8px 12px 4px;';
-                }
+                if (imgPreviewThumb) imgPreviewThumb.src = e.target.result;
+                if (imgPreviewArea)  imgPreviewArea.style.cssText = 'display:block;padding:8px 12px 4px;';
             };
             reader.readAsDataURL(this.files[0]);
         });
@@ -368,60 +364,57 @@ document.addEventListener('DOMContentLoaded', function() {
         adminMsgInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                submitMsg();
+                doSend();
             }
         });
     }
 
-    // Submit form
+    window.clearImg = function() {
+        if (adminImageInput) adminImageInput.value = '';
+        if (imgPreviewArea)  imgPreviewArea.style.display = 'none';
+        if (imgPreviewThumb) imgPreviewThumb.src = '';
+    };
+
     if (adminReplyForm) {
         adminReplyForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            submitMsg();
+            doSend();
         });
     }
 
-    function clearImg() {
-        if (adminImageInput) adminImageInput.value = '';
-        if (imgPreviewArea) imgPreviewArea.style.display = 'none';
-        if (imgPreviewThumb) imgPreviewThumb.src = '';
-    }
+    async function doSend() {
+        var msg     = adminMsgInput ? adminMsgInput.value.trim() : '';
+        var imgFile = adminImageInput && adminImageInput.files && adminImageInput.files[0];
 
-    // Expose clearImg globally for the ✕ button onclick
-    window.clearImg = clearImg;
+        if (!msg && !imgFile) return;
 
-    async function submitMsg() {
-        var msg = adminMsgInput ? adminMsgInput.value.trim() : '';
-        var imgFile = adminImageInput && adminImageInput.files[0];
-        console.log('[DEBUG] submitMsg called, msg:', msg, 'imgFile:', imgFile);
-        if (!msg && !imgFile) { console.log('[DEBUG] nothing to send'); return; }
+        // Lấy preview src trước khi clear
+        var localImgSrc = (imgFile && imgPreviewThumb) ? imgPreviewThumb.src : '';
 
-        var localImgSrc = '';
-        if (imgFile && imgPreviewThumb) {
-            localImgSrc = imgPreviewThumb.src || '';
-        }
+        var fd = new FormData();
+        fd.append('_token', document.querySelector('input[name="_token"]').value);
+        if (msg)     fd.append('message', msg);
+        if (imgFile) fd.append('image', imgFile);
 
-        var fd = new FormData(adminReplyForm);
         try {
-            var res = await fetch('{{ route('admin.messages.reply', $firstMessage->id) }}', {
+            var res  = await fetch(adminReplyForm.action, {
                 method: 'POST',
                 body: fd,
                 headers: { 'Accept': 'application/json' }
             });
             var data = await res.json();
-            console.log('[DEBUG] response:', data);
-            if (data.success) {
-                var savedMsg = msg;
-                if (adminMsgInput) { adminMsgInput.value = ''; adminMsgInput.style.height = 'auto'; }
-                clearImg();
 
-                var imgSrc = data.image_url ? data.image_url : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
+            if (data.success) {
+                if (adminMsgInput) { adminMsgInput.value = ''; adminMsgInput.style.height = 'auto'; }
+                window.clearImg();
+
+                var imgSrc  = data.image_url || (localImgSrc.length > 10 ? localImgSrc : '');
                 var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
-                var txtHtml = savedMsg ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+escapeHtml(savedMsg)+'</span>' : '';
+                var txtHtml = msg   ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+escapeHtml(msg)+'</span>' : '';
                 if (!imgHtml && !txtHtml) return;
 
                 var now = new Date();
-                var t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+                var t   = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
                 if (cm) {
                     cm.insertAdjacentHTML('beforeend',
                         '<div class="message-group my-message">'
@@ -431,8 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         +'</div>');
                     cm.scrollTop = cm.scrollHeight;
                 }
+            } else {
+                alert(data.error || 'Gửi thất bại');
             }
-        } catch(err) { console.error('[DEBUG] Lỗi fetch:', err); }
+        } catch(err) {
+            alert('Lỗi kết nối: ' + err.message);
+        }
     }
 
     function escapeHtml(text) {
