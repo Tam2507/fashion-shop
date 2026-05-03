@@ -286,115 +286,129 @@
 
 <!-- Chat Input -->
 <div class="chat-input">
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show mb-3">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <form action="{{ route('admin.messages.reply', $firstMessage->id) }}" method="POST" class="chat-input-form" enctype="multipart/form-data" id="adminReplyForm">
+    <form id="adminReplyForm" action="{{ route('admin.messages.reply', $firstMessage->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="file" id="adminImageInput" name="image" accept="image/*" style="display:none;">
-
-        {{-- Nút ảnh nằm ngoài ô nhắn tin --}}
-        <label for="adminImageInput" style="cursor:pointer;color:#0084ff;padding:6px;flex-shrink:0;display:flex;align-items:center;" title="Gửi ảnh">
-            <i class="fas fa-image" style="font-size:20px;"></i>
-        </label>
-
-        {{-- Wrapper: preview + textarea --}}
-        <div style="flex:1; display:flex; flex-direction:column; border:1px solid #ccd0d5; border-radius:20px; background:#f0f2f5; overflow:hidden;">
-            {{-- Preview ảnh (ẩn mặc định) --}}
-            <div id="imgPreviewArea" style="display:none; padding:8px 12px 4px;">
-                <div style="position:relative; display:inline-block;">
-                    <img id="imgPreviewThumb" src="" 
-                         style="max-height:80px; max-width:120px; border-radius:8px; display:block; border:1px solid #ccd0d5;">
-                    <button type="button" onclick="clearImg()"
-                            style="position:absolute;top:-6px;right:-6px;background:#333;border:none;
-                                   color:white;border-radius:50%;width:18px;height:18px;cursor:pointer;
-                                   font-size:11px;display:flex;align-items:center;justify-content:center;
-                                   line-height:1;">✕</button>
-                </div>
+        <div class="chat-input-form">
+            <label for="adminImageInput" style="cursor:pointer;color:#0084ff;padding:6px;flex-shrink:0;display:flex;align-items:center;" title="Chọn ảnh">
+                <i class="fas fa-image" style="font-size:20px;"></i>
+            </label>
+            <div style="flex:1;border:1px solid #ccd0d5;border-radius:20px;background:#f0f2f5;overflow:hidden;">
+                <textarea id="adminMsgInput" name="message" placeholder="Aa" rows="1"
+                          style="border:none;background:transparent;padding:10px 16px;
+                                 resize:none;font-size:15px;max-height:100px;
+                                 outline:none;font-family:inherit;width:100%;display:block;"></textarea>
             </div>
-            {{-- Textarea --}}
-            <textarea id="adminMsgInput" name="message" placeholder="Aa" rows="1"
-                      style="border:none;background:transparent;padding:10px 16px;
-                             resize:none;font-size:15px;max-height:100px;
-                             outline:none;font-family:inherit;"></textarea>
+            <button type="submit" style="width:36px;height:36px;border-radius:50%;border:none;
+                    background:#0084ff;color:white;display:flex;align-items:center;
+                    justify-content:center;cursor:pointer;flex-shrink:0;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
-
-        <button type="submit" style="width:36px;height:36px;border-radius:50%;border:none;
-                background:#0084ff;color:white;display:flex;align-items:center;
-                justify-content:center;cursor:pointer;flex-shrink:0;">
-            <i class="fas fa-paper-plane"></i>
-        </button>
     </form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var adminImageInput = document.getElementById('adminImageInput');
-    var imgPreviewThumb = document.getElementById('imgPreviewThumb');
-    var imgPreviewArea  = document.getElementById('imgPreviewArea');
     var adminMsgInput   = document.getElementById('adminMsgInput');
     var adminReplyForm  = document.getElementById('adminReplyForm');
-    var cm = document.getElementById('chatMessages');
+    var cm              = document.getElementById('chatMessages');
 
+    // Scroll to bottom
     if (cm) cm.scrollTop = cm.scrollHeight;
 
-    // Preview ảnh
-    if (adminImageInput) {
-        adminImageInput.addEventListener('change', function() {
-            if (!this.files || !this.files[0]) return;
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                if (imgPreviewThumb) imgPreviewThumb.src = e.target.result;
-                if (imgPreviewArea)  imgPreviewArea.style.cssText = 'display:block;padding:8px 12px 4px;';
-            };
-            reader.readAsDataURL(this.files[0]);
-        });
+    // ID của bubble preview tạm (chưa gửi)
+    var previewBubbleId = null;
+
+    // Khi chọn ảnh → hiện preview trong chat như bubble "đang soạn"
+    adminImageInput.addEventListener('change', function() {
+        if (!this.files || !this.files[0]) return;
+
+        // Xóa bubble preview cũ nếu có
+        removePreviewBubble();
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            previewBubbleId = 'preview-bubble-' + Date.now();
+            cm.insertAdjacentHTML('beforeend',
+                '<div class="message-group my-message" id="'+previewBubbleId+'" style="opacity:0.6;">'
+                +'<div class="message-content">'
+                +'<div class="message-bubble" style="position:relative;">'
+                +'<img src="'+e.target.result+'" style="max-width:220px;max-height:220px;border-radius:12px;display:block;">'
+                +'<button onclick="cancelPreview()" type="button" '
+                +'style="position:absolute;top:-8px;right:-8px;background:#333;border:none;color:white;'
+                +'border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;'
+                +'display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>'
+                +'</div>'
+                +'<div class="message-time" style="font-style:italic;">Chưa gửi...</div>'
+                +'</div>'
+                +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
+                +'</div>');
+            cm.scrollTop = cm.scrollHeight;
+        };
+        reader.readAsDataURL(this.files[0]);
+    });
+
+    // Hủy ảnh đã chọn
+    window.cancelPreview = function() {
+        adminImageInput.value = '';
+        removePreviewBubble();
+    };
+
+    function removePreviewBubble() {
+        if (previewBubbleId) {
+            var el = document.getElementById(previewBubbleId);
+            if (el) el.remove();
+            previewBubbleId = null;
+        }
     }
 
     // Auto resize textarea
-    if (adminMsgInput) {
-        adminMsgInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-        });
-        adminMsgInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                doSend();
-            }
-        });
-    }
-
-    window.clearImg = function() {
-        if (adminImageInput) adminImageInput.value = '';
-        if (imgPreviewArea)  imgPreviewArea.style.display = 'none';
-        if (imgPreviewThumb) imgPreviewThumb.src = '';
-    };
-
-    if (adminReplyForm) {
-        adminReplyForm.addEventListener('submit', function(e) {
+    adminMsgInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+    adminMsgInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             doSend();
-        });
-    }
+        }
+    });
+
+    adminReplyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        doSend();
+    });
 
     async function doSend() {
-        var msg     = adminMsgInput ? adminMsgInput.value.trim() : '';
-        var imgFile = adminImageInput && adminImageInput.files && adminImageInput.files[0];
-
+        var msg     = adminMsgInput.value.trim();
+        var imgFile = adminImageInput.files && adminImageInput.files[0];
         if (!msg && !imgFile) return;
 
-        // Lấy preview src trước khi clear
-        var localImgSrc = (imgFile && imgPreviewThumb) ? imgPreviewThumb.src : '';
+        // Lấy src preview trước khi xóa bubble
+        var previewSrc = '';
+        if (previewBubbleId) {
+            var previewEl = document.getElementById(previewBubbleId);
+            if (previewEl) {
+                var previewImg = previewEl.querySelector('img');
+                if (previewImg) previewSrc = previewImg.src;
+            }
+        }
 
+        // Xóa bubble preview tạm
+        removePreviewBubble();
+
+        // Build FormData thủ công
         var fd = new FormData();
         fd.append('_token', document.querySelector('input[name="_token"]').value);
         if (msg)     fd.append('message', msg);
         if (imgFile) fd.append('image', imgFile);
+
+        // Reset input ngay
+        adminMsgInput.value = '';
+        adminMsgInput.style.height = 'auto';
+        adminImageInput.value = '';
 
         try {
             var res  = await fetch(adminReplyForm.action, {
@@ -405,30 +419,25 @@ document.addEventListener('DOMContentLoaded', function() {
             var data = await res.json();
 
             if (data.success) {
-                if (adminMsgInput) { adminMsgInput.value = ''; adminMsgInput.style.height = 'auto'; }
-                window.clearImg();
-
-                var imgSrc  = data.image_url || (localImgSrc.length > 10 ? localImgSrc : '');
-                var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
+                // Dùng URL thật từ server (Cloudinary), fallback về preview local
+                var imgSrc  = data.image_url || (previewSrc.length > 10 ? previewSrc : '');
+                var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:220px;max-height:220px;border-radius:12px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
                 var txtHtml = msg   ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+escapeHtml(msg)+'</span>' : '';
-                if (!imgHtml && !txtHtml) return;
 
                 var now = new Date();
                 var t   = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-                if (cm) {
-                    cm.insertAdjacentHTML('beforeend',
-                        '<div class="message-group my-message">'
-                        +'<div class="message-content"><div class="message-bubble">'+imgHtml+txtHtml+'</div>'
-                        +'<div class="message-time">'+t+'</div></div>'
-                        +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
-                        +'</div>');
-                    cm.scrollTop = cm.scrollHeight;
-                }
+                cm.insertAdjacentHTML('beforeend',
+                    '<div class="message-group my-message">'
+                    +'<div class="message-content"><div class="message-bubble">'+imgHtml+txtHtml+'</div>'
+                    +'<div class="message-time">'+t+'</div></div>'
+                    +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
+                    +'</div>');
+                cm.scrollTop = cm.scrollHeight;
             } else {
                 alert(data.error || 'Gửi thất bại');
             }
         } catch(err) {
-            alert('Lỗi kết nối: ' + err.message);
+            alert('Lỗi: ' + err.message);
         }
     }
 
