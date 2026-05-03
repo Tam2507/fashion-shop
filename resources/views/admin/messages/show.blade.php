@@ -403,7 +403,7 @@ async function submitMsg() {
             clearImg();
 
             var m = data.message;
-            var imgSrc = m.image ? '/storage/'+m.image : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
+            var imgSrc = data.image_url ? data.image_url : (localImgSrc && localImgSrc.length > 10 ? localImgSrc : '');
             var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="max-width:260px;max-height:300px;border-radius:16px;display:block;cursor:pointer;" onclick="window.open(this.src,\'_blank\')">' : '';
             var txtHtml = savedMsg ? '<span style="'+(imgSrc?'display:block;margin-top:6px;':'')+'">'+savedMsg+'</span>' : '';
             if (!imgHtml && !txtHtml) return;

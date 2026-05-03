@@ -211,7 +211,8 @@ class MessageController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => $reply
+                'message' => $reply,
+                'image_url' => $imagePath ? ImageUploadService::url($imagePath) : null,
             ]);
         }
 
