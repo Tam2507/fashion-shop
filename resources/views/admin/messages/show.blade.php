@@ -331,26 +331,33 @@
         // Xóa bubble preview cũ nếu có
         removePreviewBubble();
 
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            previewBubbleId = 'preview-bubble-' + Date.now();
-            cm.insertAdjacentHTML('beforeend',
-                '<div class="message-group my-message" id="'+previewBubbleId+'" style="opacity:0.6;">'
-                +'<div class="message-content">'
-                +'<div class="message-bubble" style="position:relative;">'
-                +'<img src="'+e.target.result+'" style="max-width:220px;max-height:220px;border-radius:12px;display:block;">'
-                +'<button onclick="cancelPreview()" type="button" '
-                +'style="position:absolute;top:-8px;right:-8px;background:#333;border:none;color:white;'
-                +'border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;'
-                +'display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>'
-                +'</div>'
-                +'<div class="message-time" style="font-style:italic;">Chưa gửi...</div>'
-                +'</div>'
-                +'<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>'
-                +'</div>');
-            cm.scrollTop = cm.scrollHeight;
-        };
-        reader.readAsDataURL(this.files[0]);
+        var file = this.files[0];
+        var objectUrl = URL.createObjectURL(file);
+
+        previewBubbleId = 'preview-bubble-' + Date.now();
+
+        var wrap = document.createElement('div');
+        wrap.className = 'message-group my-message';
+        wrap.id = previewBubbleId;
+        wrap.style.opacity = '0.65';
+        wrap.innerHTML =
+            '<div class="message-content">'
+            + '<div class="message-bubble" style="position:relative;padding:6px;">'
+            + '<img src="' + objectUrl + '" style="max-width:220px;max-height:220px;border-radius:12px;display:block;">'
+            + '<button id="cancelPreviewBtn" type="button" '
+            + 'style="position:absolute;top:-8px;right:-8px;background:#555;border:none;color:white;'
+            + 'border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;">✕</button>'
+            + '</div>'
+            + '<div class="message-time" style="font-style:italic;color:#aaa;">Chưa gửi...</div>'
+            + '</div>'
+            + '<div class="message-avatar-placeholder"><i class="fas fa-user-shield"></i></div>';
+
+        cm.appendChild(wrap);
+        cm.scrollTop = cm.scrollHeight;
+
+        document.getElementById('cancelPreviewBtn').addEventListener('click', function() {
+            window.cancelPreview();
+        });
     });
 
     // Hủy ảnh đã chọn
