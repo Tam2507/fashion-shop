@@ -716,14 +716,5 @@ function escapeHtml(text) {
     return d.innerHTML;
 }
 
-// Auto refresh mỗi 10 giây — bỏ qua nếu đang có ảnh preview
-setInterval(() => {
-    if (currentConversationId) {
-        const imgInput = document.querySelector('#chatArea #adminImageInput');
-        if (imgInput && imgInput.files && imgInput.files[0]) return; // đang chọn ảnh, không refresh
-        const activeConv = document.querySelector('.conversation-item.active');
-        if (activeConv) loadConversation(activeConv);
-    }
-}, 10000);
 </script>
 @endsection
