@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('banners', function (Blueprint $table) {
-            $table->enum('page', ['home', 'products', 'all'])->default('all')->after('banner_type');
+            $table->string('page')->default('all')->after('banner_type');
         });
     }
 

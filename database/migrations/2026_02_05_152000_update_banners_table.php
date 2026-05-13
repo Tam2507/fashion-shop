@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->string('background_color')->default('#8B3A3A');
             $table->string('text_color')->default('#FFFFFF');
-            $table->enum('banner_type', ['hero', 'promotion', 'announcement'])->default('hero');
+            $table->string('banner_type')->default('hero');
             $table->timestamps();
         });
     }

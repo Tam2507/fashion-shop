@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('guest_email')->nullable();
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['received', 'processing', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'])->default('received');
+            $table->string('status')->default('received');
             $table->text('shipping_address');
             $table->text('billing_address')->nullable();
             $table->string('coupon_code')->nullable();

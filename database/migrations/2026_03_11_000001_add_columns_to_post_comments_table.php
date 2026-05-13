@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('guest_name')->nullable()->after('user_id');
             $table->string('guest_email')->nullable()->after('guest_name');
             $table->text('content')->after('guest_email');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('approved')->after('content');
+            $table->string('status')->default('approved')->after('content');
         });
     }
 

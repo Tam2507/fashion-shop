@@ -7,11 +7,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('received','processing','confirmed','shipping','shipped','delivered','cancelled','refunded') DEFAULT 'received'");
+        // Column is string type - no ALTER TABLE needed
+        // 'shipping' status is already valid as a string value
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('received','processing','confirmed','shipped','delivered','cancelled','refunded') DEFAULT 'received'");
+        // Nothing to revert
     }
 };

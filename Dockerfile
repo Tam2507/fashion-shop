@@ -4,7 +4,8 @@ RUN apk add --no-cache \
     nginx \
     git curl zip unzip \
     libpng-dev libzip-dev oniguruma-dev \
-    && docker-php-ext-install pdo pdo_mysql gd zip bcmath mbstring
+    postgresql-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql gd zip bcmath mbstring
 
 # Tăng giới hạn upload PHP
 RUN echo "upload_max_filesize=20M" > /usr/local/etc/php/conf.d/uploads.ini \
