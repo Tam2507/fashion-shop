@@ -106,6 +106,14 @@ class PostController extends Controller
             }
         }
 
+        // Tự động xóa ảnh lưu local (không phải Cloudinary) vì Railway không giữ file sau redeploy
+        foreach ($post->images as $image) {
+            if (!str_starts_with($image->image_path, 'http')) {
+                // Path local, file đã mất sau redeploy → xóa record
+                $image->delete();
+            }
+        }
+
         if ($request->hasFile('post_images')) {
             $svc = new ImageUploadService;
             $maxPosition = $post->images()->max('position') ?? 0;
