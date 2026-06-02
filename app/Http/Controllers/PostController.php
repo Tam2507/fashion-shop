@@ -91,6 +91,9 @@ class PostController extends Controller
             $validated['featured_image'] = (new ImageUploadService)->upload($request->file('featured_image'), 'posts');
         }
 
+        // Loại bỏ các key không phải cột DB trước khi update
+        unset($validated['remove_images'], $validated['remove_featured_image']);
+
         $post->update($validated);
 
         if ($request->filled('remove_images')) {

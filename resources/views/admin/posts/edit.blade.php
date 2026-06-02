@@ -220,15 +220,15 @@ function removeCurrentFeaturedImage() {
 
 // Remove existing image
 function removeExistingImage(imageId) {
-    if (confirm('Xóa ảnh này?')) {
-        document.getElementById(`existing-image-${imageId}`).style.display = 'none';
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'remove_images[]';
-        input.value = imageId;
-        document.querySelector('form').appendChild(input);
-    }
+    document.getElementById(`existing-image-${imageId}`).style.display = 'none';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'remove_images[]';
+    input.value = imageId;
+    document.querySelector('form').appendChild(input);
+    
+    console.log('Marked for removal:', imageId, '| Form inputs:', document.querySelectorAll('input[name="remove_images[]"]').length);
 }
 
 // Preview single image
