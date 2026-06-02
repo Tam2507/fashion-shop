@@ -221,21 +221,13 @@ function removeCurrentFeaturedImage() {
 // Remove existing image
 function removeExistingImage(imageId) {
     if (confirm('Xóa ảnh này?')) {
-        // Hide the image
         document.getElementById(`existing-image-${imageId}`).style.display = 'none';
         
-        // Add to remove list
-        imagesToRemove.push(imageId);
-        
-        // Update hidden input
-        const form = document.querySelector('form');
-        imagesToRemove.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'remove_images[]';
-            input.value = id;
-            form.appendChild(input);
-        });
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'remove_images[]';
+        input.value = imageId;
+        document.querySelector('form').appendChild(input);
     }
 }
 
